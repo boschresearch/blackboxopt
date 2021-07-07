@@ -25,7 +25,7 @@ pandas = {version = "^1.2.4", optional = true}
 black = "^20.8b1"
 isort = "^5.7.0"
 pytest = "^6.2.2"
-mypy = "^0.800"
+mypy = "^0.910"
 pytest-timeout = "^1.4.2"
 mkdocs = "^1.1.2"
 mkdocstrings = "^0.15.0"
@@ -42,6 +42,10 @@ bohb = ["numpy", "scipy", "statsmodels"]
 dask = ["dask", "distributed"]
 visualization = ["plotly", "scipy", "pandas"]
 testing = ["numpy"]
+
+[tool.mypy]
+ignore_missing_imports = true
+no_strict_optional = true
 
 [tool.black]
 line-length = 88
