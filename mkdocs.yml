@@ -1,0 +1,86 @@
+site_name: Blackbox Optimization
+
+theme:
+  name: material
+  palette:
+    primary: black
+    accent: light blue
+
+copyright: |
+  <center>
+  <p>Copyright (c) 2020 - for information on the respective copyright owner
+  see the NOTICE file and/or the
+  <a href=" https://github.com/boschresearch/blackboxopt">project repository</a>
+  </p>
+  <center>
+
+extra_css:
+  - extra.css
+
+nav:
+  - Overview: index.md
+  - Examples:
+      - Overview: examples/overview.md
+      - examples/dask-distributed.md
+  - ...
+
+plugins:
+  - search
+  - gen-files:
+      # 'module' & 'exclude' throw a "Config value" warnings, as they are custom values
+      module: blackboxopt
+      exclude:
+        - "/examples"
+        - "__init__"
+      scripts:
+        - docs/generate_references.py
+  - awesome-pages
+  - mkdocstrings:
+      watch: [mkdocs_gen_files]
+      handlers:
+        python:
+          selection:
+            # Do also show members from parent classes,
+            # especially useful for the optimizers
+            inherited_members: true
+            # Including inherited members does unfortunately
+            # also show very basic parameters from the pydantic.BaseModel
+            # In principle, only those with a docstring are shown,
+            # but we do not want to overload the documentation, so we exclude it
+            filters:
+              # ... every private member (include __gt__, __init__ etc.)
+              - "!^_"
+              # the Config member every pydantic class has
+              # (would be too much information)
+              - "!Config"
+              # the fields member of every model, which contains the schema
+              # information. This is only created on runtime, so it can not
+              # be properly used in the documentation and generates some
+              # warnings (as there is no "source code")
+              - "!fields"
+          rendering:
+            show_root_heading: true
+            show_root_full_path: true
+            show_object_full_path: false
+            show_root_toc_entry: true
+            show_root_members_full_path: false
+            show_category_heading: false
+            show_if_no_docstring: false
+            show_source: true
+            group_by_category: false
+            heading_level: 1
+            show_signature_annotations: false
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path: "./"
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/config.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
