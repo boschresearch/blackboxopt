@@ -55,7 +55,10 @@ def raise_on_unknown_or_incomplete_objectives(
 
     unknown = reported - known
     if unknown:
-        raise ObjectivesError(f"Unknown objectives reported: {list(unknown)}")
+        raise ObjectivesError(
+            f"Unknown objectives reported: {list(unknown)}. "
+            + f"Valid objectives are only: {list(known)}"
+        )
 
     missing = known - reported
     if missing:
