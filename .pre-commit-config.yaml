@@ -1,0 +1,43 @@
+# Update 'rev' (versions) for all hooks with `pre-commit autoupdate`
+repos:
+  - repo: https://github.com/psf/black
+    rev: 21.5b1
+    hooks:
+      - id: black
+      - id: black
+        # Check shorter line-length for examples (better with mkdocs)
+        args: ["--line-length", "80"]
+        files: ^blackboxopt/examples/
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.8.0
+    hooks:
+      - id: isort
+      - id: isort
+        # Check shorter line-length for examples (better with mkdocs)
+        args: ["--profile", "black", "--line-length", "80"]
+        files: ^blackboxopt/examples/
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "v0.812"
+    hooks:
+      - id: mypy
+        args: [--no-strict-optional, --ignore-missing-imports]
+        additional_dependencies: [parameterspace>=0.7.2]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v4.0.1"
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+      - id: check-case-conflict
+  - repo: local
+    hooks:
+      - id: pylint
+        # Use local pylint to avoid duplicating settings and allow dynamic checks
+        name: pylint
+        entry: poetry run pylint --errors-only
+        language: system
+        types: [python]
