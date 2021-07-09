@@ -167,6 +167,25 @@ def test_multi_objective_visualization_no_successful_evaluations():
         )
 
 
+def test_multi_objective_visualization_all_none_evaluations():
+    evaluations_with_all_objectives_none = [
+        Evaluation(
+            objectives={"loss_1": None, "loss_2": None},
+            configuration={
+                "mlp_shape": 0.14054333845130684,
+                "optimizer": "Adam",
+                "batch_size": 160,
+            },
+            optimizer_info={"rung": -1},
+            user_info={},
+            settings={"fidelity": 2.5},
+        )
+        for _ in range(5)
+    ]
+    with pytest.raises(NoSuccessfulEvaluationsError):
+        multi_objective_visualization(evaluations_with_all_objectives_none)
+
+
 def test_mask_pareto_efficient():
 
     evals = np.array(
