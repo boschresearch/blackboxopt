@@ -24,6 +24,7 @@ def test_raise_on_unknown_or_incomplete_objectives():
             known_objectives=[Objective("mse", False)],
             reported_objectives={"mse": 1.0, "surprise": 1.0},
         )
+    assert "mse" in str(exception.value).lower()
     assert "unknown" in str(exception.value).lower()
     assert "surprise" in str(exception.value)
 
