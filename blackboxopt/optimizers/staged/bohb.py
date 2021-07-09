@@ -176,7 +176,7 @@ class Sampler(StagedIterationConfigurationSampler):
 
         self.kde_vartypes = ""
 
-        vartypes = []
+        vartypes: List[Union[float, int]] = []
         for hp in search_space:
             hp = hp["parameter"]
             if isinstance(hp, (ps.ContinuousParameter, ps.IntegerParameter)):

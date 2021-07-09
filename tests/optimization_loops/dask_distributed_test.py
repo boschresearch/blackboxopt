@@ -3,13 +3,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# Pylint doesn't handle well fixtures:
+# pylint: disable=unused-import
+# pylint: disable=redefined-outer-name
+
 import logging
 
 import dask
 import dask.distributed as dd
 import parameterspace as ps
 import pytest
-from distributed.utils_test import client, cluster_fixture, loop  # noqa
+from distributed.utils_test import client, cluster_fixture, loop
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.optimization_loops.dask_distributed import (
@@ -68,7 +72,8 @@ def test_restarting_workers(tmpdir):
     assert not res[0].all_objectives_none
     assert res[0].objectives["loss"] == 0
 
-    # shutdown everything to avoid warning because TemporaryDirectory will be cleaned up first
+    # shutdown everything to avoid warning because
+    # TemporaryDirectory will be cleaned up first
     scheduler.shutdown()
     del client
     del cluster
