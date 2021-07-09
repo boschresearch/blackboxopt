@@ -11,7 +11,7 @@ import parameterspace as ps
 import pytest
 from distributed.utils_test import client, cluster_fixture, loop  # noqa
 
-from blackboxopt import Objective, Evaluation, EvaluationSpecification
+from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.optimization_loops.dask_distributed import (
     MinimalDaskScheduler,
     run_optimization_loop,
