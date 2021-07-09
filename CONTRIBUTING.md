@@ -4,7 +4,7 @@ Want to contribute? Great! You can do so through the standard GitHub pull
 request model. For large contributions we do encourage you to file a ticket in
 the GitHub issues tracking system prior to any code development to coordinate
 with the blackboxopt development team early in the process. Coordinating up
-front helps to avoid frustration later on.  
+front helps to avoid frustration later on.
 Please follow the conventiones outlined by the pre-commit hooks mentioned in the
 repository README and add tests for the functionality you would like to contribute.
 
@@ -78,7 +78,7 @@ email address.
 
 If you have set your `user.name` and `user.email` git configs you can
 automatically sign the commit by running the git-commit command with the `-s`
-option.  
+option.
 There may be multiple sign-offs if more than one developer was
 involved in authoring the contribution.
 

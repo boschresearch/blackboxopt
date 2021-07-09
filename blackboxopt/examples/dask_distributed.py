@@ -13,7 +13,7 @@ except ImportError:
         + "Make sure to install blackboxopt[dask]"
     )
 
-from blackboxopt import EvaluationSpecification, Objective, Evaluation
+from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.optimization_loops.dask_distributed import (
     run_optimization_loop,
 )

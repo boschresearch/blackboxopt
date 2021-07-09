@@ -1,0 +1,50 @@
+name: ci-cd-pipeline
+
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    container: python:3.8-slim
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install --extras "all"
+      - name: Formatting
+        if: always()
+        run: |
+          poetry run black --check --exclude blackboxopt/examples/ .
+          poetry run black --check --include blackboxopt/examples/ --line-length 80 .
+      - name: Sorted Imports
+        if: always()
+        run: |
+          poetry run isort --check-only --profile black --line-length 88 --skip-glob blackboxopt/examples/* .
+          poetry run isort --check-only --profile black --line-length 80 blackboxopt/examples/
+      - name: Type Checks
+        if: always()
+        run: poetry run mypy --config-file pyproject.toml .
+      - name: Linting
+        if: always()
+        run: |
+          poetry run pylint --errors-only blackboxopt/
+          poetry run pylint --errors-only tests/
+      - name: Run tests
+        if: always()
+        run: poetry run pytest
+  deploy:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-20.04
+    container: python:3.8-slim
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          pip install poetry
+      - name: Release
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          poetry config pypi-token.pypi $PYPI_TOKEN
+          poetry publish --build
