@@ -8,7 +8,7 @@ from typing import Callable
 
 import parameterspace as ps
 
-from blackboxopt import EvaluationSpecification, Evaluation, Objective
+from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.optimizers.random_search import RandomSearch
 
 SPACE = ps.ParameterSpace()

@@ -8,6 +8,7 @@
 # pylint: disable=redefined-outer-name
 
 import logging
+import time
 
 import dask
 import dask.distributed as dd
@@ -64,6 +65,10 @@ def test_restarting_workers(tmpdir):
     scheduler.submit(evaluation_function_cause_worker_restart, eval_spec)
     res = scheduler.check_for_results(20)
     assert res[0].all_objectives_none
+
+    # Wait until scheduler available
+    while not scheduler.has_capacity():
+        time.sleep(0.05)
 
     # make sure that the worker is still functional
     eval_spec.configuration["exit"] = False
