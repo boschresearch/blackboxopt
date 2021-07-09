@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "blackboxopt"
-version = "1.0.0"
+version = "1.0.1"
 description = "A common interface for blackbox optimization algorithms along with useful helpers like parallel optimization loops, analysis and visualization scripts."
 authors = ["Bosch Center for AI, Robert Bosch GmbH"]
 license = "Apache-2.0"
