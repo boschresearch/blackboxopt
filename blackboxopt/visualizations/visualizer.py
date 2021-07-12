@@ -105,12 +105,10 @@ def multi_objective_visualization(evaluations: List[Evaluation]):
     df["created_unixtime"] = df["created_unixtime"].dt.round("1s")
 
     # Add important data to "info" section in hovertext and remove "objectives-section"
-    hover_sections["info"] += objective_columns + [
-        "fidelity",
-        "pareto efficient",
-        "created_unixtime",
-        "duration",
-    ]
+    hover_sections["info"] += objective_columns
+    if "fidelity" in df.columns:
+        hover_sections["info"] += ["fidelity"]
+    hover_sections["info"] += ["pareto efficient", "created_unixtime", "duration"]
 
     # Create hover template and list of corresponding dataframe column names
     hover_template, hover_data_columns = create_hover_information(hover_sections)

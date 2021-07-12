@@ -9,7 +9,7 @@ import os
 import numpy as np
 import pytest
 
-from blackboxopt import Evaluation
+from blackboxopt import Evaluation, EvaluationSpecification
 from blackboxopt.visualizations.utils import mask_pareto_efficient
 from blackboxopt.visualizations.visualizer import (
     NoSuccessfulEvaluationsError,
@@ -184,6 +184,21 @@ def test_multi_objective_visualization_all_none_evaluations():
     ]
     with pytest.raises(NoSuccessfulEvaluationsError):
         multi_objective_visualization(evaluations_with_all_objectives_none)
+
+
+def test_multi_objective_visualization_without_fidelities():
+    evaluations = [
+        EvaluationSpecification(configuration={"p1": 1.23}),
+        Evaluation(
+            configuration={"p1": 1.3},
+            objectives={"loss": 1.4, "score": 9001},
+        ),
+        Evaluation(
+            configuration={"p1": 2.3},
+            objectives={"loss": 0.4, "score": 9200},
+        ),
+    ]
+    multi_objective_visualization(evaluations)
 
 
 def test_mask_pareto_efficient():
