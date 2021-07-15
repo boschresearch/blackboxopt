@@ -20,6 +20,10 @@ Before using it in a safety relevant setting, make sure that the software fulfil
 requirements and adjust it according to any applicable safety standards
 (e.g. ISO 26262).
 
+## Documentation
+
+**Visit [boschresearch.github.io/blackboxopt](https://boschresearch.github.io/blackboxopt/)**
+
 ## Development
 
 Install poetry
