@@ -1,4 +1,8 @@
 site_name: Blackbox Optimization
+site_description: "Various blackbox optimization algorithms with a common interface."
+site_url: "https://boschresearch.github.io/blackboxopt/"
+repo_url: "https://github.com/boschresearch/blackboxopt"
+repo_name: "boschresearch/blackboxopt"
 
 theme:
   name: material
@@ -13,6 +17,10 @@ copyright: |
   <a href=" https://github.com/boschresearch/blackboxopt">project repository</a>
   </p>
   <center>
+
+extra:
+  version:
+    provider: mike
 
 extra_css:
   - extra.css
@@ -36,7 +44,7 @@ plugins:
         - docs/generate_references.py
   - awesome-pages
   - mkdocstrings:
-      watch: [mkdocs_gen_files]
+      watch: [blackboxopt]
       handlers:
         python:
           selection:
