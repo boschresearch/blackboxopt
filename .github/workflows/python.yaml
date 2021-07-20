@@ -68,7 +68,7 @@ jobs:
       - name: Setup git author and version tag
         run: |
           git config --global user.name docs deploy
-          git config --global user.email docs@not.a.real.email.org
+          git config --global user.email docs@github-action.local
           echo "RELEASE_TAG_VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
       - name: Publish
         run: |
