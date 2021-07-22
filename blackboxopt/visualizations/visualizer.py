@@ -70,6 +70,9 @@ def evaluations_to_df(evaluations: List[Evaluation]) -> pd.DataFrame:
         df_temp.columns = pd.MultiIndex.from_product(
             [[column], df_temp.columns], names=["group", "field"]
         )
+        # Drop empty columns
+        df_temp = df_temp.dropna(axis=1, how="all")
+
         dfs_expanded.append(df_temp)
 
     df = pd.concat(dfs_expanded, join="outer", axis=1)
