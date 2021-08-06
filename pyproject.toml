@@ -39,6 +39,7 @@ mkdocs-gen-files = "^0.3.1"
 mkdocs-awesome-pages-plugin = "^2.5.0"
 mike = "^1.0.1"
 pylint = "^2.8.2"
+pydocstyle = "^6.1.1"
 
 [tool.poetry.extras]
 all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas"]
@@ -84,6 +85,12 @@ disable = [
     "too-few-public-methods",
     "too-many-function-args"
 ]
+
+[tool.pydocstyle]
+convention = "google"
+add-ignore = "D105"
+match = '(?!test_|__init__).*\.py'
+match-dir = '[^\tests].*'
 
 [tool.coverage.run]
 source = ['blackboxopt']
