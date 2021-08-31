@@ -9,29 +9,32 @@ from blackboxopt.base import (
     Objective,
     ObjectivesError,
     _raise_on_duplicate_objective_names,
-    raise_on_unknown_or_incomplete_objectives,
+    raise_on_unknown_or_incomplete,
 )
 
 
 def test_raise_on_unknown_or_incomplete_objectives():
-    raise_on_unknown_or_incomplete_objectives(
-        known_objectives=[Objective("mse", False)],
-        reported_objectives={"mse": 1.0},
+    raise_on_unknown_or_incomplete(
+        exception=ObjectivesError,
+        known=["mse"],
+        reported=["mse"],
     )
 
     with pytest.raises(ObjectivesError) as exception:
-        raise_on_unknown_or_incomplete_objectives(
-            known_objectives=[Objective("mse", False)],
-            reported_objectives={"mse": 1.0, "surprise": 1.0},
+        raise_on_unknown_or_incomplete(
+            exception=ObjectivesError,
+            known=["mse"],
+            reported=["mse", "surprise"],
         )
     assert "mse" in str(exception.value).lower()
     assert "unknown" in str(exception.value).lower()
     assert "surprise" in str(exception.value)
 
     with pytest.raises(ObjectivesError) as exception:
-        raise_on_unknown_or_incomplete_objectives(
-            known_objectives=[Objective("mse", False), Objective("r²", True)],
-            reported_objectives={"mse": 1.0},
+        raise_on_unknown_or_incomplete(
+            exception=ObjectivesError,
+            known=["mse", "r²"],
+            reported=["mse"],
         )
     assert "missing" in str(exception.value).lower()
     assert "r²" in str(exception.value)

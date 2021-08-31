@@ -6,7 +6,7 @@
 import abc
 import collections
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Optional, Type
 
 from parameterspace.base import SearchSpace
 
@@ -29,6 +29,10 @@ class ObjectivesError(ValueError):
     """Raised on incomplete or missing objectives."""
 
 
+class ConstraintsError(ValueError):
+    """Raised on incomplete or missing constraints."""
+
+
 @dataclass
 class Objective:
     name: str
@@ -47,21 +51,23 @@ def _raise_on_duplicate_objective_names(objectives: List[Objective]) -> None:
         )
 
 
-def raise_on_unknown_or_incomplete_objectives(
-    known_objectives: List[Objective], reported_objectives: Dict[str, Optional[float]]
+def raise_on_unknown_or_incomplete(
+    exception: Type[ValueError], known: Iterable[str], reported: Iterable[str]
 ) -> None:
-    known = {o.name for o in known_objectives}
-    reported = set(reported_objectives.keys())
+    """Raise the given exception if not all known strings are contained in reported or
+    the other way around.
+    """
+    known_set = set(known)
+    reported_set = set(reported)
 
-    unknown = reported - known
+    unknown = reported_set - known_set
     if unknown:
-        raise ObjectivesError(
-            f"Unknown objectives reported: {list(unknown)}. "
-            + f"Valid objectives are only: {list(known)}"
+        raise exception(
+            f"Unknown reported: {list(unknown)}. Valid are only: {list(known_set)}"
         )
-    missing = known - reported
+    missing = known_set - reported_set
     if missing:
-        raise ObjectivesError(f"Missing objectives: {list(missing)}")
+        raise exception(f"Missing: {list(missing)}")
 
 
 class Optimizer(abc.ABC):
@@ -124,9 +130,10 @@ class SingleObjectiveOptimizer(Optimizer):
         self.objective = objective
 
     def report_evaluation(self, evaluation: Evaluation) -> None:
-        raise_on_unknown_or_incomplete_objectives(
-            known_objectives=[self.objective],
-            reported_objectives=evaluation.objectives,
+        raise_on_unknown_or_incomplete(
+            exception=ObjectivesError,
+            known=[self.objective.name],
+            reported=evaluation.objectives.keys(),
         )
 
         super().report_evaluation(evaluation)
@@ -153,9 +160,10 @@ class MultiObjectiveOptimizer(Optimizer):
         self.objectives = objectives
 
     def report_evaluation(self, evaluation: Evaluation) -> None:
-        raise_on_unknown_or_incomplete_objectives(
-            known_objectives=self.objectives,
-            reported_objectives=evaluation.objectives,
+        raise_on_unknown_or_incomplete(
+            exception=ObjectivesError,
+            known=[o.name for o in self.objectives],
+            reported=evaluation.objectives.keys(),
         )
 
         super().report_evaluation(evaluation)
