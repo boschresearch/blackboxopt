@@ -61,7 +61,7 @@ def evaluation_function_wrapper(
         logger.warning("Report FAILURE due to unhandled error during evaluation")
         logger.debug(stacktrace)
 
-        evaluation = evaluation_specification.get_evaluation(
+        evaluation = evaluation_specification.create_evaluation(
             stacktrace=stacktrace, objectives={o.name: None for o in objectives}
         )
 

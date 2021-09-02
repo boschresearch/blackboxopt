@@ -43,7 +43,7 @@ def test_evaluate_specification_into_result():
         settings={"fidelity": 1.0},
         optimizer_info={"id": 123},
     )
-    result = evaluation_spec.get_evaluation(objectives={"mse": 0.0, "r²": 1.0})
+    result = evaluation_spec.create_evaluation(objectives={"mse": 0.0, "r²": 1.0})
     assert "p1" in result.configuration
     assert "id" in result.optimizer_info
     assert "fidelity" in result.settings
@@ -109,7 +109,7 @@ def test_get_specification_from_evaluation():
         settings={"fidelity": 1.0},
         optimizer_info={"id": 123},
     )
-    result = eval_spec.get_evaluation({"mse": 0.0, "r²": 1.0})
+    result = eval_spec.create_evaluation({"mse": 0.0, "r²": 1.0})
 
     assert result.get_specification() == eval_spec
 
