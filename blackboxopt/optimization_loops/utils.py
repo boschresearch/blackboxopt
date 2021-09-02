@@ -9,7 +9,7 @@ import traceback
 from typing import Callable, List
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
-from blackboxopt.base import raise_on_unknown_or_incomplete_objectives
+from blackboxopt.base import ObjectivesError, raise_on_unknown_or_incomplete
 
 
 def init_max_evaluations_with_limit_logging(
@@ -65,8 +65,10 @@ def evaluation_function_wrapper(
             stacktrace=stacktrace, objectives={o.name: None for o in objectives}
         )
 
-    raise_on_unknown_or_incomplete_objectives(
-        known_objectives=objectives, reported_objectives=evaluation.objectives
+    raise_on_unknown_or_incomplete(
+        exception=ObjectivesError,
+        known=[o.name for o in objectives],
+        reported=evaluation.objectives.keys(),
     )
 
     return evaluation
