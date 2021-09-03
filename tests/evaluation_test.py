@@ -88,7 +88,7 @@ def test_to_json():
     spec_json = spec.to_json()
     assert spec_json == (
         '{"configuration": {"p1": 1.2}, "settings": {"fidelity": 1.0}, '
-        '"optimizer_info": {"id": 123}, "created_unixtime": 1.0}'
+        '"optimizer_info": {"id": 123}, "created_unixtime": 1.0, "context": null}'
     )
 
     result = Evaluation(
@@ -98,8 +98,8 @@ def test_to_json():
     assert result_json == (
         '{"objectives": {"mse": 0.0, "r\\u00b2": 1.0}, "configuration": {"p1": 1.2}, '
         '"settings": {"fidelity": 1.0}, "optimizer_info": {"id": 123}, '
-        '"created_unixtime": 1.0, "finished_unixtime": 2.0, "stacktrace": null, '
-        '"user_info": null}'
+        '"created_unixtime": 1.0, "context": null, "constraints": null, '
+        '"finished_unixtime": 2.0, "stacktrace": null, "user_info": null}'
     )
 
 
