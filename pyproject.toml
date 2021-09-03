@@ -26,7 +26,7 @@ distributed = {version = "^2021.2.0", optional = true}
 pandas = {version = "^1.2.4", optional = true}
 
 [tool.poetry.dev-dependencies]
-black = "^20.8b1"
+black = "^21.8b0"
 isort = "^5.7.0"
 pytest = "^6.2.2"
 mypy = "^0.910"
