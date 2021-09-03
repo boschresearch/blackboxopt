@@ -34,14 +34,16 @@ def test_bohb_sequential():
     for i in range(3):
         es = opt.get_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (0, 0, i)
-        opt.report_evaluation(es.create_evaluation(objectives={"loss": i}))
+        evaluation = es.create_evaluation(objectives={"loss": i})
+        opt.report_evaluations([evaluation])
     es = opt.get_evaluation_specification()
     assert es.optimizer_info["configuration_key"] == (0, 0, 0)
 
     with pytest.raises(OptimizerNotReady):
         opt.get_evaluation_specification()
 
-    opt.report_evaluation(es.create_evaluation(objectives={"loss": 0.0}))
+    evaluation = es.create_evaluation(objectives={"loss": 0.0})
+    opt.report_evaluations([evaluation])
 
     with pytest.raises(OptimizationComplete):
         opt.get_evaluation_specification()
@@ -70,7 +72,8 @@ def test_bohb_parallel():
     assert len(opt.pending_configurations) == 3
 
     for i, eval_spec in enumerate(eval_specs):
-        opt.report_evaluation(eval_spec.create_evaluation(objectives={"loss": i}))
+        evaluation = eval_spec.create_evaluation(objectives={"loss": i})
+        opt.report_evaluations([evaluation])
 
     assert len(opt.pending_configurations) == 0
 
@@ -137,20 +140,20 @@ def test_bohb_sequential_with_failed_evaluations(n_evaluations=16):
     for i in range(n_evaluations // 2):
         es = opt.get_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
-
         if np.random.rand() < 0.8:
-            opt.report_evaluation(
-                es.create_evaluation(objectives={"loss": es.configuration["p1"]})
+            evaluation = es.create_evaluation(
+                objectives={"loss": es.configuration["p1"]}
             )
         else:
-            opt.report_evaluation(es.create_evaluation(objectives={"loss": None}))
+            evaluation = es.create_evaluation(objectives={"loss": None})
+        opt.report_evaluations([evaluation])
+
     for i in range(n_evaluations // 2, n_evaluations):
         es = opt.get_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
         assert es.optimizer_info["model_based_pick"]
-        opt.report_evaluation(
-            es.create_evaluation(objectives={"loss": es.configuration["p1"]})
-        )
+        evaluation = es.create_evaluation(objectives={"loss": es.configuration["p1"]})
+        opt.report_evaluations([evaluation])
 
     with pytest.raises(OptimizationComplete):
         opt.get_evaluation_specification()
@@ -183,23 +186,21 @@ def test_bohb_sequential_with_non_finite_losses(n_evaluations=16):
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
 
         if i // len(return_values) == 0:
-            opt.report_evaluation(
-                es.create_evaluation(objectives={"loss": es.configuration["p1"]})
+            evaluation = es.create_evaluation(
+                objectives={"loss": es.configuration["p1"]}
             )
         else:
-            opt.report_evaluation(
-                es.create_evaluation(
-                    result={"loss": return_values[i // len(return_values)]}
-                )
+            evaluation = es.create_evaluation(
+                result={"loss": return_values[i // len(return_values)]}
             )
+        opt.report_evaluations([evaluation])
 
     for i in range(n_evaluations // 2, n_evaluations):
         es = opt.get_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
         assert es.optimizer_info["model_based_pick"]
-        opt.report_evaluation(
-            es.create_evaluation(objectives={"loss": es.configuration["p1"]})
-        )
+        evaluation = es.create_evaluation(objectives={"loss": es.configuration["p1"]})
+        opt.report_evaluations([evaluation])
 
     with pytest.raises(OptimizationComplete):
         opt.get_evaluation_specification()

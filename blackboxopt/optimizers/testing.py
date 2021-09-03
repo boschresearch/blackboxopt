@@ -68,13 +68,12 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     eval_spec = optimizer.get_evaluation_specification()
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
-        optimizer.report_evaluation(
-            eval_spec.create_evaluation(objectives={"loss": None, "score": None})
+        evaluation = eval_spec.create_evaluation(
+            objectives={"loss": None, "score": None}
         )
     else:
-        optimizer.report_evaluation(
-            eval_spec.create_evaluation(objectives={"loss": None})
-        )
+        evaluation = eval_spec.create_evaluation(objectives={"loss": None})
+    optimizer.report_evaluations([evaluation])
 
     for _ in range(n_max_evaluations):
 
@@ -89,9 +88,8 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         else:
             evaluation_result = {"loss": loss}
 
-        optimizer.report_evaluation(
-            eval_spec.create_evaluation(objectives=evaluation_result)
-        )
+        evaluation = eval_spec.create_evaluation(objectives=evaluation_result)
+        optimizer.report_evaluations([evaluation])
 
     return True
 
@@ -124,7 +122,8 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
         )
 
         es1 = opt.get_evaluation_specification()
-        opt.report_evaluation(es1.create_evaluation(objectives={"loss": 0.42}))
+        evaluation1 = es1.create_evaluation(objectives={"loss": 0.42})
+        opt.report_evaluations([evaluation1])
         es2 = opt.get_evaluation_specification()
 
         final_configurations.append(es2.configuration.copy())
@@ -145,7 +144,8 @@ def raises_objectives_error_when_reporting_unknown_objective(
     es = opt.get_evaluation_specification()
 
     try:
-        opt.report_evaluation(es.create_evaluation(objectives={"unknown_objective": 0}))
+        evaluation = es.create_evaluation(objectives={"unknown_objective": 0})
+        opt.report_evaluations([evaluation])
 
         raise AssertionError(
             f"Optimizer {optimizer_class} did not raise an ObjectivesError when a "

@@ -5,7 +5,7 @@
 
 import abc
 import logging
-from typing import Dict, List
+from typing import Dict, Iterable, List
 
 from parameterspace.base import SearchSpace
 
@@ -46,20 +46,27 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         self.evaluation_uuid_to_iteration: Dict[str, int] = {}
         self.pending_configurations: Dict[str, EvaluationSpecification] = {}
 
-    def report_evaluation(self, evaluation: Evaluation) -> None:
-        super().report_evaluation(evaluation)
+    def report_evaluations(self, evaluations: Iterable[Evaluation]) -> None:
+        super().report_evaluations(evaluations)
 
-        evaluation_specification_id = evaluation.optimizer_info.get("id")
-        if evaluation_specification_id is None:
+        missing_ids_count = sum(e.optimizer_info.get("id") is None for e in evaluations)
+        if missing_ids_count > 0:
             raise ValueError(
-                "Missing evaluation specification ID in optimizer info. Did you try to "
-                + "report an evaluation for a configuration which the optimizer did not"
-                " pick? This is not supported at the moment."
+                f"{missing_ids_count} evaluation(s) miss an evaluation specification ID"
+                + "in the optimizer info. "
+                + "Did you try to report evaluations for configurations which the "
+                + "optimizer did no pick? This is not supported at the moment."
             )
 
-        self.pending_configurations.pop(str(evaluation_specification_id))
-        idx = self.evaluation_uuid_to_iteration.pop(str(evaluation_specification_id))
-        self.iterations[idx].digest_evaluation(evaluation_specification_id, evaluation)
+        for evaluation in evaluations:
+            evaluation_specification_id = evaluation.optimizer_info.get("id")
+            self.pending_configurations.pop(str(evaluation_specification_id))
+            idx = self.evaluation_uuid_to_iteration.pop(
+                str(evaluation_specification_id)
+            )
+            self.iterations[idx].digest_evaluation(
+                evaluation_specification_id, evaluation
+            )
 
     def get_evaluation_specification(self) -> EvaluationSpecification:
         """Get next configuration and settings to evaluate.

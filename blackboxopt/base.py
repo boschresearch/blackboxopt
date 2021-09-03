@@ -104,14 +104,14 @@ class Optimizer(abc.ABC):
         """
 
     @abc.abstractmethod
-    def report_evaluation(self, evaluation: Evaluation) -> None:
-        """Report an evaluated evaluation specification.
+    def report_evaluations(self, evaluations: Iterable[Evaluation]) -> None:
+        """Report multiple evaluated evaluation specifications.
 
         NOTE: Not all optimizers support reporting results for evaluation specifications
         that were not proposed by the optimizer.
 
         Args:
-            evaluation: An evaluated evaluation specification.
+            evaluations: An iterable of evaluated evaluation specifications.
         """
 
 
@@ -133,14 +133,14 @@ class SingleObjectiveOptimizer(Optimizer):
         super().__init__(search_space=search_space, seed=seed)
         self.objective = objective
 
-    def report_evaluation(self, evaluation: Evaluation) -> None:
-        raise_on_unknown_or_incomplete(
-            exception=ObjectivesError,
-            known=[self.objective.name],
-            reported=evaluation.objectives.keys(),
-        )
-
-        super().report_evaluation(evaluation)
+    def report_evaluations(self, evaluations: Iterable[Evaluation]) -> None:
+        for evaluation in evaluations:
+            raise_on_unknown_or_incomplete(
+                exception=ObjectivesError,
+                known=[self.objective.name],
+                reported=evaluation.objectives.keys(),
+            )
+        super().report_evaluations(evaluations)
 
 
 class MultiObjectiveOptimizer(Optimizer):
@@ -163,11 +163,12 @@ class MultiObjectiveOptimizer(Optimizer):
         _raise_on_duplicate_objective_names(objectives)
         self.objectives = objectives
 
-    def report_evaluation(self, evaluation: Evaluation) -> None:
-        raise_on_unknown_or_incomplete(
-            exception=ObjectivesError,
-            known=[o.name for o in self.objectives],
-            reported=evaluation.objectives.keys(),
-        )
+    def report_evaluations(self, evaluations: Iterable[Evaluation]) -> None:
+        for evaluation in evaluations:
+            raise_on_unknown_or_incomplete(
+                exception=ObjectivesError,
+                known=[o.name for o in self.objectives],
+                reported=evaluation.objectives.keys(),
+            )
 
-        super().report_evaluation(evaluation)
+        super().report_evaluations(evaluations)

@@ -122,29 +122,26 @@ def test_sample_configurations():
     for _ in range(5):
         eval_spec = opt.get_evaluation_specification()
         assert not eval_spec.optimizer_info["model_based_pick"]
-        opt.report_evaluation(
-            eval_spec.create_evaluation(
-                objectives={"loss": eval_spec.configuration["x1"] ** 2}
-            )
+        evaluation = eval_spec.create_evaluation(
+            objectives={"loss": eval_spec.configuration["x1"] ** 2}
         )
+        opt.report_evaluations([evaluation])
 
     while eval_spec.optimizer_info["configuration_key"][0] == 0:
         eval_spec = opt.get_evaluation_specification()
-        opt.report_evaluation(
-            eval_spec.create_evaluation(
-                objectives={"loss": eval_spec.configuration["x1"] ** 2}
-            )
+        evaluation = eval_spec.create_evaluation(
+            objectives={"loss": eval_spec.configuration["x1"] ** 2}
         )
+        opt.report_evaluations([evaluation])
 
     while True:
         try:
             eval_spec = opt.get_evaluation_specification()
             assert eval_spec.optimizer_info["model_based_pick"]
-            opt.report_evaluation(
-                eval_spec.create_evaluation(
-                    objectives={"loss": eval_spec.configuration["x1"] ** 2}
-                )
+            evaluation = eval_spec.create_evaluation(
+                objectives={"loss": eval_spec.configuration["x1"] ** 2}
             )
+            opt.report_evaluations([evaluation])
         except OptimizationComplete:
             break
 
