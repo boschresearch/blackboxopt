@@ -17,7 +17,7 @@ SPACE.add(ps.ContinuousParameter("p1", [-1, 1]))
 
 def _evaluation_function(eval_spec: EvaluationSpecification) -> Evaluation:
     loss = eval_spec.configuration["p1"] ** 2
-    return eval_spec.get_evaluation(objectives={"loss": loss})
+    return eval_spec.create_evaluation(objectives={"loss": loss})
 
 
 def limit_with_max_evaluations(run_optimization_loop: Callable, loop_kwargs: dict):
@@ -66,7 +66,7 @@ def failing_evaluations(run_optimization_loop: Callable, loop_kwargs: dict):
 
 def reporting_user_info(run_optimization_loop: Callable, loop_kwargs: dict):
     def __evaluation_function(eval_spec):
-        return eval_spec.get_evaluation(
+        return eval_spec.create_evaluation(
             objectives={"loss": 1.0}, user_info={"user": "info"}
         )
 

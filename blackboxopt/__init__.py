@@ -10,4 +10,4 @@ from .base import (
     Optimizer,
     OptimizerNotReady,
 )
-from .evaluation import Evaluation, EvaluationSpecification, EvaluationWithConstraints
+from .evaluation import Evaluation, EvaluationSpecification

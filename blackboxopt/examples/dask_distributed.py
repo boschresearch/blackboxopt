@@ -21,7 +21,7 @@ from blackboxopt.optimizers.random_search import RandomSearch
 
 
 def evaluation_function(eval_spec: EvaluationSpecification) -> Evaluation:
-    return eval_spec.get_evaluation(
+    return eval_spec.create_evaluation(
         objectives={"loss": eval_spec.configuration["p1"] ** 2},
         user_info={"weather": "sunny"},
     )

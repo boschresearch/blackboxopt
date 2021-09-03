@@ -33,6 +33,10 @@ class ConstraintsError(ValueError):
     """Raised on incomplete or missing constraints."""
 
 
+class ContextError(ValueError):
+    """Raised on incomplete or missing context information."""
+
+
 @dataclass
 class Objective:
     name: str

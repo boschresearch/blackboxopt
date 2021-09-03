@@ -38,7 +38,7 @@ def evaluation_function_cause_worker_restart(
     if should_exit:
         exit(0)
     else:
-        return eval_spec.get_evaluation(objectives={"loss": 0.0})
+        return eval_spec.create_evaluation(objectives={"loss": 0.0})
 
 
 def test_restarting_workers(tmpdir):

@@ -17,36 +17,68 @@ class EvaluationSpecification(Mapping[str, Any]):
     configuration: dict = field(
         metadata={"Description": "The configuration to be evaluated next."}
     )
+
     settings: dict = field(
         default_factory=dict,
         metadata={
             "Description": "Additional settings like the fidelity or target task."
         },
     )
+
     optimizer_info: dict = field(
         default_factory=dict,
         metadata={"Description": "Information about and for internal optimizer state."},
     )
+
     created_unixtime: float = field(
         default_factory=time.time,
         metadata={"Description": "Creation time of the evaluation specificiation."},
     )
 
+    context: Optional[Dict[str, Any]] = field(
+        default=None,
+        metadata={
+            "Description": "Contextual information is what you can determine but not "
+            + "influence, like the environmental temperature."
+        },
+    )
+
     def keys(self):
         return self.__dataclass_fields__.keys()  # pylint: disable=no-member
 
-    def get_evaluation(
+    def create_evaluation(
         self,
         objectives: Dict[str, Optional[float]],
+        constraints: Optional[Dict[str, Optional[float]]] = None,
         user_info: Optional[dict] = None,
         stacktrace: Optional[str] = None,
         finished_unixtime: Optional[float] = None,
     ):
-        """Create blackboxopt.Evaluation based on this evaluation specification."""
+        """Create a blackboxopt.Evaluation based on this evaluation specification.
+
+        Args:
+            objectives: For each objective name the respective value.
+            constraints: For each constraint name the float value indicates how much the
+                constraint was satisfied, with negative values implying a violated and
+                positive values indicating a satisfied constraint.
+            user_info: Miscellaneous information provided by the user.
+            stacktrace: The stacktrace in case an unhandled exception occurred inside
+                the evaluation function.
+            finished_unixtime: Timestamp at completion of this evaluation. If none is
+                provided, the current time is used.
+        """
         evaluation = Evaluation(
-            objectives=objectives, user_info=user_info, stacktrace=stacktrace, **self
+            objectives=objectives,
+            constraints=constraints,
+            user_info=user_info,
+            stacktrace=stacktrace,
+            **self,
         )
 
+        # Data class default factories like in this case time.time are only triggered
+        # when the argument is not provided, so in case of it being None we can't just
+        # pass the argument value in, because it would set it to None instead of
+        # triggering the default factory for the current time.
         if finished_unixtime is not None:
             evaluation.finished_unixtime = finished_unixtime
 
@@ -104,6 +136,15 @@ class Evaluation(EvaluationSpecification, _EvaluationBase):
     NOTE: `NaN` is not allowed as an objective value, use `None` instead.
     """
 
+    constraints: Optional[Dict[str, Optional[float]]] = field(
+        default=None,
+        metadata={
+            "Description": "For each constraint name the float value indicates "
+            + "how much the constraint was satisfied, with negative values implying "
+            + "a violated and positive values indicating a satisfied constraint."
+        },
+    )
+
     finished_unixtime: float = field(
         default_factory=time.time,
         metadata={"Description": "Timestamp at completion of this evaluation."},
@@ -150,19 +191,3 @@ class Evaluation(EvaluationSpecification, _EvaluationBase):
     @property
     def all_objectives_none(self) -> bool:
         return all([v is None for v in self.objectives.values()])
-
-
-@dataclass
-class _EvaluationWithConstraintsBase:
-    constraints: Dict[str, Optional[float]] = field(
-        metadata={
-            "Description": "For each constraint name the float value indicates "
-            + "how much the constraint was satisfied, with negative values implying "
-            + "a violated and positive values indicating a satisfied constraint."
-        },
-    )
-
-
-@dataclass
-class EvaluationWithConstraints(Evaluation, _EvaluationWithConstraintsBase):
-    pass

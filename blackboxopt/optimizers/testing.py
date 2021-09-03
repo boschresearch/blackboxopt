@@ -69,10 +69,12 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
         optimizer.report_evaluation(
-            eval_spec.get_evaluation(objectives={"loss": None, "score": None})
+            eval_spec.create_evaluation(objectives={"loss": None, "score": None})
         )
     else:
-        optimizer.report_evaluation(eval_spec.get_evaluation(objectives={"loss": None}))
+        optimizer.report_evaluation(
+            eval_spec.create_evaluation(objectives={"loss": None})
+        )
 
     for _ in range(n_max_evaluations):
 
@@ -88,7 +90,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
             evaluation_result = {"loss": loss}
 
         optimizer.report_evaluation(
-            eval_spec.get_evaluation(objectives=evaluation_result)
+            eval_spec.create_evaluation(objectives=evaluation_result)
         )
 
     return True
@@ -122,7 +124,7 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
         )
 
         es1 = opt.get_evaluation_specification()
-        opt.report_evaluation(es1.get_evaluation(objectives={"loss": 0.42}))
+        opt.report_evaluation(es1.create_evaluation(objectives={"loss": 0.42}))
         es2 = opt.get_evaluation_specification()
 
         final_configurations.append(es2.configuration.copy())
@@ -143,7 +145,7 @@ def raises_objectives_error_when_reporting_unknown_objective(
     es = opt.get_evaluation_specification()
 
     try:
-        opt.report_evaluation(es.get_evaluation(objectives={"unknown_objective": 0}))
+        opt.report_evaluation(es.create_evaluation(objectives={"unknown_objective": 0}))
 
         raise AssertionError(
             f"Optimizer {optimizer_class} did not raise an ObjectivesError when a "

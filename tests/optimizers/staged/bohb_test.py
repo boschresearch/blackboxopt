@@ -123,7 +123,7 @@ def test_sample_configurations():
         eval_spec = opt.get_evaluation_specification()
         assert not eval_spec.optimizer_info["model_based_pick"]
         opt.report_evaluation(
-            eval_spec.get_evaluation(
+            eval_spec.create_evaluation(
                 objectives={"loss": eval_spec.configuration["x1"] ** 2}
             )
         )
@@ -131,7 +131,7 @@ def test_sample_configurations():
     while eval_spec.optimizer_info["configuration_key"][0] == 0:
         eval_spec = opt.get_evaluation_specification()
         opt.report_evaluation(
-            eval_spec.get_evaluation(
+            eval_spec.create_evaluation(
                 objectives={"loss": eval_spec.configuration["x1"] ** 2}
             )
         )
@@ -141,7 +141,7 @@ def test_sample_configurations():
             eval_spec = opt.get_evaluation_specification()
             assert eval_spec.optimizer_info["model_based_pick"]
             opt.report_evaluation(
-                eval_spec.get_evaluation(
+                eval_spec.create_evaluation(
                     objectives={"loss": eval_spec.configuration["x1"] ** 2}
                 )
             )
@@ -171,7 +171,7 @@ def test_bohb_sampler_fully_random():
         es = EvaluationSpecification(
             configuration=config_dict, settings={"fidelity": i}, optimizer_info=info
         )
-        sampler.digest_evaluation(es.get_evaluation(objectives={"loss": i}))
+        sampler.digest_evaluation(es.create_evaluation(objectives={"loss": i}))
 
 
 def test_bohb_sampler_no_random():
@@ -198,4 +198,4 @@ def test_bohb_sampler_no_random():
         es = EvaluationSpecification(
             configuration=config_dict, settings={"fidelity": i}, optimizer_info=info
         )
-        sampler.digest_evaluation(es.get_evaluation(objectives={"loss": i}))
+        sampler.digest_evaluation(es.create_evaluation(objectives={"loss": i}))

@@ -61,7 +61,7 @@ def test_staged_iteration_get_and_digest_configuration():
         assert eval_specs[-1].configuration["value"] == i
         iteration.digest_evaluation(
             eval_specs[-1].optimizer_info["id"],
-            eval_specs[-1].get_evaluation(objectives={"loss": i}),
+            eval_specs[-1].create_evaluation(objectives={"loss": i}),
         )
         # make sure that the stage has not completed yet
         assert iteration.current_stage == 0
@@ -78,7 +78,7 @@ def test_staged_iteration_get_and_digest_configuration():
     # digest it and see that the next stage is reached
     iteration.digest_evaluation(
         eval_specs[-1].optimizer_info["id"],
-        eval_specs[-1].get_evaluation(objectives={"loss": i}),
+        eval_specs[-1].create_evaluation(objectives={"loss": i}),
     )
     assert iteration.current_stage == 1
     assert not iteration.finished
@@ -87,7 +87,7 @@ def test_staged_iteration_get_and_digest_configuration():
     assert final_eval_spec.configuration["value"] == 0
     iteration.digest_evaluation(
         final_eval_spec.optimizer_info["id"],
-        final_eval_spec.get_evaluation(objectives={"loss": 0.0}),
+        final_eval_spec.create_evaluation(objectives={"loss": 0.0}),
     )
     assert iteration.finished
     assert iteration.get_evaluation_specification() is None
@@ -115,12 +115,12 @@ def test_staged_iteration_get_and_digest_configuration_with_crashes():
     for i in range(n_eval_specs - 1):
         iteration.digest_evaluation(
             eval_specs[i].optimizer_info["id"],
-            eval_specs[i].get_evaluation(objectives={"loss": i}),
+            eval_specs[i].create_evaluation(objectives={"loss": i}),
         )
 
     iteration.digest_evaluation(
         eval_specs[n_eval_specs - 1].optimizer_info["id"],
-        eval_specs[n_eval_specs - 1].get_evaluation(objectives={"loss": None}),
+        eval_specs[n_eval_specs - 1].create_evaluation(objectives={"loss": None}),
     )
 
     assert all([e.status == "FINISHED" for e in iteration.evaluation_data[0][:-1]])
