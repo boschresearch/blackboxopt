@@ -31,6 +31,10 @@ jobs:
         run: |
           poetry run pylint --errors-only blackboxopt/
           poetry run pylint --errors-only tests/
+      - name: DocStyle Linting
+        continue-on-error: true
+        if: always()
+        run: poetry run pydocstyle
       - name: Run tests
         if: always()
         run: poetry run pytest
