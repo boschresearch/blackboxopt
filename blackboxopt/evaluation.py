@@ -35,14 +35,6 @@ class EvaluationSpecification(Mapping[str, Any]):
         metadata={"Description": "Creation time of the evaluation specificiation."},
     )
 
-    context: Optional[Dict[str, Any]] = field(
-        default=None,
-        metadata={
-            "Description": "Contextual information is what you can determine but not "
-            + "influence, like the environmental temperature."
-        },
-    )
-
     def keys(self):
         return self.__dataclass_fields__.keys()  # pylint: disable=no-member
 
