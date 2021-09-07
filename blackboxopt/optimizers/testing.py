@@ -73,7 +73,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         )
     else:
         evaluation = eval_spec.create_evaluation(objectives={"loss": None})
-    optimizer.report_evaluations([evaluation])
+    optimizer.report_evaluations(evaluation)
 
     for _ in range(n_max_evaluations):
 
@@ -89,7 +89,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
             evaluation_result = {"loss": loss}
 
         evaluation = eval_spec.create_evaluation(objectives=evaluation_result)
-        optimizer.report_evaluations([evaluation])
+        optimizer.report_evaluations(evaluation)
 
     return True
 
@@ -145,7 +145,7 @@ def raises_objectives_error_when_reporting_unknown_objective(
 
     try:
         evaluation = es.create_evaluation(objectives={"unknown_objective": 0})
-        opt.report_evaluations([evaluation])
+        opt.report_evaluations(evaluation)
 
         raise AssertionError(
             f"Optimizer {optimizer_class} did not raise an ObjectivesError when a "

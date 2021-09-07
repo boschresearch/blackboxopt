@@ -37,7 +37,7 @@ mkdocs-material = "^7.1.11"
 pytest-cov = "^2.11.1"
 mkdocs-gen-files = "^0.3.1"
 mkdocs-awesome-pages-plugin = "^2.5.0"
-mike = "^1.0.1"
+mike = "^1.1.0"
 pylint = "^2.8.2"
 pydocstyle = "^6.1.1"
 
@@ -60,7 +60,7 @@ exclude = '^blackboxopt/examples/'
 
 [tool.isort]
 profile = "black"
-# Isort also tries has line length which is 80 for examples:
+# Examples should remain with line-length 80:
 skip_glob = 'blackboxopt/examples/**'
 
 [tool.pylint.format]

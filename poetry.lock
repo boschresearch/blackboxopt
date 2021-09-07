@@ -988,7 +988,7 @@ visualization = ["plotly", "scipy", "pandas"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "68ad14167f8d2d1555c02c37653e33854a7912e9f632e994f053519d0836f89a"
+content-hash = "a352ecc74860a7c039be068294252f62308f6f9d7dfa8bf48bc73a5ccfcff7b8"
 
 [metadata.files]
 astroid = [

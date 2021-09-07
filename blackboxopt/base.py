@@ -5,8 +5,9 @@
 
 import abc
 import collections
+from collections.abc import Iterable as abc_Iterable
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Type
+from typing import Iterable, List, Type, Union
 
 from parameterspace.base import SearchSpace
 
@@ -104,14 +105,17 @@ class Optimizer(abc.ABC):
         """
 
     @abc.abstractmethod
-    def report_evaluations(self, evaluations: Iterable[Evaluation]) -> None:
-        """Report multiple evaluated evaluation specifications.
+    def report_evaluations(
+        self, evaluations: Union[Evaluation, Iterable[Evaluation]]
+    ) -> None:
+        """Report one or more evaluated evaluation specifications.
 
         NOTE: Not all optimizers support reporting results for evaluation specifications
         that were not proposed by the optimizer.
 
         Args:
-            evaluations: An iterable of evaluated evaluation specifications.
+            evaluations: A single evaluated evaluation specifications, or an iterable
+            of many.
         """
 
 
@@ -133,13 +137,19 @@ class SingleObjectiveOptimizer(Optimizer):
         super().__init__(search_space=search_space, seed=seed)
         self.objective = objective
 
-    def report_evaluations(self, evaluations: Iterable[Evaluation]) -> None:
+    def report_evaluations(
+        self, evaluations: Union[Evaluation, Iterable[Evaluation]]
+    ) -> None:
+        if isinstance(evaluations, Evaluation):
+            evaluations = [evaluations]
+
         for evaluation in evaluations:
             raise_on_unknown_or_incomplete(
                 exception=ObjectivesError,
                 known=[self.objective.name],
                 reported=evaluation.objectives.keys(),
             )
+
         super().report_evaluations(evaluations)
 
 
@@ -163,7 +173,12 @@ class MultiObjectiveOptimizer(Optimizer):
         _raise_on_duplicate_objective_names(objectives)
         self.objectives = objectives
 
-    def report_evaluations(self, evaluations: Iterable[Evaluation]) -> None:
+    def report_evaluations(
+        self, evaluations: Union[Evaluation, Iterable[Evaluation]]
+    ) -> None:
+        if isinstance(evaluations, Evaluation):
+            evaluations = [evaluations]
+
         for evaluation in evaluations:
             raise_on_unknown_or_incomplete(
                 exception=ObjectivesError,

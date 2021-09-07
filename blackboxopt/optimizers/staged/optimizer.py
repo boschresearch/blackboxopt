@@ -5,7 +5,8 @@
 
 import abc
 import logging
-from typing import Dict, Iterable, List
+import warnings
+from typing import Dict, Iterable, List, Union
 
 from parameterspace.base import SearchSpace
 
@@ -46,19 +47,24 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         self.evaluation_uuid_to_iteration: Dict[str, int] = {}
         self.pending_configurations: Dict[str, EvaluationSpecification] = {}
 
-    def report_evaluations(self, evaluations: Iterable[Evaluation]) -> None:
+    def report_evaluations(
+        self, evaluations: Union[Evaluation, Iterable[Evaluation]]
+    ) -> None:
         super().report_evaluations(evaluations)
 
-        missing_ids_count = sum(e.optimizer_info.get("id") is None for e in evaluations)
-        if missing_ids_count > 0:
-            raise ValueError(
-                f"{missing_ids_count} evaluation(s) miss an evaluation specification ID"
-                + "in the optimizer info. "
-                + "Did you try to report evaluations for configurations which the "
-                + "optimizer did no pick? This is not supported at the moment."
-            )
+        if isinstance(evaluations, Evaluation):
+            evaluations = [evaluations]
 
         for evaluation in evaluations:
+            if evaluation.optimizer_info.get("id") is None:
+                warnings.warn(
+                    "Skip processing the reported evaluation, because it is "
+                    + "missing an evaluation specification ID in the optimizer info. "
+                    + "Did you try to report evaluations for configurations which the "
+                    + "optimizer did no pick? This is not supported at the moment."
+                )
+                continue
+
             evaluation_specification_id = evaluation.optimizer_info.get("id")
             self.pending_configurations.pop(str(evaluation_specification_id))
             idx = self.evaluation_uuid_to_iteration.pop(

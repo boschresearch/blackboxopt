@@ -11,6 +11,7 @@ import pytest
 
 from blackboxopt import OptimizationComplete, OptimizerNotReady
 from blackboxopt.base import Objective
+from blackboxopt.evaluation import Evaluation
 from blackboxopt.optimizers.bohb import BOHB
 from blackboxopt.optimizers.testing import ALL_REFERENCE_TESTS
 
@@ -35,7 +36,7 @@ def test_bohb_sequential():
         es = opt.get_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (0, 0, i)
         evaluation = es.create_evaluation(objectives={"loss": i})
-        opt.report_evaluations([evaluation])
+        opt.report_evaluations(evaluation)
     es = opt.get_evaluation_specification()
     assert es.optimizer_info["configuration_key"] == (0, 0, 0)
 
@@ -43,7 +44,7 @@ def test_bohb_sequential():
         opt.get_evaluation_specification()
 
     evaluation = es.create_evaluation(objectives={"loss": 0.0})
-    opt.report_evaluations([evaluation])
+    opt.report_evaluations(evaluation)
 
     with pytest.raises(OptimizationComplete):
         opt.get_evaluation_specification()
@@ -73,7 +74,7 @@ def test_bohb_parallel():
 
     for i, eval_spec in enumerate(eval_specs):
         evaluation = eval_spec.create_evaluation(objectives={"loss": i})
-        opt.report_evaluations([evaluation])
+        opt.report_evaluations(evaluation)
 
     assert len(opt.pending_configurations) == 0
 
@@ -83,6 +84,34 @@ def test_bohb_parallel():
     for i in range(2):
         es = opt.get_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (1, 0, i)
+
+
+def test_bohb_report_evaluations_as_batch():
+    paramspace = ps.ParameterSpace()
+    paramspace.add(ps.ContinuousParameter("p1", [0, 1]))
+    opt = BOHB(
+        paramspace,
+        Objective("loss", False),
+        min_fidelity=0.2,
+        max_fidelity=1,
+        num_iterations=1,
+    )
+
+    evaluations = []
+    for i in range(3):
+        es = opt.get_evaluation_specification()
+        evaluation = es.create_evaluation(objectives={"loss": i})
+        evaluations.append(evaluation)
+
+    # Add an evaluation _not_ created by the optimizer to see if it get's skipped
+    # and triggers a warning on reporting:
+    invalid_evaluation = Evaluation(objectives={"loss": 42}, configuration={})
+    evaluations.append(invalid_evaluation)
+
+    assert len(opt.pending_configurations) == 3
+    with pytest.warns(UserWarning, match=r"Skip.+missing.+specification ID.+$"):
+        opt.report_evaluations(evaluations)
+    assert len(opt.pending_configurations) == 0
 
 
 def test_bohb_number_of_configs_and_fidelities_in_iterations():
@@ -146,14 +175,14 @@ def test_bohb_sequential_with_failed_evaluations(n_evaluations=16):
             )
         else:
             evaluation = es.create_evaluation(objectives={"loss": None})
-        opt.report_evaluations([evaluation])
+        opt.report_evaluations(evaluation)
 
     for i in range(n_evaluations // 2, n_evaluations):
         es = opt.get_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
         assert es.optimizer_info["model_based_pick"]
         evaluation = es.create_evaluation(objectives={"loss": es.configuration["p1"]})
-        opt.report_evaluations([evaluation])
+        opt.report_evaluations(evaluation)
 
     with pytest.raises(OptimizationComplete):
         opt.get_evaluation_specification()
@@ -193,14 +222,14 @@ def test_bohb_sequential_with_non_finite_losses(n_evaluations=16):
             evaluation = es.create_evaluation(
                 result={"loss": return_values[i // len(return_values)]}
             )
-        opt.report_evaluations([evaluation])
+        opt.report_evaluations(evaluation)
 
     for i in range(n_evaluations // 2, n_evaluations):
         es = opt.get_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
         assert es.optimizer_info["model_based_pick"]
         evaluation = es.create_evaluation(objectives={"loss": es.configuration["p1"]})
-        opt.report_evaluations([evaluation])
+        opt.report_evaluations(evaluation)
 
     with pytest.raises(OptimizationComplete):
         opt.get_evaluation_specification()
