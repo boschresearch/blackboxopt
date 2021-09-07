@@ -163,12 +163,12 @@ def run_optimization_loop(
                 break
 
         for evaluation in dask_scheduler.check_for_results(timeout_s=20):
-            optimizer.report_evaluations(evaluation)
+            optimizer.report(evaluation)
             evaluations.append(evaluation)
 
     while dask_scheduler.has_running_jobs():
         for evaluation in dask_scheduler.check_for_results(timeout_s=20):
-            optimizer.report_evaluations(evaluation)
+            optimizer.report(evaluation)
             evaluations.append(evaluation)
 
     return evaluations

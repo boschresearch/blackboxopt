@@ -47,10 +47,8 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         self.evaluation_uuid_to_iteration: Dict[str, int] = {}
         self.pending_configurations: Dict[str, EvaluationSpecification] = {}
 
-    def report_evaluations(
-        self, evaluations: Union[Evaluation, Iterable[Evaluation]]
-    ) -> None:
-        super().report_evaluations(evaluations)
+    def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
+        super().report(evaluations)
 
         if isinstance(evaluations, Evaluation):
             evaluations = [evaluations]

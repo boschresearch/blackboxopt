@@ -36,7 +36,7 @@ def test_hyperband_sequential():
         es = hb.get_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (0, 0, i)
         evaluation = es.create_evaluation(objectives={"loss": i})
-        hb.report_evaluations(evaluation)
+        hb.report(evaluation)
     es = hb.get_evaluation_specification()
     assert es.optimizer_info["configuration_key"] == (0, 0, 0)
 
@@ -44,7 +44,7 @@ def test_hyperband_sequential():
         hb.get_evaluation_specification()
 
     evaluation = es.create_evaluation(objectives={"loss": i})
-    hb.report_evaluations(evaluation)
+    hb.report(evaluation)
 
     with pytest.raises(OptimizationComplete):
         hb.get_evaluation_specification()
@@ -74,7 +74,7 @@ def test_hyperband_parallel():
 
     for i, es in enumerate(eval_specs):
         evaluation = es.create_evaluation(objectives={"loss": i})
-        hb.report_evaluations(evaluation)
+        hb.report(evaluation)
 
     assert len(hb.pending_configurations) == 0
 

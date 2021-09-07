@@ -125,14 +125,14 @@ def test_sample_configurations():
         evaluation = eval_spec.create_evaluation(
             objectives={"loss": eval_spec.configuration["x1"] ** 2}
         )
-        opt.report_evaluations(evaluation)
+        opt.report(evaluation)
 
     while eval_spec.optimizer_info["configuration_key"][0] == 0:
         eval_spec = opt.get_evaluation_specification()
         evaluation = eval_spec.create_evaluation(
             objectives={"loss": eval_spec.configuration["x1"] ** 2}
         )
-        opt.report_evaluations(evaluation)
+        opt.report(evaluation)
 
     while True:
         try:
@@ -141,7 +141,7 @@ def test_sample_configurations():
             evaluation = eval_spec.create_evaluation(
                 objectives={"loss": eval_spec.configuration["x1"] ** 2}
             )
-            opt.report_evaluations(evaluation)
+            opt.report(evaluation)
         except OptimizationComplete:
             break
 

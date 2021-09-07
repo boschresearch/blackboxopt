@@ -105,9 +105,7 @@ class Optimizer(abc.ABC):
         """
 
     @abc.abstractmethod
-    def report_evaluations(
-        self, evaluations: Union[Evaluation, Iterable[Evaluation]]
-    ) -> None:
+    def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
         """Report one or more evaluated evaluation specifications.
 
         NOTE: Not all optimizers support reporting results for evaluation specifications
@@ -137,9 +135,7 @@ class SingleObjectiveOptimizer(Optimizer):
         super().__init__(search_space=search_space, seed=seed)
         self.objective = objective
 
-    def report_evaluations(
-        self, evaluations: Union[Evaluation, Iterable[Evaluation]]
-    ) -> None:
+    def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
         if isinstance(evaluations, Evaluation):
             evaluations = [evaluations]
 
@@ -150,7 +146,7 @@ class SingleObjectiveOptimizer(Optimizer):
                 reported=evaluation.objectives.keys(),
             )
 
-        super().report_evaluations(evaluations)
+        super().report(evaluations)
 
 
 class MultiObjectiveOptimizer(Optimizer):
@@ -173,9 +169,7 @@ class MultiObjectiveOptimizer(Optimizer):
         _raise_on_duplicate_objective_names(objectives)
         self.objectives = objectives
 
-    def report_evaluations(
-        self, evaluations: Union[Evaluation, Iterable[Evaluation]]
-    ) -> None:
+    def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
         if isinstance(evaluations, Evaluation):
             evaluations = [evaluations]
 
@@ -186,4 +180,4 @@ class MultiObjectiveOptimizer(Optimizer):
                 reported=evaluation.objectives.keys(),
             )
 
-        super().report_evaluations(evaluations)
+        super().report(evaluations)
