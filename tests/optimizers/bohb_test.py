@@ -4,13 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import math
+import re
 
 import numpy as np
 import parameterspace as ps
 import pytest
 
 from blackboxopt import OptimizationComplete, OptimizerNotReady
-from blackboxopt.base import Objective
+from blackboxopt.base import EvaluationsError, Objective
 from blackboxopt.evaluation import Evaluation
 from blackboxopt.optimizers.bohb import BOHB
 from blackboxopt.optimizers.testing import ALL_REFERENCE_TESTS
@@ -109,9 +110,11 @@ def test_bohb_report_as_batch():
     evaluations.append(invalid_evaluation)
 
     assert len(opt.pending_configurations) == 3
-    with pytest.warns(UserWarning, match=r"Skip.+missing.+specification ID.+$"):
+    with pytest.raises(EvaluationsError) as excinfo:
         opt.report(evaluations)
     assert len(opt.pending_configurations) == 0
+    assert re.match(r"1 evaluation.+rejected", excinfo.value.message)
+    assert excinfo.value.evaluations == [invalid_evaluation]
 
 
 def test_bohb_number_of_configs_and_fidelities_in_iterations():

@@ -5,7 +5,6 @@
 
 import abc
 import logging
-import warnings
 from typing import Dict, Iterable, List, Union
 
 from parameterspace.base import SearchSpace
@@ -17,7 +16,7 @@ from blackboxopt import (
     OptimizationComplete,
     OptimizerNotReady,
 )
-from blackboxopt.base import SingleObjectiveOptimizer
+from blackboxopt.base import EvaluationsError, SingleObjectiveOptimizer
 from blackboxopt.optimizers.staged.iteration import StagedIteration
 
 
@@ -53,14 +52,10 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         if isinstance(evaluations, Evaluation):
             evaluations = [evaluations]
 
+        evaluations_without_ids = []
         for evaluation in evaluations:
             if evaluation.optimizer_info.get("id") is None:
-                warnings.warn(
-                    "Skip processing the reported evaluation, because it is "
-                    + "missing an evaluation specification ID in the optimizer info. "
-                    + "Did you try to report evaluations for configurations which the "
-                    + "optimizer did no pick? This is not supported at the moment."
-                )
+                evaluations_without_ids.append(evaluation)
                 continue
 
             evaluation_specification_id = evaluation.optimizer_info.get("id")
@@ -70,6 +65,13 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
             )
             self.iterations[idx].digest_evaluation(
                 evaluation_specification_id, evaluation
+            )
+
+        if evaluations_without_ids:
+            raise EvaluationsError(
+                f"{len(evaluations_without_ids)} evaluation(s) got rejected because of "
+                + "missing an evaluation specification ID in the optimizer info.",
+                evaluations=evaluations_without_ids,
             )
 
     def get_evaluation_specification(self) -> EvaluationSpecification:

@@ -5,7 +5,6 @@
 
 import abc
 import collections
-from collections.abc import Iterable as abc_Iterable
 from dataclasses import dataclass
 from typing import Iterable, List, Type, Union
 
@@ -36,6 +35,17 @@ class ConstraintsError(ValueError):
 
 class ContextError(ValueError):
     """Raised on incomplete or missing context information."""
+
+
+class EvaluationsError(ValueError):
+    """Raised on invalid evaluations.
+
+    The problematic evaluations are passed in the `evaluations` attribute.
+    """
+
+    def __init__(self, message: str, evaluations: List[Evaluation]):
+        self.message = message
+        self.evaluations = evaluations
 
 
 @dataclass
