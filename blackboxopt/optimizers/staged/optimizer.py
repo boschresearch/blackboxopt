@@ -18,6 +18,7 @@ from blackboxopt import (
 )
 from blackboxopt.base import EvaluationsError, SingleObjectiveOptimizer
 from blackboxopt.optimizers.staged.iteration import StagedIteration
+from blackboxopt.utils import filter_valid
 
 
 class StagedIterationOptimizer(SingleObjectiveOptimizer):
@@ -47,32 +48,31 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         self.pending_configurations: Dict[str, EvaluationSpecification] = {}
 
     def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
-        super().report(evaluations)
-
         if isinstance(evaluations, Evaluation):
             evaluations = [evaluations]
 
-        evaluations_without_ids = []
-        for evaluation in evaluations:
-            if evaluation.optimizer_info.get("id") is None:
-                evaluations_without_ids.append(evaluation)
-                continue
+        evaluations_with_errors = []
+        try:
+            super().report(evaluations)
+        except EvaluationsError as e:
+            evaluations_with_errors = e.evaluations_with_errors
 
-            evaluation_specification_id = evaluation.optimizer_info.get("id")
-            self.pending_configurations.pop(str(evaluation_specification_id))
-            idx = self.evaluation_uuid_to_iteration.pop(
-                str(evaluation_specification_id)
-            )
-            self.iterations[idx].digest_evaluation(
-                evaluation_specification_id, evaluation
-            )
+        for evaluation in filter_valid(evaluations, evaluations_with_errors):
+            try:
+                if evaluation.optimizer_info.get("id") is None:
+                    raise ValueError("Optimizer info is missing id.")
+                self._report(evaluation)
+            except Exception as e:
+                evaluations_with_errors.append((evaluation, e))
 
-        if evaluations_without_ids:
-            raise EvaluationsError(
-                f"{len(evaluations_without_ids)} evaluation(s) got rejected because of "
-                + "missing an evaluation specification ID in the optimizer info.",
-                evaluations=evaluations_without_ids,
-            )
+        if evaluations_with_errors:
+            raise EvaluationsError(evaluations_with_errors)
+
+    def _report(self, evaluation: Evaluation) -> None:
+        evaluation_specification_id = evaluation.optimizer_info.get("id")
+        self.pending_configurations.pop(str(evaluation_specification_id))
+        idx = self.evaluation_uuid_to_iteration.pop(str(evaluation_specification_id))
+        self.iterations[idx].digest_evaluation(evaluation_specification_id, evaluation)
 
     def get_evaluation_specification(self) -> EvaluationSpecification:
         """Get next configuration and settings to evaluate.

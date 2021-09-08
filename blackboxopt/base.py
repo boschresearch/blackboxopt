@@ -6,7 +6,7 @@
 import abc
 import collections
 from dataclasses import dataclass
-from typing import Iterable, List, Type, Union
+from typing import Iterable, List, Tuple, Type, Union
 
 from parameterspace.base import SearchSpace
 
@@ -43,9 +43,12 @@ class EvaluationsError(ValueError):
     The problematic evaluations are passed in the `evaluations` attribute.
     """
 
-    def __init__(self, message: str, evaluations: List[Evaluation]):
-        self.message = message
-        self.evaluations = evaluations
+    def __init__(self, evaluations_with_errors: List[Tuple[Evaluation, Exception]]):
+        self.message = (
+            "An error with one or more evaluations occurred. Check the "
+            "'evaluations_with_errors' attribute of this exception for details."
+        )
+        self.evaluations_with_errors = evaluations_with_errors
 
 
 @dataclass
@@ -149,14 +152,19 @@ class SingleObjectiveOptimizer(Optimizer):
         if isinstance(evaluations, Evaluation):
             evaluations = [evaluations]
 
+        invalid_evaluations: List[Tuple[Evaluation, Exception]] = []
         for evaluation in evaluations:
-            raise_on_unknown_or_incomplete(
-                exception=ObjectivesError,
-                known=[self.objective.name],
-                reported=evaluation.objectives.keys(),
-            )
+            try:
+                raise_on_unknown_or_incomplete(
+                    exception=ObjectivesError,
+                    known=[self.objective.name],
+                    reported=evaluation.objectives.keys(),
+                )
+            except ObjectivesError as e:
+                invalid_evaluations.append((evaluation, e))
 
-        super().report(evaluations)
+        if invalid_evaluations:
+            raise EvaluationsError(evaluations_with_errors=invalid_evaluations)
 
 
 class MultiObjectiveOptimizer(Optimizer):
@@ -183,11 +191,16 @@ class MultiObjectiveOptimizer(Optimizer):
         if isinstance(evaluations, Evaluation):
             evaluations = [evaluations]
 
+        invalid_evaluations: List[Tuple[Evaluation, Exception]] = []
         for evaluation in evaluations:
-            raise_on_unknown_or_incomplete(
-                exception=ObjectivesError,
-                known=[o.name for o in self.objectives],
-                reported=evaluation.objectives.keys(),
-            )
+            try:
+                raise_on_unknown_or_incomplete(
+                    exception=ObjectivesError,
+                    known=[o.name for o in self.objectives],
+                    reported=evaluation.objectives.keys(),
+                )
+            except ObjectivesError as e:
+                invalid_evaluations.append((evaluation, e))
 
-        super().report(evaluations)
+        if invalid_evaluations:
+            raise EvaluationsError(evaluations_with_errors=invalid_evaluations)

@@ -113,8 +113,8 @@ def test_bohb_report_as_batch():
     with pytest.raises(EvaluationsError) as excinfo:
         opt.report(evaluations)
     assert len(opt.pending_configurations) == 0
-    assert re.match(r"1 evaluation.+rejected", excinfo.value.message)
-    assert excinfo.value.evaluations == [invalid_evaluation]
+    assert excinfo.value.message.startswith("An error with one or more evaluation")
+    assert excinfo.value.evaluations_with_errors[0][0] == invalid_evaluation
 
 
 def test_bohb_number_of_configs_and_fidelities_in_iterations():
