@@ -123,12 +123,45 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
 
         es1 = opt.get_evaluation_specification()
         evaluation1 = es1.create_evaluation(objectives={"loss": 0.42})
-        opt.report([evaluation1])
+        opt.report(evaluation1)
         es2 = opt.get_evaluation_specification()
 
         final_configurations.append(es2.configuration.copy())
 
     assert final_configurations[0] == final_configurations[1]
+    return True
+
+
+def handles_reporting_evaluations_list(optimizer_class, optimizer_kwargs: dict) -> bool:
+    """Check if optimizer's report method can process an iterable of evalutions.
+
+    All optimizers should be able to allow reporting batches of evalutions. It's up to
+    the optimizer's implementation, if evaluations in a batch are processed
+    one by one like if they were reported individually, or if a batch is handled
+    differently.
+
+    Args:
+        optimizer_class: Optimizer to test.
+        optimizer_kwargs: Expected to contain additional arguments for initializating
+            the optimizer. (`search_space` and `objective(s)` are set automatically
+            by the test.)
+
+    Returns:
+        `True` if the test is passed.
+    """
+    opt = _initialize_optimizer(
+        optimizer_class,
+        optimizer_kwargs,
+        objective=Objective("loss", False),
+        objectives=[Objective("loss", False)],
+    )
+    evaluations = []
+    for _ in range(3):
+        es = opt.get_evaluation_specification()
+        evaluation = es.create_evaluation(objectives={"loss": 0.42})
+        evaluations.append(evaluation)
+
+    opt.report(evaluations)
     return True
 
 
