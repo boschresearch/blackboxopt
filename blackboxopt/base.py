@@ -40,7 +40,8 @@ class ContextError(ValueError):
 class EvaluationsError(ValueError):
     """Raised on invalid evaluations.
 
-    The problematic evaluations are passed in the `evaluations` attribute.
+    The problematic evaluations and their respective exceptions are passed in the
+    `evaluations_with_errors` attribute.
     """
 
     def __init__(self, evaluations_with_errors: List[Tuple[Evaluation, Exception]]):
@@ -149,6 +150,20 @@ class SingleObjectiveOptimizer(Optimizer):
         self.objective = objective
 
     def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
+        """Report one or multiple evaluations to the optimizer.
+
+        All valid evaluations are processed. Faulty evaluations are not processed,
+        instead an `EvaluationsError` is raised, which includes the problematic
+        evaluations with their respective Exceptions in the `evaluations_with_errors`
+        attribute.
+
+        Args:
+            evaluations: A single evaluated evaluation specifications, or an iterable
+            of many.
+
+        Raises:
+            EvaluationsError: Raised when an evaluation could not be processed.
+        """
         if isinstance(evaluations, Evaluation):
             evaluations = [evaluations]
 

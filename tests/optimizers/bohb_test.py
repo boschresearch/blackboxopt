@@ -104,8 +104,8 @@ def test_bohb_report_as_batch():
         evaluation = es.create_evaluation(objectives={"loss": i})
         evaluations.append(evaluation)
 
-    # Add an evaluation _not_ created by the optimizer to see if it get's skipped
-    # and triggers a warning on reporting:
+    # Add an evaluation with missing specific details in the optimizer info to see if
+    # it get's skipped, raises an exception and gets included in the exception.
     invalid_evaluation = Evaluation(objectives={"loss": 42}, configuration={})
     evaluations.append(invalid_evaluation)
 
