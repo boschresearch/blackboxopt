@@ -5,8 +5,9 @@
 
 import abc
 import collections
+import functools
 from dataclasses import dataclass
-from typing import Iterable, List, Tuple, Type, Union
+from typing import Callable, Iterable, List, Tuple, Type, Union
 
 from parameterspace.base import SearchSpace
 
@@ -89,6 +90,46 @@ def raise_on_unknown_or_incomplete(
         raise exception(f"Missing: {list(missing)}")
 
 
+def validate_objectives(evaluation: Evaluation, objectives: List[Objective]):
+    raise_on_unknown_or_incomplete(
+        exception=ObjectivesError,
+        known=[o.name for o in objectives],
+        reported=evaluation.objectives.keys(),
+    )
+
+
+def call_functions_with_evaluations_and_collect_errors(
+    functions: Iterable[Callable[[Evaluation], None]],
+    evaluations: Iterable[Evaluation],
+) -> None:
+    """The given evaluations are passed to all given functions in order and the first
+    Exception that occurrs for an evaluation is recorded alongside the evaluation and
+    raised together with all erroneous evaluations as part of an `EvaluationsError`.
+
+    NOTE: Even if reporting some evaluations fails, all that can be are successfully
+    reported. Also, if an evaluation passes through some of the functions before causing
+    issues, the effect the evaluation had on the previous functions can't be reverted.
+
+    Raises:
+        EvaluationsError: In case exceptions occurred when calling the functions with
+            the evaluations.
+    """
+    evaluations_with_errors = []
+    for evaluation in evaluations:
+        for func in functions:
+            try:
+                func(evaluation)
+            except EvaluationsError as e:
+                evaluations_with_errors.extend(e.evaluations_with_errors)
+                break
+            except Exception as e:
+                evaluations_with_errors.append((evaluation, e))
+                break
+
+    if evaluations_with_errors:
+        raise EvaluationsError(evaluations_with_errors)
+
+
 class Optimizer(abc.ABC):
     """Abstract base class for blackbox optimizer implementations."""
 
@@ -164,22 +205,12 @@ class SingleObjectiveOptimizer(Optimizer):
         Raises:
             EvaluationsError: Raised when an evaluation could not be processed.
         """
-        if isinstance(evaluations, Evaluation):
-            evaluations = [evaluations]
+        _evals = [evaluations] if isinstance(evaluations, Evaluation) else evaluations
 
-        invalid_evaluations: List[Tuple[Evaluation, Exception]] = []
-        for evaluation in evaluations:
-            try:
-                raise_on_unknown_or_incomplete(
-                    exception=ObjectivesError,
-                    known=[self.objective.name],
-                    reported=evaluation.objectives.keys(),
-                )
-            except ObjectivesError as e:
-                invalid_evaluations.append((evaluation, e))
-
-        if invalid_evaluations:
-            raise EvaluationsError(evaluations_with_errors=invalid_evaluations)
+        call_functions_with_evaluations_and_collect_errors(
+            [functools.partial(validate_objectives, objectives=[self.objective])],
+            _evals,
+        )
 
 
 class MultiObjectiveOptimizer(Optimizer):
@@ -203,19 +234,9 @@ class MultiObjectiveOptimizer(Optimizer):
         self.objectives = objectives
 
     def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
-        if isinstance(evaluations, Evaluation):
-            evaluations = [evaluations]
+        _evals = [evaluations] if isinstance(evaluations, Evaluation) else evaluations
 
-        invalid_evaluations: List[Tuple[Evaluation, Exception]] = []
-        for evaluation in evaluations:
-            try:
-                raise_on_unknown_or_incomplete(
-                    exception=ObjectivesError,
-                    known=[o.name for o in self.objectives],
-                    reported=evaluation.objectives.keys(),
-                )
-            except ObjectivesError as e:
-                invalid_evaluations.append((evaluation, e))
-
-        if invalid_evaluations:
-            raise EvaluationsError(evaluations_with_errors=invalid_evaluations)
+        call_functions_with_evaluations_and_collect_errors(
+            [functools.partial(validate_objectives, objectives=self.objectives)],
+            _evals,
+        )

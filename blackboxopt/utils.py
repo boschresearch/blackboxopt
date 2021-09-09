@@ -3,10 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Callable, Dict, Iterable, List, Optional, Tuple
+from typing import Dict, List, Optional
 
-from blackboxopt.base import EvaluationsError, Objective
-from blackboxopt.evaluation import Evaluation
+from blackboxopt.base import Objective
 
 
 def get_loss_vector(
@@ -32,27 +31,3 @@ def get_loss_vector(
             losses.append(objective_value)
 
     return losses
-
-
-def filter_valid(
-    evaluations: Iterable[Evaluation],
-    evaluations_with_errors: List[Tuple[Evaluation, Exception]],
-):
-    invalid_evaluations = [evaluation for evaluation, _ in evaluations_with_errors]
-    return [e for e in evaluations if e not in invalid_evaluations]
-
-
-def report_multiple_evaluations_individually(
-    report_func: Callable[[Evaluation], None], evaluations: Iterable[Evaluation]
-):
-    evaluations_with_errors = []
-    for evaluation in evaluations:
-        try:
-            if evaluation.optimizer_info.get("id") is None:
-                raise ValueError("Optimizer info is missing id.")
-            report_func(evaluation)
-        except Exception as e:
-            evaluations_with_errors.append((evaluation, e))
-
-    if evaluations_with_errors:
-        raise EvaluationsError(evaluations_with_errors)
