@@ -18,7 +18,7 @@ from blackboxopt import (
 )
 from blackboxopt.base import EvaluationsError, SingleObjectiveOptimizer
 from blackboxopt.optimizers.staged.iteration import StagedIteration
-from blackboxopt.utils import filter_valid
+from blackboxopt.utils import filter_valid, report_multiple_evaluations_individually
 
 
 class StagedIterationOptimizer(SingleObjectiveOptimizer):
@@ -55,18 +55,24 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         try:
             super().report(evaluations)
         except EvaluationsError as e:
-            evaluations_with_errors = e.evaluations_with_errors
+            evaluations_with_errors.extend(e.evaluations_with_errors)
 
-        for evaluation in filter_valid(evaluations, evaluations_with_errors):
-            try:
-                if evaluation.optimizer_info.get("id") is None:
-                    raise ValueError("Optimizer info is missing id.")
-                self._report(evaluation)
-            except Exception as e:
-                evaluations_with_errors.append((evaluation, e))
+        valid_evaluations = filter_valid(evaluations, evaluations_with_errors)
+        try:
+            report_multiple_evaluations_individually(self._report, valid_evaluations)
+        except EvaluationsError as e:
+            evaluations_with_errors.extend(e.evaluations_with_errors)
 
         if evaluations_with_errors:
             raise EvaluationsError(evaluations_with_errors)
+
+    def report_new(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
+        if isinstance(evaluations, Evaluation):
+            evaluations = [evaluations]
+
+        report_multiple_evaluations_individually(
+            [super().report, self._report], evaluations
+        )
 
     def _report(self, evaluation: Evaluation) -> None:
         evaluation_specification_id = evaluation.optimizer_info.get("id")
