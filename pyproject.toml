@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "blackboxopt"
-version = "1.0.4"
+version = "1.0.5"
 description = "A common interface for blackbox optimization algorithms along with useful helpers like parallel optimization loops, analysis and visualization scripts."
 readme = "README.md"
 repository = "https://github.com/boschresearch/blackboxopt"
@@ -26,7 +26,7 @@ distributed = {version = "^2021.2.0", optional = true}
 pandas = {version = "^1.2.4", optional = true}
 
 [tool.poetry.dev-dependencies]
-black = "^20.8b1"
+black = "^21.8b0"
 isort = "^5.7.0"
 pytest = "^6.2.2"
 mypy = "^0.910"
@@ -37,7 +37,7 @@ mkdocs-material = "^7.1.11"
 pytest-cov = "^2.11.1"
 mkdocs-gen-files = "^0.3.1"
 mkdocs-awesome-pages-plugin = "^2.5.0"
-mike = "^1.0.1"
+mike = "^1.1.0"
 pylint = "^2.8.2"
 pydocstyle = "^6.1.1"
 
@@ -60,7 +60,7 @@ exclude = '^blackboxopt/examples/'
 
 [tool.isort]
 profile = "black"
-# Isort also tries has line length which is 80 for examples:
+# Examples should remain with line-length 80:
 skip_glob = 'blackboxopt/examples/**'
 
 [tool.pylint.format]

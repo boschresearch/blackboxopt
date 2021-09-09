@@ -5,7 +5,7 @@
 
 import abc
 import logging
-from typing import Dict, List
+from typing import Dict, Iterable, List, Union
 
 from parameterspace.base import SearchSpace
 
@@ -16,8 +16,9 @@ from blackboxopt import (
     OptimizationComplete,
     OptimizerNotReady,
 )
-from blackboxopt.base import SingleObjectiveOptimizer
+from blackboxopt.base import EvaluationsError, SingleObjectiveOptimizer
 from blackboxopt.optimizers.staged.iteration import StagedIteration
+from blackboxopt.utils import filter_valid
 
 
 class StagedIterationOptimizer(SingleObjectiveOptimizer):
@@ -46,17 +47,29 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         self.evaluation_uuid_to_iteration: Dict[str, int] = {}
         self.pending_configurations: Dict[str, EvaluationSpecification] = {}
 
-    def report_evaluation(self, evaluation: Evaluation) -> None:
-        super().report_evaluation(evaluation)
+    def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
+        if isinstance(evaluations, Evaluation):
+            evaluations = [evaluations]
 
+        evaluations_with_errors = []
+        try:
+            super().report(evaluations)
+        except EvaluationsError as e:
+            evaluations_with_errors = e.evaluations_with_errors
+
+        for evaluation in filter_valid(evaluations, evaluations_with_errors):
+            try:
+                if evaluation.optimizer_info.get("id") is None:
+                    raise ValueError("Optimizer info is missing id.")
+                self._report(evaluation)
+            except Exception as e:
+                evaluations_with_errors.append((evaluation, e))
+
+        if evaluations_with_errors:
+            raise EvaluationsError(evaluations_with_errors)
+
+    def _report(self, evaluation: Evaluation) -> None:
         evaluation_specification_id = evaluation.optimizer_info.get("id")
-        if evaluation_specification_id is None:
-            raise ValueError(
-                "Missing evaluation specification ID in optimizer info. Did you try to "
-                + "report an evaluation for a configuration which the optimizer did not"
-                " pick? This is not supported at the moment."
-            )
-
         self.pending_configurations.pop(str(evaluation_specification_id))
         idx = self.evaluation_uuid_to_iteration.pop(str(evaluation_specification_id))
         self.iterations[idx].digest_evaluation(evaluation_specification_id, evaluation)

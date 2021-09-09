@@ -78,7 +78,7 @@ def run_optimization_loop(
                 logger=logger,
                 objectives=objectives,
             )
-            optimizer.report_evaluation(evaluation)
+            optimizer.report(evaluation)
             evaluations.append(evaluation)
             logger.debug(f"Result: {evaluation}")
 

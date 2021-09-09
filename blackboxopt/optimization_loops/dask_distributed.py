@@ -162,13 +162,13 @@ def run_optimization_loop(
                 logger.info("Optimization is complete")
                 break
 
-        for evaluation in dask_scheduler.check_for_results(timeout_s=20):
-            optimizer.report_evaluation(evaluation)
-            evaluations.append(evaluation)
+        new_evaluations = dask_scheduler.check_for_results(timeout_s=20)
+        optimizer.report(new_evaluations)
+        evaluations.extend(new_evaluations)
 
     while dask_scheduler.has_running_jobs():
-        for evaluation in dask_scheduler.check_for_results(timeout_s=20):
-            optimizer.report_evaluation(evaluation)
-            evaluations.append(evaluation)
+        new_evaluations = dask_scheduler.check_for_results(timeout_s=20)
+        optimizer.report(new_evaluations)
+        evaluations.extend(new_evaluations)
 
     return evaluations

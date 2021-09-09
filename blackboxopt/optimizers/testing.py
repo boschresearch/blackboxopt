@@ -11,7 +11,11 @@ from typing import List
 import parameterspace as ps
 
 from blackboxopt import Objective, ObjectivesError, OptimizationComplete, Optimizer
-from blackboxopt.base import MultiObjectiveOptimizer, SingleObjectiveOptimizer
+from blackboxopt.base import (
+    EvaluationsError,
+    MultiObjectiveOptimizer,
+    SingleObjectiveOptimizer,
+)
 
 
 def _initialize_optimizer(
@@ -68,13 +72,12 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     eval_spec = optimizer.get_evaluation_specification()
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
-        optimizer.report_evaluation(
-            eval_spec.create_evaluation(objectives={"loss": None, "score": None})
+        evaluation = eval_spec.create_evaluation(
+            objectives={"loss": None, "score": None}
         )
     else:
-        optimizer.report_evaluation(
-            eval_spec.create_evaluation(objectives={"loss": None})
-        )
+        evaluation = eval_spec.create_evaluation(objectives={"loss": None})
+    optimizer.report(evaluation)
 
     for _ in range(n_max_evaluations):
 
@@ -89,9 +92,8 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         else:
             evaluation_result = {"loss": loss}
 
-        optimizer.report_evaluation(
-            eval_spec.create_evaluation(objectives=evaluation_result)
-        )
+        evaluation = eval_spec.create_evaluation(objectives=evaluation_result)
+        optimizer.report(evaluation)
 
     return True
 
@@ -124,7 +126,8 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
         )
 
         es1 = opt.get_evaluation_specification()
-        opt.report_evaluation(es1.create_evaluation(objectives={"loss": 0.42}))
+        evaluation1 = es1.create_evaluation(objectives={"loss": 0.42})
+        opt.report(evaluation1)
         es2 = opt.get_evaluation_specification()
 
         final_configurations.append(es2.configuration.copy())
@@ -133,27 +136,81 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
     return True
 
 
-def raises_objectives_error_when_reporting_unknown_objective(
-    optimizer_class, optimizer_kwargs: dict
-) -> bool:
+def handles_reporting_evaluations_list(optimizer_class, optimizer_kwargs: dict) -> bool:
+    """Check if optimizer's report method can process an iterable of evalutions.
+
+    All optimizers should be able to allow reporting batches of evalutions. It's up to
+    the optimizer's implementation, if evaluations in a batch are processed
+    one by one like if they were reported individually, or if a batch is handled
+    differently.
+
+    Args:
+        optimizer_class: Optimizer to test.
+        optimizer_kwargs: Expected to contain additional arguments for initializating
+            the optimizer. (`search_space` and `objective(s)` are set automatically
+            by the test.)
+
+    Returns:
+        `True` if the test is passed.
+    """
     opt = _initialize_optimizer(
         optimizer_class,
         optimizer_kwargs,
         objective=Objective("loss", False),
         objectives=[Objective("loss", False)],
     )
-    es = opt.get_evaluation_specification()
+    evaluations = []
+    for _ in range(3):
+        es = opt.get_evaluation_specification()
+        evaluation = es.create_evaluation(objectives={"loss": 0.42})
+        evaluations.append(evaluation)
+
+    opt.report(evaluations)
+    return True
+
+
+def raises_evaluation_error_when_reporting_unknown_objective(
+    optimizer_class, optimizer_kwargs: dict
+) -> bool:
+    """Check if optimizer's report method raises exception in case objective is unknown.
+
+    Also make sure that the faulty evaluations (and only those) are included in the
+    exception.
+
+    Args:
+        optimizer_class: Optimizer to test.
+        optimizer_kwargs: Expected to contain additional arguments for initializating
+            the optimizer. (`search_space` and `objective(s)` are set automatically
+            by the test.)
+
+    Returns:
+        `True` if the test is passed.
+    """
+    opt = _initialize_optimizer(
+        optimizer_class,
+        optimizer_kwargs,
+        objective=Objective("loss", False),
+        objectives=[Objective("loss", False)],
+    )
+    es_1 = opt.get_evaluation_specification()
+    es_2 = opt.get_evaluation_specification()
+    es_3 = opt.get_evaluation_specification()
 
     try:
-        opt.report_evaluation(es.create_evaluation(objectives={"unknown_objective": 0}))
+        evaluation_1 = es_1.create_evaluation(objectives={"loss": 1})
+        evaluation_2 = es_2.create_evaluation(objectives={"unknown_objective": 2})
+        evaluation_3 = es_3.create_evaluation(objectives={"loss": 4})
+        opt.report([evaluation_1, evaluation_2, evaluation_3])
 
         raise AssertionError(
             f"Optimizer {optimizer_class} did not raise an ObjectivesError when a "
             + "result including an unknown objective name was reported."
         )
 
-    except ObjectivesError:
-        pass
+    except EvaluationsError as e:
+        invalid_evaluations = [e for e, _ in e.evaluations_with_errors]
+        assert len(invalid_evaluations) == 1
+        assert evaluation_2 in invalid_evaluations
 
     return True
 
@@ -161,5 +218,6 @@ def raises_objectives_error_when_reporting_unknown_objective(
 ALL_REFERENCE_TESTS = [
     optimize_single_parameter_sequentially_for_n_max_evaluations,
     is_deterministic_with_fixed_seed,
-    raises_objectives_error_when_reporting_unknown_objective,
+    handles_reporting_evaluations_list,
+    raises_evaluation_error_when_reporting_unknown_objective,
 ]
