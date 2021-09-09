@@ -196,6 +196,8 @@ def raises_evaluation_error_when_reporting_unknown_objective(
     es_2 = opt.get_evaluation_specification()
     es_3 = opt.get_evaluation_specification()
 
+    # NOTE: The following is not using pytest.raises because this would add pytest as
+    #       a regular dependency to blackboxopt.
     try:
         evaluation_1 = es_1.create_evaluation(objectives={"loss": 1})
         evaluation_2 = es_2.create_evaluation(objectives={"unknown_objective": 2})
@@ -207,8 +209,8 @@ def raises_evaluation_error_when_reporting_unknown_objective(
             + "result including an unknown objective name was reported."
         )
 
-    except EvaluationsError as e:
-        invalid_evaluations = [e for e, _ in e.evaluations_with_errors]
+    except EvaluationsError as exception:
+        invalid_evaluations = [e for e, _ in exception.evaluations_with_errors]
         assert len(invalid_evaluations) == 1
         assert evaluation_2 in invalid_evaluations
 

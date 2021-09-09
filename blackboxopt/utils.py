@@ -3,10 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 from blackboxopt.base import Objective
-from blackboxopt.evaluation import Evaluation
 
 
 def get_loss_vector(
@@ -32,11 +31,3 @@ def get_loss_vector(
             losses.append(objective_value)
 
     return losses
-
-
-def filter_valid(
-    evaluations: Iterable[Evaluation],
-    evaluations_with_errors: List[Tuple[Evaluation, Exception]],
-):
-    invalid_evaluations = [evaluation for evaluation, _ in evaluations_with_errors]
-    return [e for e in evaluations if e not in invalid_evaluations]
