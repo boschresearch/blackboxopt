@@ -4,12 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-import time
 from copy import deepcopy
 from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from typing import Any, Dict, Mapping, Optional
 
 import numpy as np
+
+
+def _datetime_now_timestamp():
+    """Wrapper to allow use as default factory for dataclass fields."""
+    return datetime.now().timestamp()
 
 
 @dataclass
@@ -31,7 +36,7 @@ class EvaluationSpecification(Mapping[str, Any]):
     )
 
     created_unixtime: float = field(
-        default_factory=time.time,
+        default_factory=_datetime_now_timestamp,
         metadata={"Description": "Creation time of the evaluation specificiation."},
     )
 
@@ -146,7 +151,7 @@ class Evaluation(EvaluationSpecification, _EvaluationBase):
     )
 
     finished_unixtime: float = field(
-        default_factory=time.time,
+        default_factory=_datetime_now_timestamp,
         metadata={"Description": "Timestamp at completion of this evaluation."},
     )
 
@@ -177,7 +182,7 @@ class Evaluation(EvaluationSpecification, _EvaluationBase):
 
         if reset_created_unixtime:
             return EvaluationSpecification(
-                created_unixtime=time.time(), **eval_spec_kwargs
+                created_unixtime=_datetime_now_timestamp(), **eval_spec_kwargs
             )
 
         return EvaluationSpecification(
