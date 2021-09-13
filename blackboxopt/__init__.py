@@ -4,6 +4,8 @@ from parameterspace.base import SearchSpace
 
 from .base import (
     ConstraintsError,
+    ContextError,
+    EvaluationsError,
     Objective,
     ObjectivesError,
     OptimizationComplete,
