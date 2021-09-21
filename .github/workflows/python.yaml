@@ -69,12 +69,14 @@ jobs:
         run: |
           pip install poetry
           poetry install --extras "all"
-      - name: Setup git author and version tag
+      - name: Setup git author
         run: |
           git config --global user.name docs deploy
           git config --global user.email docs@github-action.local
-          echo "RELEASE_TAG_VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+      - name: Get GIT_TAG_NAME
+        uses: olegtarasov/get-tag@v2.1
+        id: tagName
       - name: Publish
         run: |
-          poetry run mike deploy --push --update-aliases ${RELEASE_TAG_VERSION} latest
+          poetry run mike deploy --push --update-aliases ${{ env.GIT_TAG_NAME }} latest
           poetry run mike set-default --push latest
