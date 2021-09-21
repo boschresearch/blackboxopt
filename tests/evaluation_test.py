@@ -108,6 +108,7 @@ def test_get_specification_from_evaluation():
         configuration={"p1": 1.2},
         settings={"fidelity": 1.0},
         optimizer_info={"id": 123},
+        context={"temperature": 25.3},
     )
     result = eval_spec.create_evaluation({"mse": 0.0, "r²": 1.0})
 

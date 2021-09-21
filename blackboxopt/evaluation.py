@@ -177,6 +177,7 @@ class Evaluation(EvaluationSpecification, _EvaluationBase):
                 configuration=self.configuration,
                 settings=self.settings,
                 optimizer_info=self.optimizer_info,
+                context=self.context,
             )
         )
 
