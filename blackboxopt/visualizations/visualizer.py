@@ -16,9 +16,78 @@ import scipy.stats as sps
 from blackboxopt import Evaluation
 from blackboxopt.visualizations import utils
 
+QUALITATIVE_COLORS = px.colors.qualitative.G10
+
 
 class NoSuccessfulEvaluationsError(ValueError):
     pass
+
+
+def evaluations_to_df(evaluations: List[Evaluation]) -> pd.DataFrame:
+    """Convert evaluations into multi index dataframe.
+
+    The evaluations will be casted to dictionaries which will be normalized.
+    The keys of the dicts will be used as secondary column index. Evaluations
+    with one or more missing objective-value will be dropped.
+
+    Example:
+
+    ```
+    Evaluation(objectives={'loss_1': 1.0, 'loss_2': -0.0}, stacktrace=None, ...)
+    ```
+
+    Will be transformed into:
+
+    |    objectives   | stacktrace | ... |  <- "group" index
+    | loss_1 | loss_2 | stacktrace | ... |  <- "field" index
+    | ------ | ------ | ---------- | --- |
+    |    1.0 |   -0.0 | None       | ... |
+    """
+    if not evaluations or len(evaluations) == 0:
+        raise NoSuccessfulEvaluationsError
+
+    # Filter out e.g. EvaluationSpecifications which might be passed into
+    evaluations = [e for e in evaluations if isinstance(e, Evaluation)]
+
+    # Transform to dicts, filter out evaluations with missing objectives
+    evaluation_dicts = [e.__dict__ for e in evaluations if not e.any_objective_none]
+
+    if len(evaluation_dicts) == 0:
+        raise NoSuccessfulEvaluationsError
+
+    df = pd.DataFrame(evaluation_dicts)
+
+    # Flatten json/dict columns into single multi-index dataframe
+    dfs_expanded = []
+    for column in df.columns:
+        # Normalize json columns keep original column for non-json columns
+        try:
+            df_temp = pd.json_normalize(df[column], errors="ignore", max_level=0)
+        except AttributeError:
+            df_temp = df[[column]]
+
+        # Use keys of dicts as second level of column index
+        df_temp.columns = pd.MultiIndex.from_product(
+            [[column], df_temp.columns], names=["group", "field"]
+        )
+        # Drop empty columns
+        df_temp = df_temp.dropna(axis=1, how="all")
+
+        dfs_expanded.append(df_temp)
+
+    df = pd.concat(dfs_expanded, join="outer", axis=1)
+
+    # Parse datetime columns
+    date_columns = [c for c in df.columns if "unixtime" in str(c)]
+    df[date_columns] = df[date_columns].apply(pd.to_datetime, unit="s")
+
+    # Calculate duration in seconds
+    df["duration", "duration"] = (
+        df["finished_unixtime", "finished_unixtime"]
+        - df["created_unixtime", "created_unixtime"]
+    )
+
+    return df
 
 
 def create_hover_information(sections: dict) -> Tuple[str, List]:
@@ -27,11 +96,11 @@ def create_hover_information(sections: dict) -> Tuple[str, List]:
     which is used to render hover hints in plotly charts.
 
     The data for the chart hovertext has to be provided as `custom_data` attribute to
-    the chart and can be e.g a list of column names.
+    the chart and can be e.g. a list of column names.
 
     One oddness is, that in the template the columns can't be referenced by name, but
     only by index. That's why it is important to have the same ordering in the template
-    as in the `custom_data` and the reason why this is done together in this function.
+    as in the `custom_data` and the reason why this is done together in one function.
 
     Args:
         sections: Sections to render. The kyeys will show up as the section titles,
@@ -59,67 +128,42 @@ def multi_objective_visualization(evaluations: List[Evaluation]):
     if not evaluations:
         raise NoSuccessfulEvaluationsError
 
-    evaluation_dicts = [e.__dict__ for e in evaluations]
+    # Prepare dataframe for visualization
+    df = evaluations_to_df(evaluations)
+    df["pareto efficient", "pareto efficient"] = utils.mask_pareto_efficient(
+        df["objectives"].values
+    )
 
-    df = pd.DataFrame(evaluation_dicts)
+    # Objectives will be used as dimensions in the plot
+    objective_columns = list(df["objectives"].columns)
 
-    # Used to structure the "sections" in the hover text, puts "info" section on top
+    # Map column names (from field index) with "sections" shown in the mouse-over text
+    # TODO: Handle case, where e.g. a column in user_info produces naming collision with
+    #       a column from another group-index
     hover_sections: Dict[str, list] = {
-        "info": [],
-        "configuration": [],
-        "optimizer_info": [],
+        "info": objective_columns + ["pareto efficient", "created_unixtime", "duration"]
     }
-
-    # Expand and join json/dict columns
-    df = df.dropna(axis=0, subset=["objectives"]).reset_index(drop=True)
-    dfs_expanded = []
-    expand_column_names = ["configuration", "settings", "optimizer_info"]
-    for column in expand_column_names:
-        df_temp = pd.json_normalize(df[column], errors="ignore", max_level=0)
-        dfs_expanded.append(df_temp)
-        if column in hover_sections:
-            hover_sections[column] = sorted(df_temp.columns)
-    df = df.drop(expand_column_names, axis=1)
-    df = df.join(dfs_expanded, how="outer")
-
-    df_temp = pd.json_normalize(df["objectives"], errors="ignore", max_level=0)
-    objective_columns = list(df_temp.columns)
-    df = df.join(df_temp, how="outer")
-    df = df.drop("objectives", axis=1)
-
-    # Expand and join loss list column
-    df = df.dropna(axis=0, subset=objective_columns).reset_index(drop=True)
-
-    if len(df) <= 0:
-        raise NoSuccessfulEvaluationsError
-
-    # Calculate pareto info
-    df["pareto efficient"] = utils.mask_pareto_efficient(df[objective_columns].values)
-
-    # Cast datetimes (shown in hover text)
-    date_columns = ["finished_unixtime", "created_unixtime"]
-    df[date_columns] = df[date_columns].apply(pd.to_datetime, unit="s")
-    df["duration"] = df["finished_unixtime"] - df["created_unixtime"]
-    # Unclutter by rounding to seconds
-    df["duration"] = df["duration"].round("s").astype("str")
-    df["created_unixtime"] = df["created_unixtime"].dt.round("1s")
-
-    # Add important data to "info" section in hovertext and remove "objectives-section"
-    hover_sections["info"] += objective_columns
-    if "fidelity" in df.columns:
-        hover_sections["info"] += ["fidelity"]
-    hover_sections["info"] += ["pareto efficient", "created_unixtime", "duration"]
+    for section in ["configuration", "user_info", "settings", "optimizer_info"]:
+        if section in df.columns:
+            hover_sections[section] = list(df[section].columns)
 
     # Create hover template and list of corresponding dataframe column names
     hover_template, hover_data_columns = create_hover_information(hover_sections)
+
+    # Drop group index for visualizing in plotly
+    df.columns = df.columns.droplevel("group")
+
+    # Formatting for nicer output
+    df["duration"] = df["duration"].round("s").astype("str")
+    df["created_unixtime"] = df["created_unixtime"].dt.round("1s")
 
     fig = px.scatter_matrix(
         df,
         dimensions=objective_columns,
         color="pareto efficient",
         color_discrete_sequence={
-            False: px.colors.qualitative.G10[5],
-            True: px.colors.qualitative.G10[2],
+            False: QUALITATIVE_COLORS[5],
+            True: QUALITATIVE_COLORS[2],
         },
         title="Scatter matrix of multi objective losses",
         custom_data=hover_data_columns,
