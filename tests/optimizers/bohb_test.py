@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import math
-import re
 
 import numpy as np
 import parameterspace as ps
@@ -250,3 +249,81 @@ def test_with_none_min_samples_in_model():
         min_samples_in_model=None,
     )
     assert opt.config_sampler.min_samples_in_model == 3
+
+
+def test_minimize_quadratic():
+    paramspace = ps.ParameterSpace()
+    paramspace.add(ps.ContinuousParameter("p1", (-2.0, 2.0)))
+    opt = BOHB(
+        paramspace,
+        Objective("loss", False),
+        min_fidelity=1.0,
+        max_fidelity=9.0,
+        num_iterations=10,
+        seed=42,
+    )
+
+    evals = []
+    for _ in range(60):
+        es = opt.get_evaluation_specification()
+        e = es.create_evaluation(objectives={"loss": es.configuration["p1"] ** 2})
+        evals.append(e)
+        opt.report(e)
+
+    best_eval = min(evals, key=lambda e: e.objectives["loss"])
+    assert abs(best_eval.objectives["loss"]) < 0.1
+
+    max_fidelity_loss_mean = np.mean(
+        [
+            e.objectives["loss"]
+            for e in evals
+            if e.settings["fidelity"] == 9.0 and e.optimizer_info["model_based_pick"]
+        ]
+    )
+    mid_fidelity_loss_mean = np.mean(
+        [
+            e.objectives["loss"]
+            for e in evals
+            if e.settings["fidelity"] == 3.0 and e.optimizer_info["model_based_pick"]
+        ]
+    )
+    assert max_fidelity_loss_mean < mid_fidelity_loss_mean
+
+
+def test_maximize_quadratic():
+    paramspace = ps.ParameterSpace()
+    paramspace.add(ps.ContinuousParameter("p1", (-2.0, 2.0)))
+    opt = BOHB(
+        paramspace,
+        Objective("score", True),
+        min_fidelity=1.0,
+        max_fidelity=9.0,
+        num_iterations=10,
+        seed=42,
+    )
+
+    evals = []
+    for _ in range(60):
+        es = opt.get_evaluation_specification()
+        e = es.create_evaluation(objectives={"score": -(es.configuration["p1"] ** 2)})
+        evals.append(e)
+        opt.report(e)
+
+    best_eval = max(evals, key=lambda e: e.objectives["score"])
+    assert abs(best_eval.objectives["score"]) < 0.1
+
+    max_fidelity_score_mean = np.mean(
+        [
+            e.objectives["score"]
+            for e in evals
+            if e.settings["fidelity"] == 9.0 and e.optimizer_info["model_based_pick"]
+        ]
+    )
+    mid_fidelity_score_mean = np.mean(
+        [
+            e.objectives["score"]
+            for e in evals
+            if e.settings["fidelity"] == 3.0 and e.optimizer_info["model_based_pick"]
+        ]
+    )
+    assert max_fidelity_score_mean > mid_fidelity_score_mean
