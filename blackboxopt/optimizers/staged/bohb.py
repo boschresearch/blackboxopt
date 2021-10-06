@@ -296,11 +296,16 @@ class Sampler(StagedIterationConfigurationSampler):
         Args:
             evaluation: [description]
         """
-        loss = evaluation.objectives[self.objective.name]
-        if loss is None:
+        objective_value = evaluation.objectives[self.objective.name]
+        if objective_value is None:
             loss = np.inf
-        config_dict = evaluation.configuration
-        config_vector = self.search_space.to_numerical(config_dict)
+        else:
+            loss = (
+                -objective_value
+                if self.objective.greater_is_better
+                else objective_value
+            )
+        config_vector = self.search_space.to_numerical(evaluation.configuration)
         fidelity = evaluation.settings["fidelity"]
 
         if fidelity not in self.configs.keys():

@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import math
-import re
 
 import numpy as np
 import parameterspace as ps
@@ -22,7 +21,7 @@ def test_all_reference_tests(reference_test):
     reference_test(BOHB, dict(min_fidelity=0.2, max_fidelity=1, num_iterations=1))
 
 
-def test_bohb_sequential():
+def test_sequential():
     paramspace = ps.ParameterSpace()
     paramspace.add(ps.ContinuousParameter("p1", [0, 1]))
     opt = BOHB(
@@ -51,7 +50,7 @@ def test_bohb_sequential():
         opt.get_evaluation_specification()
 
 
-def test_bohb_parallel():
+def test_parallel():
     paramspace = ps.ParameterSpace()
     paramspace.add(ps.ContinuousParameter("p1", [0, 1]))
     opt = BOHB(
@@ -87,7 +86,7 @@ def test_bohb_parallel():
         assert es.optimizer_info["configuration_key"] == (1, 0, i)
 
 
-def test_bohb_report_as_batch():
+def test_report_as_batch():
     paramspace = ps.ParameterSpace()
     paramspace.add(ps.ContinuousParameter("p1", [0, 1]))
     opt = BOHB(
@@ -117,7 +116,7 @@ def test_bohb_report_as_batch():
     assert excinfo.value.evaluations_with_errors[0][0] == invalid_evaluation
 
 
-def test_bohb_number_of_configs_and_fidelities_in_iterations():
+def test_number_of_configs_and_fidelities_in_iterations():
     paramspace = ps.ParameterSpace()
     paramspace.add(ps.ContinuousParameter("p1", [0, 1]))
     opt = BOHB(
@@ -157,7 +156,7 @@ def test_bohb_number_of_configs_and_fidelities_in_iterations():
         assert total_budget <= max_total_budget
 
 
-def test_bohb_sequential_with_failed_evaluations(n_evaluations=16):
+def test_sequential_with_failed_evaluations(n_evaluations=16):
     paramspace = ps.ParameterSpace()
     paramspace.add(ps.ContinuousParameter("p1", [0, 1]))
     opt = BOHB(
@@ -191,7 +190,7 @@ def test_bohb_sequential_with_failed_evaluations(n_evaluations=16):
         opt.get_evaluation_specification()
 
 
-def test_bohb_sequential_with_non_finite_losses(n_evaluations=16):
+def test_sequential_with_non_finite_losses(n_evaluations=16):
     paramspace = ps.ParameterSpace()
     paramspace.add(ps.ContinuousParameter("p1", [0, 1]))
     opt = BOHB(
@@ -238,7 +237,7 @@ def test_bohb_sequential_with_non_finite_losses(n_evaluations=16):
         opt.get_evaluation_specification()
 
 
-def test_bohb_with_none_min_samples_in_model():
+def test_with_none_min_samples_in_model():
     paramspace = ps.ParameterSpace()
     paramspace.add(ps.ContinuousParameter("p1", [0, 1]))
     opt = BOHB(
@@ -250,3 +249,57 @@ def test_bohb_with_none_min_samples_in_model():
         min_samples_in_model=None,
     )
     assert opt.config_sampler.min_samples_in_model == 3
+
+
+def test_minimize_quadratic():
+    paramspace = ps.ParameterSpace()
+    paramspace.add(ps.ContinuousParameter("p1", (-2.0, 2.0)))
+    opt = BOHB(
+        paramspace,
+        Objective("loss", False),
+        min_fidelity=1.0,
+        max_fidelity=9.0,
+        num_iterations=1,
+    )
+
+    evals = []
+    for _ in range(9 + 3 + 1):
+        es = opt.get_evaluation_specification()
+        e = es.create_evaluation(objectives={"loss": es.configuration["p1"] ** 2})
+        evals.append(e)
+        opt.report(e)
+
+    max_fidelity_best = min(
+        [e.objectives["loss"] for e in evals if e.settings["fidelity"] == 9.0]
+    )
+    mid_fidelity_best = min(
+        [e.objectives["loss"] for e in evals if e.settings["fidelity"] == 3.0]
+    )
+    assert max_fidelity_best == mid_fidelity_best
+
+
+def test_maximize_quadratic():
+    paramspace = ps.ParameterSpace()
+    paramspace.add(ps.ContinuousParameter("p1", (-2.0, 2.0)))
+    opt = BOHB(
+        paramspace,
+        Objective("score", True),
+        min_fidelity=1.0,
+        max_fidelity=9.0,
+        num_iterations=1,
+    )
+
+    evals = []
+    for _ in range(9 + 3 + 1):
+        es = opt.get_evaluation_specification()
+        e = es.create_evaluation(objectives={"score": -(es.configuration["p1"] ** 2)})
+        evals.append(e)
+        opt.report(e)
+
+    max_fidelity_best = max(
+        [e.objectives["score"] for e in evals if e.settings["fidelity"] == 9.0]
+    )
+    mid_fidelity_best = max(
+        [e.objectives["score"] for e in evals if e.settings["fidelity"] == 3.0]
+    )
+    assert max_fidelity_best == mid_fidelity_best

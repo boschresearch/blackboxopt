@@ -196,3 +196,47 @@ def test_bohb_sampler_no_random():
             configuration=config_dict, settings={"fidelity": i}, optimizer_info=info
         )
         sampler.digest_evaluation(es.create_evaluation(objectives={"loss": i}))
+
+
+def test_digest_evaluation_for_minimization():
+    space = ps.ParameterSpace()
+    space.add(ps.ContinuousParameter("p1", [0, 1]))
+
+    sampler = BOHBSampler(
+        space,
+        Objective("loss", greater_is_better=False),
+        min_samples_in_model=1,
+        top_n_percent=0.5,
+        num_samples=10,
+        random_fraction=1,
+        bandwidth_factor=0.5,
+        min_bandwidth=0.1,
+    )
+    config_dict, info = sampler.sample_configuration()
+    es = EvaluationSpecification(
+        configuration=config_dict, settings={"fidelity": 1.0}, optimizer_info=info
+    )
+    sampler.digest_evaluation(es.create_evaluation(objectives={"loss": -1.0}))
+    assert sampler.losses[1.0][0] == -1.0
+
+
+def test_digest_evaluation_for_maximization():
+    space = ps.ParameterSpace()
+    space.add(ps.ContinuousParameter("p1", [0, 1]))
+
+    sampler = BOHBSampler(
+        space,
+        Objective("score", greater_is_better=True),
+        min_samples_in_model=1,
+        top_n_percent=0.5,
+        num_samples=10,
+        random_fraction=1,
+        bandwidth_factor=0.5,
+        min_bandwidth=0.1,
+    )
+    config_dict, info = sampler.sample_configuration()
+    es = EvaluationSpecification(
+        configuration=config_dict, settings={"fidelity": 1.0}, optimizer_info=info
+    )
+    sampler.digest_evaluation(es.create_evaluation(objectives={"score": 1.0}))
+    assert sampler.losses[1.0][0] == -1.0
