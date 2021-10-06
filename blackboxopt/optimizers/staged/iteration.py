@@ -123,9 +123,13 @@ class StagedIteration:
         i = self.pending_evaluations.pop(evaluation_specificiation_id)
         d = self.evaluation_data[self.current_stage][i]
         d.status = "FINISHED" if not evaluation.all_objectives_none else "CRASHED"
-        loss = evaluation.objectives[self.objective.name]
-        if loss is not None:
-            d.loss = loss
+        objective_value = evaluation.objectives[self.objective.name]
+        if objective_value is not None:
+            d.loss = (
+                -objective_value
+                if self.objective.greater_is_better
+                else objective_value
+            )
 
         # quick check if all configurations have finished yet
         if len(self.evaluation_data[self.current_stage]) == self.num_configs[

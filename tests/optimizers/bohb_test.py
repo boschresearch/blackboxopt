@@ -259,35 +259,23 @@ def test_minimize_quadratic():
         Objective("loss", False),
         min_fidelity=1.0,
         max_fidelity=9.0,
-        num_iterations=10,
-        seed=42,
+        num_iterations=1,
     )
 
     evals = []
-    for _ in range(60):
+    for _ in range(9 + 3 + 1):
         es = opt.get_evaluation_specification()
         e = es.create_evaluation(objectives={"loss": es.configuration["p1"] ** 2})
         evals.append(e)
         opt.report(e)
 
-    best_eval = min(evals, key=lambda e: e.objectives["loss"])
-    assert abs(best_eval.objectives["loss"]) < 0.1
-
-    max_fidelity_loss_mean = np.mean(
-        [
-            e.objectives["loss"]
-            for e in evals
-            if e.settings["fidelity"] == 9.0 and e.optimizer_info["model_based_pick"]
-        ]
+    max_fidelity_best = min(
+        [e.objectives["loss"] for e in evals if e.settings["fidelity"] == 9.0]
     )
-    mid_fidelity_loss_mean = np.mean(
-        [
-            e.objectives["loss"]
-            for e in evals
-            if e.settings["fidelity"] == 3.0 and e.optimizer_info["model_based_pick"]
-        ]
+    mid_fidelity_best = min(
+        [e.objectives["loss"] for e in evals if e.settings["fidelity"] == 3.0]
     )
-    assert max_fidelity_loss_mean < mid_fidelity_loss_mean
+    assert max_fidelity_best == mid_fidelity_best
 
 
 def test_maximize_quadratic():
@@ -298,32 +286,20 @@ def test_maximize_quadratic():
         Objective("score", True),
         min_fidelity=1.0,
         max_fidelity=9.0,
-        num_iterations=10,
-        seed=42,
+        num_iterations=1,
     )
 
     evals = []
-    for _ in range(60):
+    for _ in range(9 + 3 + 1):
         es = opt.get_evaluation_specification()
         e = es.create_evaluation(objectives={"score": -(es.configuration["p1"] ** 2)})
         evals.append(e)
         opt.report(e)
 
-    best_eval = max(evals, key=lambda e: e.objectives["score"])
-    assert abs(best_eval.objectives["score"]) < 0.1
-
-    max_fidelity_score_mean = np.mean(
-        [
-            e.objectives["score"]
-            for e in evals
-            if e.settings["fidelity"] == 9.0 and e.optimizer_info["model_based_pick"]
-        ]
+    max_fidelity_best = max(
+        [e.objectives["score"] for e in evals if e.settings["fidelity"] == 9.0]
     )
-    mid_fidelity_score_mean = np.mean(
-        [
-            e.objectives["score"]
-            for e in evals
-            if e.settings["fidelity"] == 3.0 and e.optimizer_info["model_based_pick"]
-        ]
+    mid_fidelity_best = max(
+        [e.objectives["score"] for e in evals if e.settings["fidelity"] == 3.0]
     )
-    assert max_fidelity_score_mean > mid_fidelity_score_mean
+    assert max_fidelity_best == mid_fidelity_best
