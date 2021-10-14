@@ -1,5 +1,8 @@
 # Blackbox Optimization
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![CI/CD](https://github.com/boschresearch/blackboxopt/workflows/ci-cd-pipeline/badge.svg)](https://github.com/boschresearch/blackboxopt/actions?query=workflow%3Aci-cd-pipeline+branch%3Amain)
+
 The `blackboxopt` Python package contains blackbox optimization algorithms with a common
 interface, along with useful helpers like parallel optimization loops, analysis and
 visualization tools.
