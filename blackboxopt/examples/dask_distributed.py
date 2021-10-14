@@ -29,7 +29,7 @@ def evaluation_function(eval_spec: EvaluationSpecification) -> Evaluation:
 
 if __name__ == "__main__":
     space = ps.ParameterSpace()
-    space.add(ps.ContinuousParameter("p1", [-1.0, 1.0]))
+    space.add(ps.ContinuousParameter("p1", (-1.0, 1.0)))
     optimizer = RandomSearch(
         space,
         [Objective("loss", greater_is_better=False)],
