@@ -3,19 +3,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-import os
-
 import numpy as np
 import plotly.io._base_renderers
 import pytest
 
-from blackboxopt import Evaluation, EvaluationSpecification
+from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.visualizations.utils import mask_pareto_efficient
 from blackboxopt.visualizations.visualizer import (
     NoSuccessfulEvaluationsError,
     Visualizer,
-    create_hover_information,
     multi_objective_visualization,
 )
 
@@ -49,17 +45,17 @@ def test_visualizer_calls():
         for i in range(5)
     ]
 
-    viz = Visualizer(evaluations)
+    viz = Visualizer(evaluations, Objective("loss", greater_is_better=False))
 
-    viz.loss_over_time()
-    viz.loss_over_duration()
-    viz.cdf_losses()
+    viz.objective_over_time()
+    viz.objective_over_duration()
+    viz.cdf_objective_values()
     viz.cdf_durations()
 
 
 def test_unsuccessful_visualizer_calls():
     with pytest.raises(NoSuccessfulEvaluationsError):
-        Visualizer([])
+        Visualizer([], Objective("loss", greater_is_better=False))
 
     evaluations_without_any_result_with_all_objectives_evaluated = [
         Evaluation(
@@ -75,7 +71,10 @@ def test_unsuccessful_visualizer_calls():
         )
     ] * 5
     with pytest.raises(NoSuccessfulEvaluationsError):
-        Visualizer(evaluations_without_any_result_with_all_objectives_evaluated)
+        Visualizer(
+            evaluations_without_any_result_with_all_objectives_evaluated,
+            Objective("loss", greater_is_better=False),
+        )
 
 
 def test_int_none_float_loss_mix_does_not_break_viz():
@@ -115,10 +114,10 @@ def test_int_none_float_loss_mix_does_not_break_viz():
         ),
     ]
 
-    viz = Visualizer(evaluations)
-    viz.loss_over_time()
-    viz.loss_over_duration()
-    viz.cdf_losses()
+    viz = Visualizer(evaluations, Objective("loss", greater_is_better=False))
+    viz.objective_over_time()
+    viz.objective_over_duration()
+    viz.cdf_objective_values()
     viz.cdf_durations()
 
 

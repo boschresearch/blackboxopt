@@ -52,7 +52,7 @@ def get_configs(evaluations: List[Evaluation]):
     return [e.configuration for e in evaluations]
 
 
-def get_loss_matrix(evaluations: List[Evaluation]):
+def get_objective_values_matrix(evaluations: List[Evaluation]):
 
     # need to turn config dicts into tuples to use set
     config_tuples = {tuple(e.configuration.values()) for e in evaluations}
@@ -73,7 +73,7 @@ def get_loss_matrix(evaluations: List[Evaluation]):
     return matrix
 
 
-def get_incumbent_loss_over_time_single_fidelity(
+def get_incumbent_objective_over_time_single_fidelity(
     losses, times, fidelities, target_fidelity
 ):
     """Filter for results with given target fidelity and generate incumbent trace."""
