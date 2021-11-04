@@ -69,7 +69,7 @@ def run_optimization_loop(
         num_evaluations += 1
 
         try:
-            evaluation_specification = optimizer.get_evaluation_specification()
+            evaluation_specification = optimizer.create_evaluation_specification()
             logger.debug(f"Evaluating: {evaluation_specification}")
 
             evaluation = evaluation_function_wrapper(

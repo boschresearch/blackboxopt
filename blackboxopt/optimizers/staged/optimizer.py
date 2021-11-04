@@ -68,7 +68,7 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         idx = self.evaluation_uuid_to_iteration.pop(str(evaluation_specification_id))
         self.iterations[idx].digest_evaluation(evaluation_specification_id, evaluation)
 
-    def get_evaluation_specification(self) -> EvaluationSpecification:
+    def create_evaluation_specification(self) -> EvaluationSpecification:
         """Get next configuration and settings to evaluate.
 
         Raises:
@@ -80,7 +80,7 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         # check if any of the already active iterations returns a configuration and
         # simply return that
         for idx, iteration in enumerate(self.iterations):
-            es = iteration.get_evaluation_specification()
+            es = iteration.create_evaluation_specification()
 
             if es is not None:
                 self.evaluation_uuid_to_iteration[str(es.optimizer_info["id"])] = idx
@@ -91,7 +91,7 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         # ask it for a configuration
         if len(self.iterations) < self.num_iterations:
             self.iterations.append(self._create_new_iteration(len(self.iterations)))
-            es = self.iterations[-1].get_evaluation_specification()
+            es = self.iterations[-1].create_evaluation_specification()
             self.evaluation_uuid_to_iteration[str(es.optimizer_info["id"])] = (
                 len(self.iterations) - 1
             )

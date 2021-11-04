@@ -34,9 +34,9 @@ def limit_with_max_evaluations(run_optimization_loop: Callable, loop_kwargs: dic
 
 def limit_with_loop_timeout(run_optimization_loop: Callable, loop_kwargs: dict):
     class SlowRandomSearch(RandomSearch):
-        def get_evaluation_specification(self) -> EvaluationSpecification:
+        def create_evaluation_specification(self) -> EvaluationSpecification:
             time.sleep(1)
-            return super().get_evaluation_specification()
+            return super().create_evaluation_specification()
 
     evaluations = run_optimization_loop(
         SlowRandomSearch(SPACE, [Objective("loss", False)], max_steps=10),

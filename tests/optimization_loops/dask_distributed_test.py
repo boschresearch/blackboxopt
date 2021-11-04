@@ -60,7 +60,7 @@ def test_restarting_workers(tmpdir):
     opt = RandomSearch(space, objectives, max_steps=4)
 
     # create an evaluation spec that causes the worker to unexpectedly stop
-    eval_spec = opt.get_evaluation_specification()
+    eval_spec = opt.create_evaluation_specification()
     eval_spec.configuration["exit"] = True
     scheduler.submit(evaluation_function_cause_worker_restart, eval_spec)
     res = scheduler.check_for_results(20)

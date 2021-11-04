@@ -33,21 +33,21 @@ def test_hyperband_sequential():
     )
 
     for i in range(3):
-        es = hb.get_evaluation_specification()
+        es = hb.create_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (0, 0, i)
         evaluation = es.create_evaluation(objectives={"loss": i})
         hb.report(evaluation)
-    es = hb.get_evaluation_specification()
+    es = hb.create_evaluation_specification()
     assert es.optimizer_info["configuration_key"] == (0, 0, 0)
 
     with pytest.raises(OptimizerNotReady):
-        hb.get_evaluation_specification()
+        hb.create_evaluation_specification()
 
     evaluation = es.create_evaluation(objectives={"loss": i})
     hb.report(evaluation)
 
     with pytest.raises(OptimizationComplete):
-        hb.get_evaluation_specification()
+        hb.create_evaluation_specification()
 
 
 def test_hyperband_parallel():
@@ -66,7 +66,7 @@ def test_hyperband_parallel():
     for i in range(3):
         # note, this test doesn't return results immediately, but has 3 concurrently
         # 'pending` evaluations.
-        es = hb.get_evaluation_specification()
+        es = hb.create_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (0, 0, i)
         eval_specs.append(es)
 
@@ -78,11 +78,11 @@ def test_hyperband_parallel():
 
     assert len(hb.pending_configurations) == 0
 
-    es = hb.get_evaluation_specification()
+    es = hb.create_evaluation_specification()
     assert es.optimizer_info["configuration_key"] == (0, 0, 0)
 
     for i in range(2):
-        es = hb.get_evaluation_specification()
+        es = hb.create_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (1, 0, i)
 
 

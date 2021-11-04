@@ -25,10 +25,10 @@ def test_max_steps_randomsearch():
     opt = RandomSearch(SPACE, [Objective("loss", False)], max_steps=MAX_STEPS)
 
     for _ in range(MAX_STEPS):
-        opt.get_evaluation_specification()
+        opt.create_evaluation_specification()
 
     with pytest.raises(OptimizationComplete):
-        opt.get_evaluation_specification()
+        opt.create_evaluation_specification()
 
     with pytest.raises(OptimizationComplete):
-        opt.get_evaluation_specification()
+        opt.create_evaluation_specification()

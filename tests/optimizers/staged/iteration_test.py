@@ -57,7 +57,7 @@ def test_staged_iteration_get_and_digest_configuration():
 
     eval_specs = []
     for i in range(n_eval_specs - 1):
-        eval_specs.append(iteration.get_evaluation_specification())
+        eval_specs.append(iteration.create_evaluation_specification())
         assert eval_specs[-1].configuration["value"] == i
         iteration.digest_evaluation(
             eval_specs[-1].optimizer_info["id"],
@@ -68,12 +68,12 @@ def test_staged_iteration_get_and_digest_configuration():
 
     # get the last config in this stage
     i = n_eval_specs - 1
-    eval_specs.append(iteration.get_evaluation_specification())
+    eval_specs.append(iteration.create_evaluation_specification())
     assert eval_specs[-1].configuration["value"] == i
     assert iteration.current_stage == 0
     # make sure no configuration is returned when all configurations in a stage have
     # been queried, but not all have finished
-    assert iteration.get_evaluation_specification() is None
+    assert iteration.create_evaluation_specification() is None
 
     # digest it and see that the next stage is reached
     iteration.digest_evaluation(
@@ -83,14 +83,14 @@ def test_staged_iteration_get_and_digest_configuration():
     assert iteration.current_stage == 1
     assert not iteration.finished
 
-    final_eval_spec = iteration.get_evaluation_specification()
+    final_eval_spec = iteration.create_evaluation_specification()
     assert final_eval_spec.configuration["value"] == 0
     iteration.digest_evaluation(
         final_eval_spec.optimizer_info["id"],
         final_eval_spec.create_evaluation(objectives={"loss": 0.0}),
     )
     assert iteration.finished
-    assert iteration.get_evaluation_specification() is None
+    assert iteration.create_evaluation_specification() is None
 
 
 @pytest.mark.timeout(1)
@@ -109,7 +109,7 @@ def test_staged_iteration_get_and_digest_configuration_with_crashes():
 
     eval_specs = []
     for i in range(n_eval_specs):
-        eval_specs.append(iteration.get_evaluation_specification())
+        eval_specs.append(iteration.create_evaluation_specification())
         assert eval_specs[-1].configuration["value"] == i
 
     for i in range(n_eval_specs - 1):
@@ -130,7 +130,7 @@ def test_staged_iteration_get_and_digest_configuration_with_crashes():
     # make sure the crashed config is not promoted and a new one is sampled instead
     eval_specs = []
     for i in range(n_eval_specs):
-        eval_specs.append(iteration.get_evaluation_specification())
+        eval_specs.append(iteration.create_evaluation_specification())
 
     assert all([c.configuration["value"] == i for i, c in enumerate(eval_specs[:-1])])
     assert eval_specs[-1].configuration["value"] == n_eval_specs
