@@ -179,6 +179,9 @@ def mask_pareto_efficient(costs: np.ndarray):
 def patch_plotly_io_to_html(method):
     """Patch `plotly.io.to_html` with additional javascript to improve usability.
 
+    Might become obsolete, when https://github.com/plotly/plotly.js/issues/998 gets
+    fixed.
+
     Injects `<script>`-tag with content from `to_html_patch.js` at the end of the HTML
     output. But only, if the chart title starts with "[BBO]" (to minimize side
     effects, if the user uses `plotly.io` for something else).
