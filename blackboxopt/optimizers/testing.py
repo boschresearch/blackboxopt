@@ -69,7 +69,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         objectives=[Objective("loss", False), Objective("score", True)],
     )
 
-    eval_spec = optimizer.get_evaluation_specification()
+    eval_spec = optimizer.generate_evaluation_specification()
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
         evaluation = eval_spec.create_evaluation(
@@ -82,7 +82,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     for _ in range(n_max_evaluations):
 
         try:
-            eval_spec = optimizer.get_evaluation_specification()
+            eval_spec = optimizer.generate_evaluation_specification()
         except OptimizationComplete:
             break
 
@@ -125,10 +125,10 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
             objectives=[Objective("loss", False)],
         )
 
-        es1 = opt.get_evaluation_specification()
+        es1 = opt.generate_evaluation_specification()
         evaluation1 = es1.create_evaluation(objectives={"loss": 0.42})
         opt.report(evaluation1)
-        es2 = opt.get_evaluation_specification()
+        es2 = opt.generate_evaluation_specification()
 
         final_configurations.append(es2.configuration.copy())
 
@@ -161,7 +161,7 @@ def handles_reporting_evaluations_list(optimizer_class, optimizer_kwargs: dict) 
     )
     evaluations = []
     for _ in range(3):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         evaluation = es.create_evaluation(objectives={"loss": 0.42})
         evaluations.append(evaluation)
 
@@ -192,9 +192,9 @@ def raises_evaluation_error_when_reporting_unknown_objective(
         objective=Objective("loss", False),
         objectives=[Objective("loss", False)],
     )
-    es_1 = opt.get_evaluation_specification()
-    es_2 = opt.get_evaluation_specification()
-    es_3 = opt.get_evaluation_specification()
+    es_1 = opt.generate_evaluation_specification()
+    es_2 = opt.generate_evaluation_specification()
+    es_3 = opt.generate_evaluation_specification()
 
     # NOTE: The following is not using pytest.raises because this would add pytest as
     #       a regular dependency to blackboxopt.

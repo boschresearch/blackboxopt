@@ -150,7 +150,7 @@ def run_optimization_loop(
     while time.time() - start < timeout_s and n_eval_specs < _max_evaluations:
         if dask_scheduler.has_capacity():
             try:
-                eval_spec = optimizer.get_evaluation_specification()
+                eval_spec = optimizer.generate_evaluation_specification()
                 dask_scheduler.submit(evaluation_function, eval_spec)
                 n_eval_specs += 1
                 continue

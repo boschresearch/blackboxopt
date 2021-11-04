@@ -70,7 +70,7 @@ class StagedIteration:
         self.pending_evaluations: Dict[UUID, int] = {}
         self.finished = False
 
-    def get_evaluation_specification(self) -> Optional[EvaluationSpecification]:
+    def generate_evaluation_specification(self) -> Optional[EvaluationSpecification]:
         """Pick the next evaluation specification with a budget i.e. fidelity to run.
 
         Returns:
@@ -105,7 +105,7 @@ class StagedIteration:
             )
             self.evaluation_data[self.current_stage].append(Datum(conf_key, "QUEUED"))
             # To understand recursion, you first must understand recursion :)
-            return self.get_evaluation_specification()
+            return self.generate_evaluation_specification()
 
         # at this point there are pending evaluations and this iteration has to wait
         return None

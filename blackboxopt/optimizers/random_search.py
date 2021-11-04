@@ -37,7 +37,7 @@ class RandomSearch(MultiObjectiveOptimizer):
         self.max_steps: int = max_steps
         self.n_steps: int = 0
 
-    def get_evaluation_specification(self) -> EvaluationSpecification:
+    def generate_evaluation_specification(self) -> EvaluationSpecification:
         """[summary]
 
         Raises:

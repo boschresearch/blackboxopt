@@ -33,21 +33,21 @@ def test_sequential():
     )
 
     for i in range(3):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (0, 0, i)
         evaluation = es.create_evaluation(objectives={"loss": i})
         opt.report(evaluation)
-    es = opt.get_evaluation_specification()
+    es = opt.generate_evaluation_specification()
     assert es.optimizer_info["configuration_key"] == (0, 0, 0)
 
     with pytest.raises(OptimizerNotReady):
-        opt.get_evaluation_specification()
+        opt.generate_evaluation_specification()
 
     evaluation = es.create_evaluation(objectives={"loss": 0.0})
     opt.report(evaluation)
 
     with pytest.raises(OptimizationComplete):
-        opt.get_evaluation_specification()
+        opt.generate_evaluation_specification()
 
 
 def test_parallel():
@@ -66,7 +66,7 @@ def test_parallel():
     for i in range(3):
         # note, this test doesn't return results immediately, but has 3 concurrently
         # 'pending` evaluations.
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (0, 0, i)
         eval_specs.append(es)
 
@@ -78,11 +78,11 @@ def test_parallel():
 
     assert len(opt.pending_configurations) == 0
 
-    es = opt.get_evaluation_specification()
+    es = opt.generate_evaluation_specification()
     assert es.optimizer_info["configuration_key"] == (0, 0, 0)
 
     for i in range(2):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (1, 0, i)
 
 
@@ -99,7 +99,7 @@ def test_report_as_batch():
 
     evaluations = []
     for i in range(3):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         evaluation = es.create_evaluation(objectives={"loss": i})
         evaluations.append(evaluation)
 
@@ -169,7 +169,7 @@ def test_sequential_with_failed_evaluations(n_evaluations=16):
     )
 
     for i in range(n_evaluations // 2):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
         if np.random.rand() < 0.8:
             evaluation = es.create_evaluation(
@@ -180,14 +180,14 @@ def test_sequential_with_failed_evaluations(n_evaluations=16):
         opt.report(evaluation)
 
     for i in range(n_evaluations // 2, n_evaluations):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
         assert es.optimizer_info["model_based_pick"]
         evaluation = es.create_evaluation(objectives={"loss": es.configuration["p1"]})
         opt.report(evaluation)
 
     with pytest.raises(OptimizationComplete):
-        opt.get_evaluation_specification()
+        opt.generate_evaluation_specification()
 
 
 def test_sequential_with_non_finite_losses(n_evaluations=16):
@@ -213,7 +213,7 @@ def test_sequential_with_non_finite_losses(n_evaluations=16):
     ]
 
     for i in range(n_evaluations // 2):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
 
         if i // len(return_values) == 0:
@@ -227,14 +227,14 @@ def test_sequential_with_non_finite_losses(n_evaluations=16):
         opt.report(evaluation)
 
     for i in range(n_evaluations // 2, n_evaluations):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         assert es.optimizer_info["configuration_key"] == (i, 0, 0)
         assert es.optimizer_info["model_based_pick"]
         evaluation = es.create_evaluation(objectives={"loss": es.configuration["p1"]})
         opt.report(evaluation)
 
     with pytest.raises(OptimizationComplete):
-        opt.get_evaluation_specification()
+        opt.generate_evaluation_specification()
 
 
 def test_with_none_min_samples_in_model():
@@ -264,7 +264,7 @@ def test_minimize_quadratic():
 
     evals = []
     for _ in range(9 + 3 + 1):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         e = es.create_evaluation(objectives={"loss": es.configuration["p1"] ** 2})
         evals.append(e)
         opt.report(e)
@@ -291,7 +291,7 @@ def test_maximize_quadratic():
 
     evals = []
     for _ in range(9 + 3 + 1):
-        es = opt.get_evaluation_specification()
+        es = opt.generate_evaluation_specification()
         e = es.create_evaluation(objectives={"score": -(es.configuration["p1"] ** 2)})
         evals.append(e)
         opt.report(e)
