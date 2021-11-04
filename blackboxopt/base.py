@@ -149,7 +149,7 @@ class Optimizer(abc.ABC):
             self.search_space.seed(self.seed)
 
     @abc.abstractmethod
-    def create_evaluation_specification(self) -> EvaluationSpecification:
+    def generate_evaluation_specification(self) -> EvaluationSpecification:
         """Get next configuration and settings to evaluate.
 
         Raises:
