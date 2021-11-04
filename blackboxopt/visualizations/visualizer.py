@@ -9,6 +9,7 @@ from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
+import plotly
 import plotly.express as px
 import plotly.graph_objects as go
 import scipy.stats as sps
@@ -17,6 +18,8 @@ from blackboxopt import Evaluation
 from blackboxopt.visualizations import utils
 
 QUALITATIVE_COLORS = px.colors.qualitative.G10
+
+plotly.io.to_html = utils.patch_plotly_io_to_html(plotly.io.to_html)
 
 
 class NoSuccessfulEvaluationsError(ValueError):
@@ -165,7 +168,7 @@ def multi_objective_visualization(evaluations: List[Evaluation]):
             False: QUALITATIVE_COLORS[5],
             True: QUALITATIVE_COLORS[2],
         },
-        title="Scatter matrix of multi objective losses",
+        title="[BBO] Scatter matrix of multi objective losses",
         custom_data=hover_data_columns,
     )
     fig.update_traces(
@@ -254,7 +257,7 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, y_range, log_x, log_y)
         fig.update_layout(
-            title="Reported loss over time",
+            title="[BBO] Reported loss over time",
             legend_title_text="Fidelity",
             xaxis_title="Time [s]",
             yaxis_title="Loss",
@@ -288,7 +291,7 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, y_range, log_x, log_y)
         fig.update_layout(
-            title="Reported loss over duration",
+            title="[BBO] Reported loss over duration",
             legend_title_text="Fidelity",
             xaxis_title="Duration [s]",
             yaxis_title="Loss",
@@ -318,7 +321,7 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, None, log_x)
         fig.update_layout(
-            title="CDF of losses by fidelity",
+            title="[BBO] CDF of losses by fidelity",
             legend_title_text="Fidelity",
             xaxis_title="Loss",
             yaxis_title="CDF",
@@ -348,7 +351,7 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, None, log_x)
         fig.update_layout(
-            title="CDF of durations by fidelity",
+            title="[BBO] CDF of durations by fidelity",
             legend_title_text="Fidelity",
             xaxis_title="Duration [s]",
             yaxis_title="CDF",
