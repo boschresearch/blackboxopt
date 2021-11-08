@@ -3,10 +3,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import importlib.resources
+from functools import wraps
 from typing import List
 
 import numpy as np
 
+import blackboxopt
 from blackboxopt import Evaluation
 
 
@@ -171,3 +174,48 @@ def mask_pareto_efficient(costs: np.ndarray):
             )  # Keep any point with a lower cost
             is_efficient[i] = True  # And keep self
     return is_efficient
+
+
+def patch_plotly_io_to_html(method):
+    """Patch `plotly.io.to_html` with additional javascript to improve usability.
+
+    Might become obsolete, when https://github.com/plotly/plotly.js/issues/998 gets
+    fixed.
+
+    Injects `<script>`-tag with content from `to_html_patch.js` at the end of the HTML
+    output. But only, if the chart title starts with "[BBO]" (to minimize side
+    effects, if the user uses `plotly.io` for something else).
+
+    `plotly.io.to_html` is also internally used for `figure.show()` and
+    `figure.to_html()`, so this is covered, too.
+
+    Args:
+        method: Original `plotly.io.to_html` method.
+
+    Returns:
+        Patched method.
+    """
+
+    @wraps(method)
+    def wrapped(*args, **kwargs):
+        html = method(*args, **kwargs)
+
+        # Test if title text contains "[BBO]"
+        if html.find('"title": {"text": "[BBO]') < 0:
+            return html
+
+        js = importlib.resources.read_text(
+            blackboxopt.visualizations, "to_html_patch.js"
+        )
+        html_to_inject = f"<script>{js}</script>"
+        insert_idx = html.rfind("</body>")
+        if insert_idx >= 0:
+            # Full html page got rendered, inject <script> before <\body>
+            html = html[:insert_idx] + html_to_inject + html[insert_idx:]
+        else:
+            # Only chart part got rendered: append <script> at the end
+            html = html + html_to_inject
+
+        return html
+
+    return wrapped
