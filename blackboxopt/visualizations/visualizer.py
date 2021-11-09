@@ -19,7 +19,7 @@ from blackboxopt.visualizations import utils
 
 QUALITATIVE_COLORS = px.colors.qualitative.G10
 
-plotly.io.to_html = utils.patch_plotly_io_to_html(plotly.io.to_html)
+plotly.io._html.to_html = utils.patch_plotly_io_to_html(plotly.io._html.to_html)
 
 
 class NoSuccessfulEvaluationsError(ValueError):

@@ -7,6 +7,7 @@ import json
 import os
 
 import numpy as np
+import plotly.io._base_renderers
 import pytest
 
 from blackboxopt import Evaluation, EvaluationSpecification
@@ -219,3 +220,43 @@ def test_mask_pareto_efficient():
     assert pareto_efficient[2]
     assert pareto_efficient[3]
     assert not pareto_efficient[4]
+
+
+def test_patching_of_plotly_html(tmpdir, monkeypatch):
+    # Create example figure
+    evaluations = [
+        Evaluation(
+            objectives={"loss_1": 0.5 * i, "loss_2": -0.5 * i},
+            configuration={
+                "mlp_shape": 0.14054333845130684,
+                "optimizer": "Adam",
+                "batch_size": 160,
+            },
+            optimizer_info={"rung": -1},
+            user_info={},
+            settings={"fidelity": 2.5},
+        )
+        for i in range(5)
+    ]
+    fig = multi_objective_visualization(evaluations)
+
+    # Test displaying in browser
+    def open_html_in_browser_mocked(html, *args, **kwargs):
+        print(html)
+        assert "persistentHoverLayer" in html
+
+    monkeypatch.setattr(
+        plotly.io._base_renderers, "open_html_in_browser", open_html_in_browser_mocked
+    )
+    fig.show()
+
+    # Test writing to file
+    html_file = tmpdir.join("test_output.html")
+    fig.write_html(html_file)
+    with open(html_file, "r") as fh:
+        html = fh.read()
+        assert "persistentHoverLayer" in html
+
+    # Test ouutput html string
+    html = fig.to_html(html_file)
+    assert "persistentHoverLayer" in html
