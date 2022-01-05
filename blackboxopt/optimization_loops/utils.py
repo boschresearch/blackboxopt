@@ -46,6 +46,7 @@ def evaluation_function_wrapper(
     evaluation_function: Callable[[EvaluationSpecification], Evaluation],
     evaluation_specification: EvaluationSpecification,
     objectives: List[Objective],
+    exit_on_unhandled_exception: bool,
     logger: logging.Logger,
 ) -> Evaluation:
     """Wrapper for evaluation functions. The evaluation result returned by the
@@ -55,7 +56,10 @@ def evaluation_function_wrapper(
     """
     try:
         evaluation = evaluation_function(evaluation_specification)
-    except Exception:
+    except Exception as e:
+        if exit_on_unhandled_exception:
+            raise e
+
         stacktrace = traceback.format_exc()
 
         logger.warning("Report FAILURE due to unhandled error during evaluation")

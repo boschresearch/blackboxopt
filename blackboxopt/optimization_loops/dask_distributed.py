@@ -37,10 +37,12 @@ class MinimalDaskScheduler:
         self,
         dask_client: dd.Client,
         objectives: List[Objective],
+        exit_on_unhandled_exception: bool,
         logger: logging.Logger,
     ):
         self.client = dask_client
         self.objectives = objectives
+        self.exit_on_unhandled_exception = exit_on_unhandled_exception
         self.logger = logger
         self._not_done_futures: Set = set()
 
@@ -64,6 +66,7 @@ class MinimalDaskScheduler:
             evaluation_function=eval_function,
             evaluation_specification=eval_spec,
             objectives=self.objectives,
+            exit_on_unhandled_exception=self.exit_on_unhandled_exception,
             logger=self.logger,
         )
         f.bbo_eval_spec = eval_spec
@@ -102,6 +105,7 @@ def run_optimization_loop(
     dask_client: dd.Client,
     timeout_s: float = float("inf"),
     max_evaluations: int = None,
+    exit_on_unhandled_exception: bool = False,
     logger: logging.Logger = None,
 ) -> List[Evaluation]:
     """Convenience wrapper for an optimization loop that uses Dask to parallelize
@@ -123,6 +127,11 @@ def run_optimization_loop(
             optimization step that exceeded the timeout (in seconds). Defaults to inf.
         max_evaluations: If given, the optimization loop will terminate after the given
             number of steps. Defaults to None.
+        exit_on_unhandled_exception: Whether to exit on an unhandled exception raised by
+            the evaluation function or instead store their stack trace in the
+            evaluation's `stacktrace` attribute. Set to False if there are spurious
+            errors due to e.g. numerical instability that should not halt the
+            optimization loop.
         logger: The logger to use for logging progress. Defaults to None.
 
     Returns:
@@ -138,7 +147,10 @@ def run_optimization_loop(
     evaluations: List[Evaluation] = []
 
     dask_scheduler = MinimalDaskScheduler(
-        dask_client=dask_client, objectives=objectives, logger=logger
+        dask_client=dask_client,
+        objectives=objectives,
+        exit_on_unhandled_exception=exit_on_unhandled_exception,
+        logger=logger,
     )
 
     _max_evaluations = init_max_evaluations_with_limit_logging(
