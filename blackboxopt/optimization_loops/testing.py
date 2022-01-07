@@ -67,7 +67,7 @@ def failing_evaluations_abort_optimization_loop(
     except Exception:
         pass
 
-    assert not evaluations
+    assert not evaluations, evaluations
 
 
 def reporting_user_info(run_optimization_loop: Callable, loop_kwargs: dict):

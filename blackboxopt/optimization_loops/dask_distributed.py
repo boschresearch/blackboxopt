@@ -80,15 +80,15 @@ class MinimalDaskScheduler:
 
             return_values: List[Evaluation] = []
             for f in all_futures.done:
-
                 if f.status == "error":
-                    return_values.append(
-                        Evaluation(
-                            objectives={o.name: None for o in self.objectives},
-                            stacktrace=str(f.traceback()),
-                            **f.bbo_eval_spec
+                    if not self.exit_on_unhandled_exception:
+                        return_values.append(
+                            Evaluation(
+                                objectives={o.name: None for o in self.objectives},
+                                stacktrace=str(f.traceback()),
+                                **f.bbo_eval_spec
+                            )
                         )
-                    )
                 else:
                     return_values.append(f.result())
 

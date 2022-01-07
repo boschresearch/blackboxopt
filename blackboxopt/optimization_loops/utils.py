@@ -12,6 +12,19 @@ from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.base import ObjectivesError, raise_on_unknown_or_incomplete
 
 
+class EvaluationFunctionError(ValueError):
+    """Raised on errors originating from the user defined evaluation function."""
+
+    def __init__(self, evaluation_specification: EvaluationSpecification):
+        self.message = (
+            "An error occurred when attempting to call the user specified evaluation "
+            "function with the specification below. Please check the cause of this "
+            "exception in the output further up for the original stacktrace.\n"
+            f"{evaluation_specification}"
+        )
+        self.evaluation_specification = evaluation_specification
+
+
 def init_max_evaluations_with_limit_logging(
     timeout_s: float, logger: logging.Logger, max_evaluations: int = None
 ) -> float:
@@ -51,14 +64,16 @@ def evaluation_function_wrapper(
 ) -> Evaluation:
     """Wrapper for evaluation functions. The evaluation result returned by the
     evaluation function is checked to contain all relevant objectives. An empty
-    evaluation with a stacktrace is reported to the optiizer in case an unhandled
-    Exception occurrs during the evaluation function call.
+    evaluation with a stacktrace is reported to the optimizer in case an unhandled
+    Exception occurrs during the evaluation function call when
+    `exit_on_unhandled_exception` is set to `False`, otherwise an
+    `EvaluationFunctionError` is raised based on the original exception.
     """
     try:
         evaluation = evaluation_function(evaluation_specification)
     except Exception as e:
         if exit_on_unhandled_exception:
-            raise e
+            raise EvaluationFunctionError from e
 
         stacktrace = traceback.format_exc()
 
