@@ -59,25 +59,30 @@ def evaluation_function_wrapper(
     evaluation_function: Callable[[EvaluationSpecification], Evaluation],
     evaluation_specification: EvaluationSpecification,
     objectives: List[Objective],
-    exit_on_unhandled_exception: bool,
+    catch_exceptions_from_evaluation_function: bool,
     logger: logging.Logger,
 ) -> Evaluation:
     """Wrapper for evaluation functions. The evaluation result returned by the
     evaluation function is checked to contain all relevant objectives. An empty
     evaluation with a stacktrace is reported to the optimizer in case an unhandled
     Exception occurrs during the evaluation function call when
-    `exit_on_unhandled_exception` is set to `False`, otherwise an
+    `catch_exceptions_from_evaluation_function` is set to `True`, otherwise an
     `EvaluationFunctionError` is raised based on the original exception.
     """
     try:
         evaluation = evaluation_function(evaluation_specification)
     except Exception as e:
-        if exit_on_unhandled_exception:
-            raise EvaluationFunctionError from e
+        if not catch_exceptions_from_evaluation_function:
+            raise EvaluationFunctionError(evaluation_specification) from e
 
         stacktrace = traceback.format_exc()
 
-        logger.warning("Report FAILURE due to unhandled error during evaluation")
+        logger.warning(
+            "Reporting FAILURE due to unhandled error in evaluation function. See "
+            + "DEBUG log level output or evaluation.stacktrace for details. "
+            + "Alternatively, disable automated exception handling by setting "
+            + "catch_exceptions_from_evaluation_function=False to exit on errors."
+        )
         logger.debug(stacktrace)
 
         evaluation = evaluation_specification.create_evaluation(

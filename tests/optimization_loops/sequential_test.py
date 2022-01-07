@@ -8,6 +8,7 @@ import pytest
 from blackboxopt import Objective
 from blackboxopt.optimization_loops import testing
 from blackboxopt.optimization_loops.sequential import run_optimization_loop
+from blackboxopt.optimization_loops.utils import EvaluationFunctionError
 from blackboxopt.optimizers.random_search import RandomSearch
 
 
@@ -24,8 +25,19 @@ def test_failed_evaluations_handled():
     evals = run_optimization_loop(
         RandomSearch(testing.SPACE, [Objective("loss", False)], max_steps=max_steps),
         __evaluation_function,
-        exit_on_unhandled_exception=False,
+        catch_exceptions_from_evaluation_function=True,
     )
 
     assert len(evals) == max_steps
     assert all([e.stacktrace is not None and e.all_objectives_none for e in evals])
+
+
+def test_failed_evaluation_interrupts_loop_by_default():
+    def __evaluation_function(_):
+        raise RuntimeError("Test Exception")
+
+    with pytest.raises(EvaluationFunctionError):
+        run_optimization_loop(
+            RandomSearch(testing.SPACE, [Objective("loss", False)], max_steps=10),
+            __evaluation_function,
+        )

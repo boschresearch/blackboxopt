@@ -7,7 +7,6 @@ import time
 from typing import Callable
 
 import parameterspace as ps
-import pytest
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.optimizers.random_search import RandomSearch
@@ -49,27 +48,6 @@ def limit_with_loop_timeout(run_optimization_loop: Callable, loop_kwargs: dict):
     assert all([not e.all_objectives_none for e in evaluations])
 
 
-def failing_evaluations_abort_optimization_loop(
-    run_optimization_loop: Callable, loop_kwargs: dict
-):
-    def __evaluation_function(_):
-        raise RuntimeError("Test Exception")
-
-    evaluations = []
-    try:
-        evaluations.extend(
-            run_optimization_loop(
-                RandomSearch(SPACE, [Objective("loss", False)], max_steps=10),
-                __evaluation_function,
-                **loop_kwargs,
-            )
-        )
-    except Exception:
-        pass
-
-    assert not evaluations, evaluations
-
-
 def reporting_user_info(run_optimization_loop: Callable, loop_kwargs: dict):
     def __evaluation_function(eval_spec):
         return eval_spec.create_evaluation(
@@ -91,6 +69,5 @@ def reporting_user_info(run_optimization_loop: Callable, loop_kwargs: dict):
 ALL_REFERENCE_TESTS = [
     limit_with_max_evaluations,
     limit_with_loop_timeout,
-    failing_evaluations_abort_optimization_loop,
     reporting_user_info,
 ]

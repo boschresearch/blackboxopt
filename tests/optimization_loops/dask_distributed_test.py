@@ -52,7 +52,6 @@ def test_restarting_workers(tmpdir):
     scheduler = MinimalDaskScheduler(
         dask_client=client,
         objectives=objectives,
-        exit_on_unhandled_exception=False,
         logger=logging.getLogger("blackboxopt"),
     )
 
