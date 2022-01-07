@@ -25,7 +25,7 @@ def run_optimization_loop(
     evaluation_function: Callable[[EvaluationSpecification], Evaluation],
     timeout_s: float = float("inf"),
     max_evaluations: int = None,
-    exit_on_unhandled_exception: bool = False,
+    exit_on_unhandled_exception: bool = True,
     logger: logging.Logger = None,
 ) -> List[Evaluation]:
     """Convenience wrapper for an optimization loop that sequentially fetches evaluation

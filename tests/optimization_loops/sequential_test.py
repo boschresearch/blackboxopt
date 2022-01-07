@@ -16,13 +16,16 @@ def test_all_reference_tests(reference_test):
     reference_test(run_optimization_loop, {})
 
 
-def test_failing_evaluations_with_exit_on_unhandled_exception():
+def test_failed_evaluations_handled():
     def __evaluation_function(_):
         raise RuntimeError("Test Exception")
 
-    with pytest.raises(RuntimeError):
-        run_optimization_loop(
-            RandomSearch(testing.SPACE, [Objective("loss", False)], max_steps=10),
-            __evaluation_function,
-            exit_on_unhandled_exception=True,
-        )
+    max_steps = 10
+    evals = run_optimization_loop(
+        RandomSearch(testing.SPACE, [Objective("loss", False)], max_steps=max_steps),
+        __evaluation_function,
+        exit_on_unhandled_exception=False,
+    )
+
+    assert len(evals) == max_steps
+    assert all([e.stacktrace is not None and e.all_objectives_none for e in evals])

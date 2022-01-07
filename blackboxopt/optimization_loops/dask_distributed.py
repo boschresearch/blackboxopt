@@ -105,7 +105,7 @@ def run_optimization_loop(
     dask_client: dd.Client,
     timeout_s: float = float("inf"),
     max_evaluations: int = None,
-    exit_on_unhandled_exception: bool = False,
+    exit_on_unhandled_exception: bool = True,
     logger: logging.Logger = None,
 ) -> List[Evaluation]:
     """Convenience wrapper for an optimization loop that uses Dask to parallelize
