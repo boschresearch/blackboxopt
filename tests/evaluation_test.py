@@ -103,6 +103,30 @@ def test_to_json():
     )
 
 
+def test_to_dict():
+    spec = EvaluationSpecification(
+        configuration={"p1": 1.2},
+        settings={"fidelity": 1.0},
+        optimizer_info={"id": 123},
+        created_unixtime=1.0,
+    )
+    spec_dict = spec.dict()
+    assert spec_dict["configuration"] == spec.configuration
+    assert spec_dict["settings"] == spec.settings
+    assert spec_dict["optimizer_info"] == spec.optimizer_info
+    assert spec_dict["created_unixtime"] == spec.created_unixtime
+    assert spec_dict["context"] is None
+
+    result = Evaluation(
+        objectives={"mse": 0.0, "r²": 1.0}, finished_unixtime=2.0, **spec
+    )
+    result_dict = result.dict()
+    assert result_dict["objectives"] == result.objectives
+    assert result_dict["finished_unixtime"] == result.finished_unixtime
+    assert result_dict["user_info"] is None
+    assert result_dict["stacktrace"] is None
+
+
 def test_get_specification_from_evaluation():
     eval_spec = EvaluationSpecification(
         configuration={"p1": 1.2},
