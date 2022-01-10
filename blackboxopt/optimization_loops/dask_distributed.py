@@ -64,6 +64,7 @@ class MinimalDaskScheduler:
             evaluation_function=eval_function,
             evaluation_specification=eval_spec,
             objectives=self.objectives,
+            catch_exceptions_from_evaluation_function=True,
             logger=self.logger,
         )
         f.bbo_eval_spec = eval_spec
@@ -77,7 +78,6 @@ class MinimalDaskScheduler:
 
             return_values: List[Evaluation] = []
             for f in all_futures.done:
-
                 if f.status == "error":
                     return_values.append(
                         Evaluation(

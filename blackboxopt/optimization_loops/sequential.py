@@ -25,6 +25,7 @@ def run_optimization_loop(
     evaluation_function: Callable[[EvaluationSpecification], Evaluation],
     timeout_s: float = float("inf"),
     max_evaluations: int = None,
+    catch_exceptions_from_evaluation_function: bool = False,
     logger: logging.Logger = None,
 ) -> List[Evaluation]:
     """Convenience wrapper for an optimization loop that sequentially fetches evaluation
@@ -45,6 +46,11 @@ def run_optimization_loop(
             optimization step that exceeded the timeout (in seconds). Defaults to inf.
         max_evaluations: If given, the optimization loop will terminate after the given
             number of steps.
+        catch_exceptions_from_evaluation_function: Whether to exit on an unhandled
+            exception raised by the evaluation function or instead store their stack
+            trace in the evaluation's `stacktrace` attribute. Set to True if there are
+            spurious errors due to e.g. numerical instability that should not halt the
+            optimization loop.
         logger: The logger to use for logging progress.
 
     Returns:
@@ -77,6 +83,7 @@ def run_optimization_loop(
                 evaluation_specification=evaluation_specification,
                 logger=logger,
                 objectives=objectives,
+                catch_exceptions_from_evaluation_function=catch_exceptions_from_evaluation_function,
             )
             optimizer.report(evaluation)
             evaluations.append(evaluation)

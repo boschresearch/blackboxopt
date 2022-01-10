@@ -48,22 +48,6 @@ def limit_with_loop_timeout(run_optimization_loop: Callable, loop_kwargs: dict):
     assert all([not e.all_objectives_none for e in evaluations])
 
 
-def failing_evaluations(run_optimization_loop: Callable, loop_kwargs: dict):
-    def __evaluation_function(_):
-        raise RuntimeError("Test Exception")
-
-    max_steps = 10
-    evaluations = run_optimization_loop(
-        RandomSearch(SPACE, [Objective("loss", False)], max_steps=max_steps),
-        __evaluation_function,
-        **loop_kwargs,
-    )
-
-    assert len(evaluations) == max_steps
-    assert all([e.all_objectives_none for e in evaluations])
-    assert all([e.stacktrace is not None for e in evaluations])
-
-
 def reporting_user_info(run_optimization_loop: Callable, loop_kwargs: dict):
     def __evaluation_function(eval_spec):
         return eval_spec.create_evaluation(
@@ -85,6 +69,5 @@ def reporting_user_info(run_optimization_loop: Callable, loop_kwargs: dict):
 ALL_REFERENCE_TESTS = [
     limit_with_max_evaluations,
     limit_with_loop_timeout,
-    failing_evaluations,
     reporting_user_info,
 ]
