@@ -272,15 +272,15 @@ def test_get_incumbent_objective_over_time_single_fidelity():
         fidelities=np.array([1.0, 2.0, 1.0, 2.0, 2.0, 2.0]),
         target_fidelity=2.0,
     )
-    np.testing.assert_array_equal(objective_values, np.array([2.0, 2.0, 0.0, 0.0, 0.0]))
-    np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 5.0, 6.0]))
+    np.testing.assert_array_equal(objective_values, np.array([2.0, 2.0, 0.0, 0.0]))
+    np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 6.0]))
 
     times, objective_values = get_incumbent_objective_over_time_single_fidelity(
         objective=Objective("score", greater_is_better=True),
-        objective_values=np.array([0.0, 0.0, 1.0, 2.0, 1.0]),
-        times=np.array([1.0, 2.0, 3.0, 4.0, 5.0]),
-        fidelities=np.array([1.0, 2.0, 1.0, 2.0, 2.0]),
+        objective_values=np.array([0.0, 0.0, 1.0, 2.0, 1.0, 1.0]),
+        times=np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]),
+        fidelities=np.array([1.0, 2.0, 1.0, 2.0, 2.0, 1.0]),
         target_fidelity=2.0,
     )
-    np.testing.assert_array_equal(objective_values, np.array([0.0, 0.0, 2.0, 2.0, 2.0]))
-    np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 5.0, 6.0]))
+    np.testing.assert_array_equal(objective_values, np.array([0.0, 0.0, 2.0, 2.0]))
+    np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 6.0]))
