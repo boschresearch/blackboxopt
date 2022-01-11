@@ -10,7 +10,7 @@ from typing import List
 import numpy as np
 
 import blackboxopt
-from blackboxopt import Evaluation
+from blackboxopt import Evaluation, Objective
 
 
 def get_t0(evaluations: List[Evaluation]):
@@ -74,26 +74,33 @@ def get_objective_values_matrix(evaluations: List[Evaluation]):
 
 
 def get_incumbent_objective_over_time_single_fidelity(
-    losses, times, fidelities, target_fidelity
+    objective: Objective,
+    objective_values: np.ndarray,
+    times: np.ndarray,
+    fidelities: np.ndarray,
+    target_fidelity: float,
 ):
     """Filter for results with given target fidelity and generate incumbent trace."""
-    # filter out fidelity and take minimum of losses
-    idx = np.logical_and(fidelities == target_fidelity, np.isfinite(losses))
+    # filter out fidelity and take min/max of objective_values
+    idx = np.logical_and(fidelities == target_fidelity, np.isfinite(objective_values))
     _times = times[idx]
-    _losses = np.minimum.accumulate(losses[idx])
-    # get unique loss values and sort their indices (to be in chronological order)
-    _, idx = np.unique(_losses, return_index=True)
+    if objective.greater_is_better:
+        _objective_values = np.maximum.accumulate(objective_values[idx])
+    else:
+        _objective_values = np.minimum.accumulate(objective_values[idx])
+    # get unique objective values and sort their indices (to be in chronological order)
+    _, idx = np.unique(_objective_values, return_index=True)
     idx.sort()
-    # find losses
-    _losses = _losses[idx]
+    # find objective_values
+    _objective_values = _objective_values[idx]
     _times = _times[idx]
     # add steps where a new incumbent was found
     _times = np.repeat(_times, 2)[1:]
-    _losses = np.repeat(_losses, 2)[:-1]
+    _objective_values = np.repeat(_objective_values, 2)[:-1]
     # append best value for largest time to extend the lines
     _times = np.concatenate([_times, np.nanmax(times, keepdims=True)])
-    _losses = np.concatenate([_losses, _losses[-1:]])
-    return _times, _losses
+    _objective_values = np.concatenate([_objective_values, _objective_values[-1:]])
+    return _times, _objective_values
 
 
 def dict_to_hovertext(d):

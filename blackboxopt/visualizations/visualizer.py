@@ -244,7 +244,7 @@ class Visualizer:
             )
 
             times, objectives = utils.get_incumbent_objective_over_time_single_fidelity(
-                self.objective_values, self.times, self.fidelities, f
+                self.objective, self.objective_values, self.times, self.fidelities, f
             )
             fig.add_scatter(
                 x=times,
@@ -259,7 +259,7 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, y_range, log_x, log_y)
         fig.update_layout(
-            title="[BBO] Reported {self.objective.name} over time",
+            title=f"[BBO] Reported {self.objective.name} over time",
             legend_title_text="Fidelity",
             xaxis_title="Time [s]",
             yaxis_title=self.objective.name,
@@ -295,7 +295,7 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, y_range, log_x, log_y)
         fig.update_layout(
-            title="[BBO] Reported {self.objective.name} over duration",
+            title=f"[BBO] Reported {self.objective.name} over duration",
             legend_title_text="Fidelity",
             xaxis_title="Duration [s]",
             yaxis_title=self.objective.name,
@@ -325,7 +325,7 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, None, log_x)
         fig.update_layout(
-            title="[BBO] CDF of {self.objective.name} by fidelity",
+            title=f"[BBO] CDF of {self.objective.name} by fidelity",
             legend_title_text="Fidelity",
             xaxis_title=self.objective.name,
             yaxis_title="CDF",

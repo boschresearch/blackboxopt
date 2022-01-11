@@ -8,7 +8,10 @@ import plotly.io._base_renderers
 import pytest
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
-from blackboxopt.visualizations.utils import mask_pareto_efficient
+from blackboxopt.visualizations.utils import (
+    mask_pareto_efficient,
+    get_incumbent_objective_over_time_single_fidelity,
+)
 from blackboxopt.visualizations.visualizer import (
     NoSuccessfulEvaluationsError,
     Visualizer,
@@ -259,3 +262,25 @@ def test_patching_of_plotly_html(tmpdir, monkeypatch):
     # Test ouutput html string
     html = fig.to_html(html_file)
     assert "persistentHoverLayer" in html
+
+
+def test_get_incumbent_objective_over_time_single_fidelity():
+    times, objective_values = get_incumbent_objective_over_time_single_fidelity(
+        objective=Objective("loss", greater_is_better=False),
+        objective_values=np.array([0.0, 2.0, 1.0, 0.0, 1.0, 0.0]),
+        times=np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]),
+        fidelities=np.array([1.0, 2.0, 1.0, 2.0, 2.0, 2.0]),
+        target_fidelity=2.0,
+    )
+    np.testing.assert_array_equal(objective_values, np.array([2.0, 2.0, 0.0, 0.0, 0.0]))
+    np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 5.0, 6.0]))
+
+    times, objective_values = get_incumbent_objective_over_time_single_fidelity(
+        objective=Objective("score", greater_is_better=True),
+        objective_values=np.array([0.0, 0.0, 1.0, 2.0, 1.0]),
+        times=np.array([1.0, 2.0, 3.0, 4.0, 5.0]),
+        fidelities=np.array([1.0, 2.0, 1.0, 2.0, 2.0]),
+        target_fidelity=2.0,
+    )
+    np.testing.assert_array_equal(objective_values, np.array([0.0, 0.0, 2.0, 2.0, 2.0]))
+    np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 5.0, 6.0]))
