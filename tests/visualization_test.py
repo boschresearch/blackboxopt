@@ -9,8 +9,8 @@ import pytest
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.visualizations.utils import (
-    mask_pareto_efficient,
     get_incumbent_objective_over_time_single_fidelity,
+    mask_pareto_efficient,
 )
 from blackboxopt.visualizations.visualizer import (
     NoSuccessfulEvaluationsError,
