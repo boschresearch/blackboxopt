@@ -3,19 +3,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-import os
-
 import numpy as np
 import plotly.io._base_renderers
 import pytest
 
-from blackboxopt import Evaluation, EvaluationSpecification
-from blackboxopt.visualizations.utils import mask_pareto_efficient
+from blackboxopt import Evaluation, EvaluationSpecification, Objective
+from blackboxopt.visualizations.utils import (
+    get_incumbent_objective_over_time_single_fidelity,
+    mask_pareto_efficient,
+)
 from blackboxopt.visualizations.visualizer import (
     NoSuccessfulEvaluationsError,
     Visualizer,
-    create_hover_information,
     multi_objective_visualization,
 )
 
@@ -49,17 +48,17 @@ def test_visualizer_calls():
         for i in range(5)
     ]
 
-    viz = Visualizer(evaluations)
+    viz = Visualizer(evaluations, Objective("loss", greater_is_better=False))
 
-    viz.loss_over_time()
-    viz.loss_over_duration()
-    viz.cdf_losses()
+    viz.objective_over_time()
+    viz.objective_over_duration()
+    viz.cdf_objective_values()
     viz.cdf_durations()
 
 
 def test_unsuccessful_visualizer_calls():
     with pytest.raises(NoSuccessfulEvaluationsError):
-        Visualizer([])
+        Visualizer([], Objective("loss", greater_is_better=False))
 
     evaluations_without_any_result_with_all_objectives_evaluated = [
         Evaluation(
@@ -75,7 +74,10 @@ def test_unsuccessful_visualizer_calls():
         )
     ] * 5
     with pytest.raises(NoSuccessfulEvaluationsError):
-        Visualizer(evaluations_without_any_result_with_all_objectives_evaluated)
+        Visualizer(
+            evaluations_without_any_result_with_all_objectives_evaluated,
+            Objective("loss", greater_is_better=False),
+        )
 
 
 def test_int_none_float_loss_mix_does_not_break_viz():
@@ -115,10 +117,10 @@ def test_int_none_float_loss_mix_does_not_break_viz():
         ),
     ]
 
-    viz = Visualizer(evaluations)
-    viz.loss_over_time()
-    viz.loss_over_duration()
-    viz.cdf_losses()
+    viz = Visualizer(evaluations, Objective("loss", greater_is_better=False))
+    viz.objective_over_time()
+    viz.objective_over_duration()
+    viz.cdf_objective_values()
     viz.cdf_durations()
 
 
@@ -260,3 +262,25 @@ def test_patching_of_plotly_html(tmpdir, monkeypatch):
     # Test ouutput html string
     html = fig.to_html(html_file)
     assert "persistentHoverLayer" in html
+
+
+def test_get_incumbent_objective_over_time_single_fidelity():
+    times, objective_values = get_incumbent_objective_over_time_single_fidelity(
+        objective=Objective("loss", greater_is_better=False),
+        objective_values=np.array([0.0, 2.0, 1.0, 0.0, 1.0, 0.0]),
+        times=np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]),
+        fidelities=np.array([1.0, 2.0, 1.0, 2.0, 2.0, 2.0]),
+        target_fidelity=2.0,
+    )
+    np.testing.assert_array_equal(objective_values, np.array([2.0, 2.0, 0.0, 0.0]))
+    np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 6.0]))
+
+    times, objective_values = get_incumbent_objective_over_time_single_fidelity(
+        objective=Objective("score", greater_is_better=True),
+        objective_values=np.array([0.0, 0.0, 1.0, 2.0, 1.0, 1.0]),
+        times=np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]),
+        fidelities=np.array([1.0, 2.0, 1.0, 2.0, 2.0, 1.0]),
+        target_fidelity=2.0,
+    )
+    np.testing.assert_array_equal(objective_values, np.array([0.0, 0.0, 2.0, 2.0]))
+    np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 6.0]))

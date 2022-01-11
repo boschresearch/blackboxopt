@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 import plotly.io._html
 import scipy.stats as sps
 
-from blackboxopt import Evaluation
+from blackboxopt import Evaluation, Objective
 from blackboxopt.visualizations import utils
 
 QUALITATIVE_COLORS = px.colors.qualitative.G10
@@ -168,7 +168,7 @@ def multi_objective_visualization(evaluations: List[Evaluation]):
             False: QUALITATIVE_COLORS[5],
             True: QUALITATIVE_COLORS[2],
         },
-        title="[BBO] Scatter matrix of multi objective losses",
+        title="[BBO] Scatter matrix of multi objective values",
         custom_data=hover_data_columns,
     )
     fig.update_traces(
@@ -180,16 +180,18 @@ def multi_objective_visualization(evaluations: List[Evaluation]):
 
 
 class Visualizer:
-    def __init__(self, evaluations: List[Evaluation]):
+    def __init__(self, evaluations: List[Evaluation], objective: Objective):
         times_finished = np.array(utils.get_times_finished(evaluations))
         if len(times_finished) == 0 or np.isnan(times_finished).all():
             raise NoSuccessfulEvaluationsError()
+
+        self.objective = objective
 
         self.times = times_finished - utils.get_t0(evaluations)
         sort_idx = np.argsort(self.times)
         self.times = self.times[sort_idx]
         self.evaluations = [evaluations[i] for i in sort_idx]
-        self.losses = np.array(
+        self.objective_values = np.array(
             utils.get_objective_values(self.evaluations), dtype=float
         )
         self.durations = np.array(utils.get_durations(self.evaluations))
@@ -207,18 +209,18 @@ class Visualizer:
 
         self.info_dicts = [
             {
-                "loss": "%3.2e" % self.losses[i],
+                self.objective.name: "%3.2e" % self.objective_values[i],
                 "duration": str(datetime.timedelta(seconds=int(self.durations[i])))
                 if np.isfinite(self.durations[i])
                 else "N/A",
                 "fidelity": "%3.2e" % self.fidelities[i],
             }
-            for i in range(self.losses.shape[0])
+            for i in range(self.objective_values.shape[0])
         ]
 
         self.optimizer_info_dicts = [e["optimizer_info"] for e in self.evaluations]
 
-    def loss_over_time(self, x_range=None, y_range=None, log_x=False, log_y=False):
+    def objective_over_time(self, x_range=None, y_range=None, log_x=False, log_y=False):
         colors = px.colors.qualitative.G10
         fig = go.Figure()
 
@@ -232,7 +234,7 @@ class Visualizer:
 
             fig.add_scatter(
                 x=self.times[mask],
-                y=self.losses[mask],
+                y=self.objective_values[mask],
                 name="%3.2e" % f,
                 mode="markers",
                 marker=dict(color=colors[i]),
@@ -241,12 +243,12 @@ class Visualizer:
                 text=hover_texts,
             )
 
-            times, losses = utils.get_incumbent_loss_over_time_single_fidelity(
-                self.losses, self.times, self.fidelities, f
+            times, objectives = utils.get_incumbent_objective_over_time_single_fidelity(
+                self.objective, self.objective_values, self.times, self.fidelities, f
             )
             fig.add_scatter(
                 x=times,
-                y=losses,
+                y=objectives,
                 mode="lines",
                 line=dict(color=colors[i]),
                 legendgroup=str(f),
@@ -257,15 +259,17 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, y_range, log_x, log_y)
         fig.update_layout(
-            title="[BBO] Reported loss over time",
+            title=f"[BBO] Reported {self.objective.name} over time",
             legend_title_text="Fidelity",
             xaxis_title="Time [s]",
-            yaxis_title="Loss",
+            yaxis_title=self.objective.name,
         )
 
         return fig
 
-    def loss_over_duration(self, x_range=None, y_range=None, log_x=False, log_y=False):
+    def objective_over_duration(
+        self, x_range=None, y_range=None, log_x=False, log_y=False
+    ):
         colors = px.colors.qualitative.G10
         fig = go.Figure()
 
@@ -279,7 +283,7 @@ class Visualizer:
 
             fig.add_scatter(
                 x=self.durations[mask],
-                y=self.losses[mask],
+                y=self.objective_values[mask],
                 name="%3.2e" % f,
                 mode="markers",
                 marker=dict(color=colors[i]),
@@ -291,15 +295,15 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, y_range, log_x, log_y)
         fig.update_layout(
-            title="[BBO] Reported loss over duration",
+            title=f"[BBO] Reported {self.objective.name} over duration",
             legend_title_text="Fidelity",
             xaxis_title="Duration [s]",
-            yaxis_title="Loss",
+            yaxis_title=self.objective.name,
         )
 
         return fig
 
-    def cdf_losses(self, x_range=None, log_x=False):
+    def cdf_objective_values(self, x_range=None, log_x=False):
 
         colors = px.colors.qualitative.G10
         fig = go.Figure()
@@ -307,7 +311,7 @@ class Visualizer:
         for i, f in enumerate(self.all_fidelities):
 
             mask = self.fidelities == f
-            x, y = utils.get_cdf_x_and_y(self.losses[mask])
+            x, y = utils.get_cdf_x_and_y(self.objective_values[mask])
 
             fig.add_scatter(
                 x=x,
@@ -321,9 +325,9 @@ class Visualizer:
         utils.add_plotly_buttons_for_logscale(fig)
         utils.plotly_set_axis(fig, x_range, None, log_x)
         fig.update_layout(
-            title="[BBO] CDF of losses by fidelity",
+            title=f"[BBO] CDF of {self.objective.name} by fidelity",
             legend_title_text="Fidelity",
-            xaxis_title="Loss",
+            xaxis_title=self.objective.name,
             yaxis_title="CDF",
         )
 
@@ -360,7 +364,7 @@ class Visualizer:
         return fig
 
     def correlation_coefficients(self):
-        matrix = utils.get_loss_matrix(self.evaluations)
+        matrix = utils.get_objective_values_matrix(self.evaluations)
         fidelities = sorted(list(set(self.fidelities)))
 
         corr_coeffs = np.full([len(fidelities), len(fidelities)], np.nan)
@@ -403,7 +407,8 @@ class Visualizer:
         fig.update_yaxes(type="category")
 
         fig.update_layout(
-            title="Loss rank correlation for configurations across fidelities",
+            title=f"[BBO] {self.objective.name} rank correlation for configurations "
+            + "across fidelities",
             xaxis_title="Fidelity",
             yaxis_title="Fidelity",
         )
