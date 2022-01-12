@@ -106,6 +106,9 @@ class EvaluationSpecification(Mapping[str, Any]):
     def to_json(self, **json_dump_kwargs):
         return json.dumps(asdict(self), **json_dump_kwargs)
 
+    def to_dict(self):
+        return self.__dict__
+
 
 @dataclass
 class _EvaluationBase:
