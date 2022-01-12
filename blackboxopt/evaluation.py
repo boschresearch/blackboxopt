@@ -106,8 +106,7 @@ class EvaluationSpecification(Mapping[str, Any]):
     def to_json(self, **json_dump_kwargs):
         return json.dumps(asdict(self), **json_dump_kwargs)
 
-    # TODO: This could be an attribute, a method called dict or to_dict, what to go for?
-    def dict(self):
+    def to_dict(self):
         return self.__dict__
 
 
