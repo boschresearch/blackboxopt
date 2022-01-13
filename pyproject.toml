@@ -40,6 +40,7 @@ mkdocs-awesome-pages-plugin = "^2.5.0"
 mike = "^1.1.0"
 pylint = "^2.8.2"
 pydocstyle = "^6.1.1"
+pre-commit = "^2.16.0"
 
 [tool.poetry.extras]
 all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas"]
