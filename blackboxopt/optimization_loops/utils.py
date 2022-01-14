@@ -40,16 +40,18 @@ def init_max_evaluations_with_limit_logging(
     """
     if max_evaluations:
         logger.info(
-            f"Starting optimization run until complete or {max_evaluations} evaluations"
+            "Starting optimization run. Stops when complete or "
+            + f"{max_evaluations} evaluations reached."
         )
         return float(max_evaluations)
 
     if timeout_s == float("inf"):
-        logger.info("Starting optimization run until complete")
+        logger.info("Starting optimization run. Stops when complete.")
     else:
         timeout_pretty = datetime.timedelta(seconds=timeout_s)
         logger.info(
-            f"Starting optimization run until complete or {timeout_pretty} passed"
+            "Starting optimization run. Stops when complete or "
+            + f"{timeout_pretty} passed."
         )
 
     return float("inf")
