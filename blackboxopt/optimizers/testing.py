@@ -26,10 +26,11 @@ def _initialize_optimizer(
     seed=42,
 ) -> Optimizer:
     space = ps.ParameterSpace()
-    space.add(ps.IntegerParameter("p1", bounds=[1, 32], transformation="log"))
-    space.add(ps.ContinuousParameter("p2", [-2, 2]))
-    space.add(ps.ContinuousParameter("p3", [0, 1]))
-    space.add(ps.CategoricalParameter("p4", [True, False]))
+    space.add(ps.IntegerParameter("p1", bounds=(1, 32), transformation="log"))
+    space.add(ps.ContinuousParameter("p2", (-2, 2)))
+    space.add(ps.ContinuousParameter("p3", (0, 1)))
+    space.add(ps.CategoricalParameter("p4", (True, False)))
+    space.add(ps.OrdinalParameter("p5", ("small", "medium", "large")))
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
         return optimizer_class(space, objectives, seed=seed, **optimizer_kwargs)
