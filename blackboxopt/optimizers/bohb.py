@@ -12,10 +12,13 @@
 #     - docstrings and type hints
 
 import logging
+from copy import deepcopy
+from typing import Any, Dict, Tuple
 
+import parameterspace as ps
 from parameterspace.base import SearchSpace
 
-from blackboxopt import Objective
+from blackboxopt import Evaluation, EvaluationSpecification, Objective
 
 try:
     from blackboxopt.optimizers.staged.bohb import Sampler as BOHBSampler
@@ -26,6 +29,53 @@ except ImportError as e:
         "Unable to import BOHB optimizer specific dependencies. "
         + "Make sure to install blackboxopt[bohb]"
     ) from e
+
+
+def _replace_ordinal_with_integer_parameters(
+    space: SearchSpace,
+) -> Tuple[ps.ParameterSpace, Dict[str, Any]]:
+    """Replace all ordinal parameters in the given space with integer parameters."""
+    if not isinstance(space, ps.ParameterSpace):
+        raise ValueError(
+            "This operation is only supported for ParameterSpace instances"
+        )
+    _space = deepcopy(space)
+    original_ordinal_values = {}
+    for entry in _space:
+        if isinstance(entry["parameter"], ps.OrdinalParameter):
+            name = entry["parameter"].name
+            values = entry["parameter"].values
+            original_ordinal_values[name] = values
+            entry["parameter"] = ps.IntegerParameter(
+                name=name, bounds=(0, len(values) - 1)
+            )
+    return _space, original_ordinal_values
+
+
+def _replace_integer_with_ordinal_values(
+    config: Dict[str, Any], ordinal_values: Dict[str, Tuple[Any]]
+):
+    """Replace all integer values in a configuration dictionary for which ordinal values
+    are available.
+    """
+    _config = config.copy()
+    for name, value in _config.items():
+        if name in ordinal_values:
+            _config[name] = ordinal_values[name][value]
+    return _config
+
+
+def _replace_ordinal_with_integer_values(
+    config: Dict[str, Any], ordinal_values: Dict[str, Tuple[Any]]
+):
+    """Replace all ordinal values in a configuration dictionary with their integer index
+    position based on the given ordinal values dictionary.
+    """
+    _config = config.copy()
+    for name, value in _config.items():
+        if name in ordinal_values:
+            _config[name] = ordinal_values[name].index(value)
+    return _config
 
 
 class BOHB(StagedIterationOptimizer):
@@ -98,8 +148,13 @@ class BOHB(StagedIterationOptimizer):
         self.max_fidelity = max_fidelity
         self.eta = eta
 
+        (
+            updated_search_space,
+            self.original_ordinal_values,
+        ) = _replace_ordinal_with_integer_parameters(search_space)
+
         self.config_sampler = BOHBSampler(
-            search_space=search_space,
+            search_space=updated_search_space,
             objective=objective,
             min_samples_in_model=min_samples_in_model,
             top_n_percent=top_n_percent,
@@ -110,7 +165,7 @@ class BOHB(StagedIterationOptimizer):
         )
 
         super().__init__(
-            search_space=search_space,
+            search_space=updated_search_space,
             objective=objective,
             num_iterations=num_iterations,
             seed=seed,
@@ -130,3 +185,18 @@ class BOHB(StagedIterationOptimizer):
             self.objective,
             self.logger,
         )
+
+    def _report(self, evaluation: Evaluation) -> None:
+        updated_eval = deepcopy(evaluation)
+        updated_eval.configuration = _replace_ordinal_with_integer_values(
+            updated_eval.configuration, self.original_ordinal_values
+        )
+        return super()._report(updated_eval)
+
+    def generate_evaluation_specification(self) -> EvaluationSpecification:
+        eval_spec = super().generate_evaluation_specification()
+        updated_eval_spec = deepcopy(eval_spec)
+        updated_eval_spec.configuration = _replace_integer_with_ordinal_values(
+            updated_eval_spec.configuration, self.original_ordinal_values
+        )
+        return updated_eval_spec

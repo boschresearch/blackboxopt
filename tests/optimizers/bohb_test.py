@@ -12,7 +12,12 @@ import pytest
 from blackboxopt import OptimizationComplete, OptimizerNotReady
 from blackboxopt.base import EvaluationsError, Objective
 from blackboxopt.evaluation import Evaluation
-from blackboxopt.optimizers.bohb import BOHB
+from blackboxopt.optimizers.bohb import (
+    BOHB,
+    _replace_integer_with_ordinal_values,
+    _replace_ordinal_with_integer_parameters,
+    _replace_ordinal_with_integer_values,
+)
 from blackboxopt.optimizers.testing import ALL_REFERENCE_TESTS
 
 
@@ -303,3 +308,46 @@ def test_maximize_quadratic():
         [e.objectives["score"] for e in evals if e.settings["fidelity"] == 3.0]
     )
     assert max_fidelity_best == mid_fidelity_best
+
+
+def test_replace_ordinal_with_integer_parameters():
+    space = ps.ParameterSpace()
+    space.add(ps.ContinuousParameter("continuous", (0, 1)))
+    ordinal_values = ("low", "medium", "large")
+    space.add(ps.OrdinalParameter("ordinal", ordinal_values))
+    updated_space, orig_ordinal_values = _replace_ordinal_with_integer_parameters(space)
+    assert orig_ordinal_values["ordinal"] == ordinal_values
+    assert isinstance(updated_space["ordinal"]["parameter"], ps.IntegerParameter)
+
+
+def test_replace_ordinal_with_no_ordinals_but_conditions():
+    space = ps.ParameterSpace()
+    space.add(ps.ContinuousParameter("x1", [-1, 1]))
+    space.add(ps.ContinuousParameter("x2", [1e-5, 1e0], transformation="log"))
+    space.add(ps.CategoricalParameter("c1", [0, 1, 2]))
+    space.add(ps.CategoricalParameter("c2", ["foo", "bar", "baz"]))
+    space.add(ps.IntegerParameter("i1", [1, 16]), lambda c2: c2 == "foo")
+    space.add(
+        ps.IntegerParameter("i2", [1, 1024], transformation="log"),
+        lambda c2: c2 in ["bar", "baz"],
+    )
+    _, orig_ordinal_values = _replace_ordinal_with_integer_parameters(space)
+    assert not orig_ordinal_values
+
+
+def test_replace_integer_with_ordinal_values():
+    config = _replace_integer_with_ordinal_values(
+        config={"continuous": 2.0, "ordinal": 2},
+        ordinal_values={"ordinal": ("small", "medium", "large")},
+    )
+    assert config["continuous"] == 2.0
+    assert config["ordinal"] == "large"
+
+
+def test_replace_ordinal_with_integer_values():
+    config = _replace_ordinal_with_integer_values(
+        config={"continuous": 2.0, "ordinal": "medium"},
+        ordinal_values={"ordinal": ("small", "medium", "large")},
+    )
+    assert config["continuous"] == 2.0
+    assert config["ordinal"] == 1

@@ -91,20 +91,6 @@ def test_sample_around(n_samples=128):
         assert space.from_numerical(another_sample)
 
 
-def test_fail_with_ordinal_parameters():
-    space = ps.ParameterSpace()
-    space.add(ps.OrdinalParameter("o1", ["foo", "bar", "baz"]))
-
-    with pytest.raises(RuntimeError):
-        BOHB(
-            space,
-            Objective("loss", False),
-            min_fidelity=1.0,
-            max_fidelity=3.0,
-            num_iterations=3,
-        )
-
-
 def test_sample_configurations():
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("x1", [-1, 1]))
