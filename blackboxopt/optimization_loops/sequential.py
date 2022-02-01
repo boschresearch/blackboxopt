@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import logging
 import time
 from typing import Callable, List, Union
@@ -76,7 +77,10 @@ def run_optimization_loop(
 
         try:
             evaluation_specification = optimizer.generate_evaluation_specification()
-            logger.debug(f"Evaluating: {evaluation_specification}")
+            logger.info(
+                "The optimizer proposed a specification for evaluation:\n"
+                + f"{json.dumps(evaluation_specification.to_dict(), indent=2)}"
+            )
 
             evaluation = evaluation_function_wrapper(
                 evaluation_function=evaluation_function,
@@ -85,9 +89,12 @@ def run_optimization_loop(
                 objectives=objectives,
                 catch_exceptions_from_evaluation_function=catch_exceptions_from_evaluation_function,
             )
+            logger.info(
+                "Reporting the result from the evaluation function to the optimizer:\n"
+                + f"{json.dumps(evaluation.to_dict(), indent=2)}"
+            )
             optimizer.report(evaluation)
             evaluations.append(evaluation)
-            logger.debug(f"Result: {evaluation}")
 
         except OptimizerNotReady:
             logger.info("Optimizer is not ready yet, retrying in two seconds")
