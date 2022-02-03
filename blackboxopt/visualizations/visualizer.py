@@ -5,7 +5,7 @@
 
 import datetime
 import itertools
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -15,6 +15,7 @@ import plotly.io._html
 import scipy.stats as sps
 
 from blackboxopt import Evaluation, Objective
+from blackboxopt.utils import get_loss_vector
 from blackboxopt.visualizations import utils
 
 QUALITATIVE_COLORS = px.colors.qualitative.G10
@@ -127,31 +128,29 @@ def create_hover_information(sections: dict) -> Tuple[str, List]:
     return template, data_columns
 
 
-def multi_objective_visualization(evaluations: List[Evaluation]):
-    if not evaluations:
-        raise NoSuccessfulEvaluationsError
-
-    # Prepare dataframe for visualization
-    df = evaluations_to_df(evaluations)
-    df["pareto efficient", "pareto efficient"] = utils.mask_pareto_efficient(
-        df["objectives"].values
+def _prepare_for_multi_objective_visualization(
+    df: pd.DataFrame, objectives: Sequence[Objective]
+) -> Tuple[pd.DataFrame, Dict[str, List[str]]]:
+    loss_matrix = np.array(
+        [
+            get_loss_vector(known_objectives=objectives, reported_objectives=ovs)
+            for ovs in df["objectives"].to_dict("records")
+        ]
     )
-
-    # Objectives will be used as dimensions in the plot
-    objective_columns = list(df["objectives"].columns)
+    df["pareto efficient", "pareto efficient"] = utils.mask_pareto_efficient(
+        loss_matrix
+    )
 
     # Map column names (from field index) with "sections" shown in the mouse-over text
     # TODO: Handle case, where e.g. a column in user_info produces naming collision with
     #       a column from another group-index
     hover_sections: Dict[str, list] = {
-        "info": objective_columns + ["pareto efficient", "created_unixtime", "duration"]
+        "info": [o.name for o in objectives]
+        + ["pareto efficient", "created_unixtime", "duration"]
     }
     for section in ["configuration", "user_info", "settings", "optimizer_info"]:
         if section in df.columns:
             hover_sections[section] = list(df[section].columns)
-
-    # Create hover template and list of corresponding dataframe column names
-    hover_template, hover_data_columns = create_hover_information(hover_sections)
 
     # Drop group index for visualizing in plotly
     df.columns = df.columns.droplevel("group")
@@ -160,9 +159,25 @@ def multi_objective_visualization(evaluations: List[Evaluation]):
     df["duration"] = df["duration"].round("s").astype("str")
     df["created_unixtime"] = df["created_unixtime"].dt.round("1s")
 
+    return df, hover_sections
+
+
+def multi_objective_visualization(
+    evaluations: List[Evaluation], objectives: Sequence[Objective]
+):
+    if not evaluations:
+        raise NoSuccessfulEvaluationsError
+
+    # Prepare dataframe for visualization
+    df = evaluations_to_df(evaluations)
+    df, hover_sections = _prepare_for_multi_objective_visualization(df, objectives)
+
+    # Create hover template and list of corresponding dataframe column names
+    hover_template, hover_data_columns = create_hover_information(hover_sections)
+
     fig = px.scatter_matrix(
         df,
-        dimensions=objective_columns,
+        dimensions=[o.name for o in objectives],
         color="pareto efficient",
         color_discrete_sequence={
             False: QUALITATIVE_COLORS[5],

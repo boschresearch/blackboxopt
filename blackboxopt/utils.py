@@ -3,13 +3,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Dict, List, Optional
+from typing import Dict, Optional, Sequence
 
 from blackboxopt.base import Objective
 
 
 def get_loss_vector(
-    known_objectives: List[Objective], reported_objectives: Dict[str, Optional[float]]
+    known_objectives: Sequence[Objective],
+    reported_objectives: Dict[str, Optional[float]],
 ) -> list:
     """Convert reported objectives into a vector of known objectives.
 
