@@ -19,46 +19,69 @@ from blackboxopt.optimizers.staged.bohb import (
 
 
 def test_impute_categorical_values(n_samples=128):
-    vartypes = [0, 3]
-    allowed_categorical_values = set(
-        (np.linspace(0, vartypes[1] - 1, vartypes[1]) + 0.5) / (vartypes[1] + 1)
-    )
-
+    vartypes = [0, 6]
+    allowed_categorical_values = set(np.arange(6))
+    initial_categorical_values = set(np.arange(3))
     data = np.vstack(
         [
             np.random.rand(n_samples),
-            (np.random.randint(vartypes[1], size=n_samples) + 0.5) / (vartypes[1] + 1),
+            np.random.randint(3, size=n_samples),
         ]
     ).T
 
+    # test using values from other points
     data[data[:, 0] > 0.5, 1] = np.nan
     imputed_data = impute_conditional_data(data, vartypes)
     assert np.all(np.isfinite(imputed_data))
-    assert set(imputed_data[:, 1]) == allowed_categorical_values
+    assert set(imputed_data[:, 1]) == initial_categorical_values
 
+    # test using random values, if no point has a value
     data[:, 1] = np.nan
     imputed_data = impute_conditional_data(data, vartypes)
     assert np.all(np.isfinite(imputed_data))
     assert set(imputed_data[:, 1]) == allowed_categorical_values
+
+
+def test_impute_ordinal_values(n_samples=128):
+    vartypes = [0, -4]
+    allowed_ordinal_values = set(np.arange(4))
+    initial_ordinal_values = set(np.arange(2))
+    data = np.vstack(
+        [
+            np.random.rand(n_samples),
+            np.random.randint(2, size=n_samples),
+        ]
+    ).T
+    # test using values from other points
+    data[data[:, 0] > 0.5, 1] = np.nan
+    imputed_data = impute_conditional_data(data, vartypes)
+    assert np.all(np.isfinite(imputed_data))
+    assert set(imputed_data[:, 1]) == initial_ordinal_values
+
+    # test using random values, if no point has a value
+    data[:, 1] = np.nan
+    imputed_data = impute_conditional_data(data, vartypes)
+    assert np.all(np.isfinite(imputed_data))
+    assert set(imputed_data[:, 1]) == allowed_ordinal_values
 
 
 def test_impute_continuous_values(n_samples=128):
     vartypes = [0, 0]
     data = np.random.rand(n_samples, 2)
 
+    # test using values from other points
     data[data[:, 0] > 0.5, 1] = np.nan
     imputed_data = impute_conditional_data(data, vartypes)
     assert np.all(np.isfinite(imputed_data))
 
+    # test using random values, if no point has a value
     data[:, 1] = np.nan
     imputed_data = impute_conditional_data(data, vartypes)
     assert np.all(np.isfinite(imputed_data))
 
 
 def test_sample_around(n_samples=128):
-
     space = ps.ParameterSpace()
-
     space.add(ps.ContinuousParameter("x1", [-1, 1]))
     space.add(ps.ContinuousParameter("x2", [1e-5, 1e0], transformation="log"))
     space.add(ps.CategoricalParameter("c1", [0, 1, 2]))
@@ -89,20 +112,6 @@ def test_sample_around(n_samples=128):
             datum, [0.1] * len(space), vartypes, 0.1, 3
         )
         assert space.from_numerical(another_sample)
-
-
-def test_fail_with_ordinal_parameters():
-    space = ps.ParameterSpace()
-    space.add(ps.OrdinalParameter("o1", ["foo", "bar", "baz"]))
-
-    with pytest.raises(RuntimeError):
-        BOHB(
-            space,
-            Objective("loss", False),
-            min_fidelity=1.0,
-            max_fidelity=3.0,
-            num_iterations=3,
-        )
 
 
 def test_sample_configurations():
