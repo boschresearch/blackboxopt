@@ -131,6 +131,7 @@ def create_hover_information(sections: dict) -> Tuple[str, List]:
 def _prepare_for_multi_objective_visualization(
     df: pd.DataFrame, objectives: Sequence[Objective]
 ) -> Tuple[pd.DataFrame, Dict[str, List[str]]]:
+    # Unify potentially different objective directions according to greater_is_better
     loss_matrix = np.array(
         [
             get_loss_vector(known_objectives=objectives, reported_objectives=ovs)
