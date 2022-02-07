@@ -15,6 +15,8 @@ from blackboxopt.visualizations.utils import (
 from blackboxopt.visualizations.visualizer import (
     NoSuccessfulEvaluationsError,
     Visualizer,
+    _prepare_for_multi_objective_visualization,
+    evaluations_to_df,
     multi_objective_visualization,
 )
 
@@ -140,12 +142,15 @@ def test_multi_objective_visualization():
         for i in range(5)
     ]
 
-    multi_objective_visualization(evaluations)
+    multi_objective_visualization(
+        evaluations=evaluations,
+        objectives=(Objective("loss_1", False), Objective("loss_2", False)),
+    )
 
 
 def test_multi_objective_visualization_no_eval_specs():
     with pytest.raises(NoSuccessfulEvaluationsError):
-        multi_objective_visualization([])
+        multi_objective_visualization(evaluations=[], objectives=())
 
 
 def test_multi_objective_visualization_no_successful_evaluations():
@@ -166,7 +171,8 @@ def test_multi_objective_visualization_no_successful_evaluations():
 
     with pytest.raises(NoSuccessfulEvaluationsError):
         multi_objective_visualization(
-            evaluations_without_any_result_with_all_objectives_evaluated
+            evaluations_without_any_result_with_all_objectives_evaluated,
+            (Objective("loss_1", False), Objective("loss_2", False)),
         )
 
 
@@ -186,7 +192,10 @@ def test_multi_objective_visualization_all_none_evaluations():
         for _ in range(5)
     ]
     with pytest.raises(NoSuccessfulEvaluationsError):
-        multi_objective_visualization(evaluations_with_all_objectives_none)
+        multi_objective_visualization(
+            evaluations_with_all_objectives_none,
+            (Objective("loss_1", False), Objective("loss_2", False)),
+        )
 
 
 def test_multi_objective_visualization_without_fidelities():
@@ -201,7 +210,9 @@ def test_multi_objective_visualization_without_fidelities():
             objectives={"loss": 0.4, "score": 9200},
         ),
     ]
-    multi_objective_visualization(evaluations)
+    multi_objective_visualization(
+        evaluations, (Objective("loss", False), Objective("score", True))
+    )
 
 
 def test_mask_pareto_efficient():
@@ -224,6 +235,26 @@ def test_mask_pareto_efficient():
     assert not pareto_efficient[4]
 
 
+def test_prepare_for_multi_objective_visualization_handles_score_objectives():
+    evaluations = [
+        EvaluationSpecification(configuration={"p1": 1.23}),
+        Evaluation(
+            configuration={"p1": 1.3},
+            objectives={"loss": 1.4, "score": 9001},
+        ),
+        Evaluation(
+            configuration={"p1": 2.3},
+            objectives={"loss": 0.4, "score": 9200},
+        ),
+    ]
+    df, _ = _prepare_for_multi_objective_visualization(
+        evaluations_to_df(evaluations),
+        (Objective("loss", False), Objective("score", True)),
+    )
+    pareto_efficient = df["pareto efficient"].values
+    np.testing.assert_array_equal(pareto_efficient, np.array([False, True]))
+
+
 def test_patching_of_plotly_html(tmpdir, monkeypatch):
     # Create example figure
     evaluations = [
@@ -240,7 +271,9 @@ def test_patching_of_plotly_html(tmpdir, monkeypatch):
         )
         for i in range(5)
     ]
-    fig = multi_objective_visualization(evaluations)
+    fig = multi_objective_visualization(
+        evaluations, (Objective("loss_1", False), Objective("loss_2", False))
+    )
 
     # Test displaying in browser
     def open_html_in_browser_mocked(html, *args, **kwargs):
