@@ -62,14 +62,66 @@ def sample_around_values(
                 v = sps.truncnorm.rvs(-m / bw, (1 - m) / bw, loc=m, scale=bw)
             except Exception:
                 return None
+        elif t > 0:
+            v = m if np.random.rand() < (1 - bw) else np.random.randint(t)
         else:
-            v = (
-                m
-                if np.random.rand() < (1 - bw)
-                else (np.random.randint(t) + 0.5) / (t + 1)
-            )
+            bw = min(0.9999, bw)  # bandwidth has to be less the one for this kernel!
+            diffs = np.abs(np.arange(-t) - m)
+            probs = 0.5 * (1 - bw) * (bw ** diffs)
+            idx = diffs == 0
+            probs[idx] = (idx * (1 - bw))[idx]
+            probs /= probs.sum()
+            v = np.random.choice(-t, p=probs)
         vector.append(v)
     return np.array(vector)
+
+
+def convert_to_statsmodels_kde_representation(
+    array: np.ndarray, vartypes: Union[list, np.ndarray]
+) -> np.ndarray:
+    """Convert numerical representation for categoricals and ordinals to integers.
+    Args:
+        array: Numerical representation of the configurations with categorical and ordinal values
+            mapped into the unit hypercube.
+        vartypes: Encoding of the types of the variables: 0 mean continuous, >0 means
+            categorical with as many different values, and <0 means ordinal with as many values.
+
+    Returns:
+        Numerical representation consistent with the statsmodels package.
+    """
+    processed_vector = np.copy(array)
+
+    for i in range(len(processed_vector)):
+        if vartypes[i] == 0:
+            continue
+        num_values = abs(vartypes[i])
+        processed_vector[i] = np.around((processed_vector[i] * num_values) - 0.5)
+
+    return processed_vector
+
+
+def convert_from_statsmodels_kde_representation(
+    array: np.ndarray, vartypes: Union[list, np.ndarray]
+) -> np.ndarray:
+    """Convert numerical representation for categoricals and ordinals back into the unit hypercube.
+
+    Args:
+        array: Numerical representation of the configurations following the statsmodels convention for
+            categorical and ordinal values being integers.
+        vartypes: Encoding of the types of the variables: 0 mean continuous, >0 means
+            categorical with as many different values, and <0 means ordinal with as many values.
+
+    Returns:
+        Numerical representation consistent with a numerical representation in the hypercube.
+    """
+    processed_vector = np.copy(array)
+
+    for i in range(len(processed_vector)):
+        if vartypes[i] != 0:
+            num_values = abs(vartypes[i])
+            processed_vector[i] = (processed_vector[i] + 0.5) / num_values
+
+    return processed_vector
 
 
 def impute_conditional_data(
@@ -84,7 +136,7 @@ def impute_conditional_data(
         array: Numerical representation of the configurations which can include NaN
             values for inactive variables.
         vartypes: Encoding of the types of the variables: 0 mean continuous, >0 means
-            categorical with as many different values.
+            categorical with as many different values, and <0 means ordinal with as many values.
 
     Returns:
         Numerical representation where all NaNs have been replaced with observed values
@@ -111,9 +163,10 @@ def impute_conditional_data(
                 t = vartypes[nan_idx]
                 if t == 0:
                     datum[nan_idx] = np.random.rand()
-                else:
-                    datum[nan_idx] = (np.random.randint(t) + 0.5) / (t + 1)
-
+                elif t > 0:
+                    datum[nan_idx] = np.random.randint(t)
+                elif t < 0:
+                    datum[nan_idx] = np.random.randint(-t)
             nan_indices = np.argwhere(np.isnan(datum)).flatten()
         return_array[i, :] = datum
     return return_array
@@ -188,10 +241,8 @@ class Sampler(StagedIterationConfigurationSampler):
                 vartypes.append(hp.num_values)
 
             elif isinstance(hp, ps.OrdinalParameter):
-                raise RuntimeError(
-                    "This version on BOHB does not support ordinal hyperparameters. "
-                    + f"Please encode {hp.name} as an integer parameter!"
-                )
+                self.kde_vartypes += "o"
+                vartypes.append(-hp.num_values)
             else:
                 raise RuntimeError(f"This version on BOHB does not support {type(hp)}!")
 
@@ -264,7 +315,9 @@ class Sampler(StagedIterationConfigurationSampler):
 
                 if val < best:
                     best = val
-                    best_vector = vector
+                    best_vector = convert_from_statsmodels_kde_representation(
+                        vector, self.vartypes
+                    )
 
             if best_vector is None:
                 self.logger.debug(
@@ -306,6 +359,10 @@ class Sampler(StagedIterationConfigurationSampler):
                 else objective_value
             )
         config_vector = self.search_space.to_numerical(evaluation.configuration)
+        config_vector = convert_to_statsmodels_kde_representation(
+            config_vector, self.vartypes
+        )
+
         fidelity = evaluation.settings["fidelity"]
 
         if fidelity not in self.configs.keys():
