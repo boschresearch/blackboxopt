@@ -338,7 +338,6 @@ class Sampler(StagedIterationConfigurationSampler):
                 )
 
         except Exception:
-            raise
             self.logger.debug(
                 "Sample base optimization failed. Falling back to a random sample."
             )
