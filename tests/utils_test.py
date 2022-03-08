@@ -28,3 +28,17 @@ from blackboxopt.utils import get_loss_vector
 def test_get_loss_vector(known, reported, expected):
     loss_vector = get_loss_vector(known_objectives=known, reported_objectives=reported)
     np.testing.assert_array_equal(loss_vector, np.array(expected))
+
+
+def test_get_loss_vector_with_custom_none_replacement():
+    known = [Objective("score", True), Objective("loss", False)]
+
+    reported = {"loss": 2.0, "score": None}
+    expected = [np.inf, 2.0]
+
+    loss_vector = get_loss_vector(
+        known_objectives=known,
+        reported_objectives=reported,
+        none_replacement=float("Inf"),
+    )
+    np.testing.assert_array_equal(loss_vector, np.array(expected))
