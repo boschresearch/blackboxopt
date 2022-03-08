@@ -16,8 +16,9 @@ def get_loss_vector(
     """Convert reported objectives into a vector of known objectives.
 
     Args:
-        known_objectives: A sequence of the objectives that e.g. an optimizer was
-            initializated with.
+        known_objectives: A sequence of objectives with names and directions
+            (whether greate is better). The order of the objectives dictates the order
+            of the returned loss values.
         reported_objectives: A dictionary with the objective value for each of the known
             objectives' names.
         none_replacement: The value to use for missing objective values that are `None`
