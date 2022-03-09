@@ -6,7 +6,7 @@
 import json
 import logging
 import time
-from typing import Callable, List, Union
+from typing import Any, Callable, List, Optional, Union
 
 from blackboxopt import (
     Evaluation,
@@ -27,6 +27,7 @@ def run_optimization_loop(
     timeout_s: float = float("inf"),
     max_evaluations: int = None,
     catch_exceptions_from_evaluation_function: bool = False,
+    post_evaluation_callback: Optional[Callable[[Evaluation], Any]] = None,
     logger: logging.Logger = None,
 ) -> List[Evaluation]:
     """Convenience wrapper for an optimization loop that sequentially fetches evaluation
@@ -52,6 +53,8 @@ def run_optimization_loop(
             trace in the evaluation's `stacktrace` attribute. Set to True if there are
             spurious errors due to e.g. numerical instability that should not halt the
             optimization loop.
+        post_evaluation_callback: Reference to a callable that is invoked after each
+            evaluation and takes a `blackboxopt.Evaluation` as its argument.
         logger: The logger to use for logging progress.
 
     Returns:
@@ -95,6 +98,9 @@ def run_optimization_loop(
             )
             optimizer.report(evaluation)
             evaluations.append(evaluation)
+
+            if post_evaluation_callback is not None:
+                post_evaluation_callback(evaluation)
 
         except OptimizerNotReady:
             logger.info("Optimizer is not ready yet, retrying in two seconds")
