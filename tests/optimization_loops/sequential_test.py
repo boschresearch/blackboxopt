@@ -6,6 +6,7 @@
 import pytest
 
 from blackboxopt import Objective
+from blackboxopt.evaluation import Evaluation
 from blackboxopt.optimization_loops import testing
 from blackboxopt.optimization_loops.sequential import run_optimization_loop
 from blackboxopt.optimization_loops.utils import EvaluationFunctionError
@@ -41,3 +42,19 @@ def test_failed_evaluation_interrupts_loop_by_default():
             RandomSearch(testing.SPACE, [Objective("loss", False)], max_steps=10),
             __evaluation_function,
         )
+
+
+def test_post_evaluation_callback():
+    evaluations_from_callback = []
+
+    def callback(e: Evaluation):
+        evaluations_from_callback.append(e)
+
+    evaluations = run_optimization_loop(
+        RandomSearch(testing.SPACE, [Objective("loss", False)], max_steps=10),
+        lambda e: e.create_evaluation(objectives={"loss": 0.0}),
+        post_evaluation_callback=callback,
+    )
+
+    assert len(evaluations) == len(evaluations_from_callback)
+    assert evaluations == evaluations_from_callback
