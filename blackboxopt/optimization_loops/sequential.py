@@ -54,7 +54,7 @@ def run_optimization_loop(
             spurious errors due to e.g. numerical instability that should not halt the
             optimization loop.
         post_evaluation_callback: Reference to a callable that is invoked after each
-            evaluation.
+            evaluation and takes a `blackboxopt.Evaluation` as its argument.
         logger: The logger to use for logging progress.
 
     Returns:
