@@ -129,10 +129,10 @@ class _EvaluationBase:
         available_objective_values = np.array(
             [o for o in self.objectives.values() if o is not None], dtype=float
         )
-        if np.isnan(available_objective_values).any():
+        if not np.isfinite(available_objective_values).all():
             raise ValueError(
-                f"Objective values contain NaN: {self.objectives}\n"
-                + "Please use None instead of NaN."
+                f"Objective values contain non-finite values: {self.objectives}\n"
+                + "Please use None to indicate missing objective evaluations."
             )
 
 
