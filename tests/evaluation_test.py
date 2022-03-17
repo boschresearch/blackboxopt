@@ -9,8 +9,11 @@ from blackboxopt.evaluation import Evaluation, EvaluationSpecification
 
 
 def test_evaluation_with_inf_values():
-    Evaluation({"mse": float("Inf"), "r²": 0.2}, {}, {})
-    Evaluation({"mse": float("-Inf"), "r²": 0.2}, {}, {})
+    with pytest.raises(ValueError):
+        Evaluation({"mse": float("Inf"), "r²": 0.2}, {}, {})
+
+    with pytest.raises(ValueError):
+        Evaluation({"mse": float("-Inf"), "r²": 0.2}, {}, {})
 
 
 def test_evaluation_with_optional_objective_values():
