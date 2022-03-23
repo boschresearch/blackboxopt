@@ -180,7 +180,7 @@ def multi_objective_visualization(
         df,
         dimensions=[o.name for o in objectives],
         color="pareto efficient",
-        color_discrete_sequence={
+        color_discrete_map={
             False: QUALITATIVE_COLORS[5],
             True: QUALITATIVE_COLORS[2],
         },
