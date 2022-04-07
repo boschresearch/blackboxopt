@@ -225,6 +225,7 @@ def test_mask_pareto_efficient():
             [3.1, 1.1],
             [0.1, 1.0],
             [0.0, 1.1],
+            [-1.0, 2.0],
         ]
     )
     pareto_efficient = mask_pareto_efficient(evals)
@@ -236,6 +237,7 @@ def test_mask_pareto_efficient():
     assert not pareto_efficient[4]
     assert not pareto_efficient[5]
     assert not pareto_efficient[6]
+    assert pareto_efficient[7]
 
 
 def test_prepare_for_multi_objective_visualization_handles_score_objectives():
