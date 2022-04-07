@@ -173,13 +173,23 @@ def add_plotly_buttons_for_logscale(fig):
 
 
 def mask_pareto_efficient(costs: np.ndarray):
+    """For a given array of objective values where lower values are considered better
+    and the dimensions are samples x objectives, return a mask that is `True` for all
+    pareto efficient values.
+
+    NOTE: The result marks multiple occurrences of the same point all as pareto
+    efficient.
+    """
     is_efficient = np.ones(costs.shape[0], dtype=bool)
     for i, c in enumerate(costs):
-        if is_efficient[i]:
-            is_efficient[is_efficient] = np.any(
-                costs[is_efficient] <= c, axis=1
-            )  # Keep any point with a lower cost
-            is_efficient[i] = True  # And keep self
+        if not is_efficient[i]:
+            continue
+
+        # Keep any point with a lower cost or when they are the same
+        efficient = np.any(costs[is_efficient] < c, axis=1)
+        duplicates = np.all(costs[is_efficient] == c, axis=1)
+        is_efficient[is_efficient] = np.logical_or(efficient, duplicates)
+
     return is_efficient
 
 
