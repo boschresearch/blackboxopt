@@ -173,13 +173,38 @@ def add_plotly_buttons_for_logscale(fig):
 
 
 def mask_pareto_efficient(costs: np.ndarray):
+    """For a given array of objective values where lower values are considered better
+    and the dimensions are samples x objectives, return a mask that is `True` for all
+    pareto efficient values.
+
+    NOTE: The result marks multiple occurrences of the same point all as pareto
+    efficient.
+    """
+    # for each iteration check the conditions as follows...
+    # mark an entry inefficient when either one of the following is fulfilled:
+    #   - one objective value in costs is greater/worse and one other is equal
+    #   - all objective values in costs is greater/worse
+    # which means in turn that the pareto efficient ones satisfy one of:
+    #   - all entries equal
+    #   - one objective value in costs is greater/worse and one is smaller/better
+    #   - all objective values in costs is smaller/better
     is_efficient = np.ones(costs.shape[0], dtype=bool)
     for i, c in enumerate(costs):
-        if is_efficient[i]:
-            is_efficient[is_efficient] = np.any(
-                costs[is_efficient] <= c, axis=1
-            )  # Keep any point with a lower cost
-            is_efficient[i] = True  # And keep self
+        if not is_efficient[i]:
+            continue
+
+        all_worse = np.all(costs[is_efficient] > c, axis=1)
+
+        at_least_one_worse = np.any(costs[is_efficient] > c, axis=1)
+        some_equal = np.any(costs[is_efficient] == c, axis=1)
+        some_equal_others_worse = np.logical_and(some_equal, at_least_one_worse)
+
+        is_efficient[is_efficient] = ~np.logical_or(all_worse, some_equal_others_worse)
+
+        # One should not result in onself becoming inefficient, which might happen for
+        # numerical reasons (unclear if this safeguard is necessary)
+        is_efficient[i] = True
+
     return is_efficient
 
 
