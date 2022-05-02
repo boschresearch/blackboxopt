@@ -5,7 +5,7 @@
 
 import importlib.resources
 from functools import wraps
-from typing import List
+from typing import Callable, List
 
 import numpy as np
 
@@ -193,7 +193,7 @@ def mask_pareto_efficient(costs: np.ndarray):
     return is_efficient
 
 
-def patch_plotly_io_to_html(method):
+def patch_plotly_io_to_html(method: Callable) -> Callable:
     """Patch `plotly.io.to_html` with additional javascript to improve usability.
 
     Might become obsolete, when https://github.com/plotly/plotly.js/issues/998 gets

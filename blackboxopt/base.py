@@ -168,7 +168,7 @@ class Optimizer(abc.ABC):
 
         Args:
             evaluations: A single evaluated evaluation specifications, or an iterable
-            of many.
+                of many.
         """
 
 
@@ -200,7 +200,7 @@ class SingleObjectiveOptimizer(Optimizer):
 
         Args:
             evaluations: A single evaluated evaluation specifications, or an iterable
-            of many.
+                of many.
 
         Raises:
             EvaluationsError: Raised when an evaluation could not be processed.
