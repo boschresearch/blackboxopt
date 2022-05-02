@@ -116,7 +116,7 @@ class StagedIteration:
         """Registers the result of an evaluation.
 
         Args:
-            id: [description]
+            evaluation_specificiation_id: [description]
             evaluation: [description]
         """
         self.config_sampler.digest_evaluation(evaluation)
