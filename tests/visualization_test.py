@@ -37,7 +37,7 @@ def test_visualizer_calls():
         for i in range(5)
     ] + [
         Evaluation(
-            objectives={"loss": 0.1 * i ** 2},
+            objectives={"loss": 0.1 * i**2},
             configuration={
                 "mlp_shape": 0.14054333845130684,
                 "optimizer": "Adam",
