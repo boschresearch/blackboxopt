@@ -67,7 +67,7 @@ def sample_around_values(
         else:
             bw = min(0.9999, bw)  # bandwidth has to be less the one for this kernel!
             diffs = np.abs(np.arange(-t) - m)
-            probs = 0.5 * (1 - bw) * (bw ** diffs)
+            probs = 0.5 * (1 - bw) * (bw**diffs)
             idx = diffs == 0
             probs[idx] = (idx * (1 - bw))[idx]
             probs /= probs.sum()

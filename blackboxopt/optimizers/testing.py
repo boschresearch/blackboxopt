@@ -56,7 +56,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     """
 
     def quadratic_function(p1):
-        return p1 ** 2
+        return p1**2
 
     assert issubclass(optimizer_class, Optimizer), (
         "The default test suite is only applicable for implementations of "

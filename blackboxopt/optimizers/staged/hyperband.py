@@ -43,10 +43,10 @@ def create_hyperband_iteration(
         math.ceil((max_num_stages / num_stages) * eta ** (num_stages - 1))
     )
     num_configs_per_stage = [
-        int(num_configs_first_stage // (eta ** i)) for i in range(num_stages)
+        int(num_configs_first_stage // (eta**i)) for i in range(num_stages)
     ]
     fidelities_per_stage = [
-        max_fidelity / eta ** i for i in range(num_stages - 1, -1, -1)
+        max_fidelity / eta**i for i in range(num_stages - 1, -1, -1)
     ]
     # Hyperband simple draws random configurations, and there is no additional
     # information that needs to be stored
