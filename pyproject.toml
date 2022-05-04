@@ -63,6 +63,7 @@ exclude = '^blackboxopt/examples/'
 profile = "black"
 # Examples should remain with line-length 80:
 skip_glob = 'blackboxopt/examples/**'
+filter_files = true
 
 [tool.pylint.format]
 max-line-length = 88
