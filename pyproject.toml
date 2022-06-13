@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "blackboxopt"
-version = "4.3.3"
+version = "4.4.0"
 description = "A common interface for blackbox optimization algorithms along with useful helpers like parallel optimization loops, analysis and visualization scripts."
 readme = "README.md"
 repository = "https://github.com/boschresearch/blackboxopt"
@@ -46,6 +46,7 @@ pre-commit = "^2.18.1"
 all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas"]
 hyperband = ["numpy"]
 bohb = ["numpy", "scipy", "statsmodels"]
+space-fill = ["numpy", "scipy"]
 dask = ["dask", "distributed"]
 visualization = ["plotly", "scipy", "pandas"]
 testing = ["numpy"]
