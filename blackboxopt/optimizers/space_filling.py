@@ -18,12 +18,12 @@ from blackboxopt.evaluation import EvaluationSpecification
 
 
 class SpaceFilling(MultiObjectiveOptimizer):
-    """Initialize the optimizer with an optional seed for reproducibility.
+    """Sobol sequence based space filling optimizer.
+
     Args:
         search_space: The search space to optimize
         objectives: The objectives of the optimization
-        seed: A seed for the optimizer, which is also used to re-seed the provided
-            search space. Defaults to None.
+        seed: The sobol sequence is Owen scrambled and can be seeded for reproducibility
     """
 
     def __init__(
