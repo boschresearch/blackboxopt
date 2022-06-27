@@ -6,6 +6,7 @@
 import numpy as np
 import plotly.io._base_renderers
 import pytest
+from plotly.graph_objs._figure import Figure
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.visualizations.utils import (
@@ -18,6 +19,7 @@ from blackboxopt.visualizations.visualizer import (
     _prepare_for_multi_objective_visualization,
     evaluations_to_df,
     multi_objective_visualization,
+    parallel_coordinate_plot_parameters,
 )
 
 
@@ -322,3 +324,38 @@ def test_get_incumbent_objective_over_time_single_fidelity():
     )
     np.testing.assert_array_equal(objective_values, np.array([0.0, 0.0, 2.0, 2.0]))
     np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 6.0]))
+
+
+def test_parallel_coordinate_plot_parameters():
+    evaluations = [
+        Evaluation(
+            configuration={"float": 1.23, "int": 3, "bool": True, "categorical": "A"},
+            objectives={"loss": 0.9, "score": 9001},
+        ),
+        Evaluation(
+            configuration={"float": 9.23, "int": 15, "bool": False, "categorical": "B"},
+            objectives={"loss": 0.3, "score": 9001},
+        ),
+        Evaluation(
+            configuration={"float": 4.3, "int": 7, "bool": True, "categorical": "C"},
+            objectives={"loss": 0.1, "score": 9001},
+        ),
+    ]
+    fig = parallel_coordinate_plot_parameters(evaluations, Objective("loss", False))
+    assert isinstance(fig, Figure)
+
+
+def test_parallel_coordinate_plot_parameters_raise_on_no_succesful_evals():
+    with pytest.raises(NoSuccessfulEvaluationsError):
+        parallel_coordinate_plot_parameters(
+            [], Objective("loss", greater_is_better=False)
+        )
+
+    evaluations_without_any_result_with_all_objectives_evaluated = [
+        Evaluation(objectives={"loss": None}, configuration={"p1": 0.14})
+    ] * 5
+    with pytest.raises(NoSuccessfulEvaluationsError):
+        parallel_coordinate_plot_parameters(
+            evaluations_without_any_result_with_all_objectives_evaluated,
+            Objective("loss", greater_is_better=False),
+        )
