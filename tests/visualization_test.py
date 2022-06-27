@@ -348,6 +348,9 @@ def test_parallel_coordinate_plot_parameters():
     fig = parallel_coordinate_plot_parameters(evaluations, Objective("loss", False))
     assert isinstance(fig, Figure)
 
+    fig = parallel_coordinate_plot_parameters(evaluations)
+    assert isinstance(fig, Figure)
+
 
 def test_parallel_coordinate_plot_parameters_raise_on_no_succesful_evals():
     with pytest.raises(NoSuccessfulEvaluationsError):
