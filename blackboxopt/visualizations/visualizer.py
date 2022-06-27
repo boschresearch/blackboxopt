@@ -195,6 +195,78 @@ def multi_objective_visualization(
     return fig
 
 
+def parallel_coordinate_plot_parameters(
+    evaluations: List[Evaluation], objective: Objective
+):
+    if not evaluations:
+        raise NoSuccessfulEvaluationsError
+
+    # Prepare dataframe for visualization
+    df = evaluations_to_df(evaluations)
+
+    # Drop unused columns and indices
+    df = df[["configuration", "objectives"]]
+    parameter_cols = df["configuration"].columns.to_list()
+    df = df.droplevel(0, axis=1)
+
+    # Prepare a coordinate (vertical line) for every parameter
+    coordinates = []
+    for column in parameter_cols:
+        parameter_type = df[column].dtype.name
+        coordinate = dict(label=column)
+        if parameter_type.startswith("float") or parameter_type.startswith("int"):
+            # Handling floats and integers as same, vecause unfortunately it's hard to
+            # use integers only for ticks and still be robust regarding a large range
+            # of values.
+            coordinate["values"] = df[column]
+        elif parameter_type in ["object", "bool"]:
+            # Encode categorical values to integers. Unfortunately, ordinal parameters
+            # loose there ordering, as there is no information about the order in the
+            # evaluations.
+            df[column] = df[column].astype("category")
+            categories = df[column].cat.categories.to_list()
+            encoded_categories = list(range(len(categories)))
+            df[column].cat.categories = encoded_categories
+            # Use integer encodings for scale and category values as tick labels
+            coordinate["ticktext"] = categories
+            coordinate["tickvals"] = encoded_categories
+            coordinate["values"] = df[column].astype("str")
+        else:
+            raise NotImplementedError(
+                f"Unknown column type: {column}<{parameter_type}>"
+            )
+        coordinates.append(coordinate)
+
+    # Add the objective itself as last scale
+    coordinates.append(
+        dict(label=f"<b>{objective.name}</b>", values=df[objective.name])
+    )
+
+    # Plot
+    return go.Figure(
+        data=go.Parcoords(
+            line=dict(
+                # Color lines by objective value
+                color=df[objective.name],
+                colorscale=px.colors.diverging.Tealrose,
+                showscale=True,
+                # Use colorbar as kind of colored extension to the axis
+                colorbar=dict(
+                    thickness=16,
+                    x=1,
+                    xpad=0,
+                    ypad=1,
+                    showticklabels=False,
+                ),
+            ),
+            dimensions=coordinates,
+        ),
+        layout=dict(
+            title=f"[BBO] Parallel coordinates plot colored by '{objective.name}'-value"
+        ),
+    )
+
+
 class Visualizer:
     def __init__(self, evaluations: List[Evaluation], objective: Objective):
         times_finished = np.array(utils.get_times_finished(evaluations))
