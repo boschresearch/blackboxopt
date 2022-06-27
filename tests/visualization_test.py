@@ -330,15 +330,19 @@ def test_parallel_coordinate_plot_parameters():
     evaluations = [
         Evaluation(
             configuration={"float": 1.23, "int": 3, "bool": True, "categorical": "A"},
-            objectives={"loss": 0.9, "score": 9001},
+            objectives={"loss": 0.9, "score": 800},
         ),
         Evaluation(
             configuration={"float": 9.23, "int": 15, "bool": False, "categorical": "B"},
-            objectives={"loss": 0.3, "score": 9001},
+            objectives={"loss": 0.3, "score": 900},
         ),
         Evaluation(
             configuration={"float": 4.3, "int": 7, "bool": True, "categorical": "C"},
-            objectives={"loss": 0.1, "score": 9001},
+            objectives={"loss": 0.1, "score": 700},
+        ),
+        Evaluation(
+            configuration={"float": 4.3, "int": 7, "bool": True, "categorical": "C"},
+            objectives={"loss": None, "score": 900},
         ),
     ]
     fig = parallel_coordinate_plot_parameters(evaluations, Objective("loss", False))
