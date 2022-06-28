@@ -5,7 +5,7 @@
 
 import datetime
 import itertools
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -196,8 +196,30 @@ def multi_objective_visualization(
 
 
 def parallel_coordinate_plot_parameters(
-    evaluations: List[Evaluation], color_by: Optional[Objective] = None
+    evaluations: List[Evaluation],
+    columns: Optional[List[str]] = None,
+    color_by: Optional[str] = None,
 ):
+    """Create an interactive parallel coordinate plot.
+
+    Useful to investigate relationships in a higher dimensional search space and the
+        optimization's objective(s).
+
+    Args:
+        evaluations: Evaluations to plot.
+        columns: Names of columns to show. Can consist of parameter names and/or
+            objective names. If `None`, all parameters and all objectives are displayed.
+        color_by: Parameter name or objective name. The corresponding column will be
+            shown at the very right, it's value will be used for the color scale. If
+            `None`, all lines have the same color.
+
+    Returns:
+        Plotly figure
+
+    Raised:
+        NoSuccessfulEvaluationsError: In case `evaluations` does not contain at least
+            one successful evaluation (an evaluation with objective value != `None`).
+    """
     if not evaluations:
         raise NoSuccessfulEvaluationsError
 
@@ -206,17 +228,25 @@ def parallel_coordinate_plot_parameters(
 
     # Drop unused columns and indices
     df = df[["configuration", "objectives"]]
-    parameter_cols = df["configuration"].columns.to_list()
     objective_cols = df["objectives"].columns.to_list()
-    color_by_col = color_by.name if color_by else objective_cols[0]
-
     df = df.droplevel(0, axis=1)
 
-    # Prepare a coordinate (vertical line) for every parameter
+    # If no columns are specified, use all:
+    if not columns:
+        columns = df.columns.to_list()
+
+    # Prepare a coordinate (vertical line) for every column
     coordinates = []
-    for column in parameter_cols:
+    colored_coordinate = {}
+    for column in columns:
+        coordinate: Dict[str, Any] = {}
+
+        if column in objective_cols:
+            coordinate["label"] = f"<b>Objective: {column}</b>"
+        else:
+            coordinate["label"] = column
+
         parameter_type = df[column].dtype.name
-        coordinate = dict(label=column)
         if parameter_type.startswith("float") or parameter_type.startswith("int"):
             # Handling floats and integers as same, vecause unfortunately it's hard to
             # use integers only for ticks and still be robust regarding a large range
@@ -238,23 +268,21 @@ def parallel_coordinate_plot_parameters(
             raise NotImplementedError(
                 f"Unknown column type: {column}<{parameter_type}>"
             )
-        coordinates.append(coordinate)
+        if column == color_by:
+            colored_coordinate = coordinate
+        else:
+            coordinates.append(coordinate)
 
-    for column in objective_cols:
-        if column == color_by_col:
-            continue
-        coordinate = dict(label=f"<b>🎯 {column}</b>", values=df[column])
-        coordinates.append(coordinate)
-
-    # Add the color_by-objective as last scale
-    coordinates.append(dict(label=f"<b>🎯 {color_by_col}</b>", values=df[color_by_col]))
+    # Append colored coordinate to the end (right)
+    if colored_coordinate:
+        coordinates.append(colored_coordinate)
 
     # Plot
     return go.Figure(
         data=go.Parcoords(
             line=dict(
                 # Color lines by objective value
-                color=df[color_by_col],
+                color=df[color_by] if color_by else None,
                 colorscale=px.colors.diverging.Tealrose,
                 showscale=True,
                 # Use colorbar as kind of colored extension to the axis
@@ -268,9 +296,7 @@ def parallel_coordinate_plot_parameters(
             ),
             dimensions=coordinates,
         ),
-        layout=dict(
-            title=f"[BBO] Parallel coordinates plot colored by '{color_by_col}'-value"
-        ),
+        layout=dict(title=f"[BBO] Parallel coordinates plot"),
     )
 
 
