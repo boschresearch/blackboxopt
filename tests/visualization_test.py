@@ -331,18 +331,22 @@ def test_parallel_coordinate_plot_parameters():
         Evaluation(
             configuration={"float": 1.23, "int": 3, "bool": True, "categorical": "A"},
             objectives={"loss": 0.9, "score": 800},
+            settings={"fidelity": 0.3},
         ),
         Evaluation(
             configuration={"float": 9.23, "int": 15, "bool": False, "categorical": "B"},
             objectives={"loss": 0.3, "score": 900},
+            settings={"fidelity": 0.66},
         ),
         Evaluation(
             configuration={"float": 4.3, "int": 7, "bool": True, "categorical": "C"},
-            objectives={"loss": 0.1, "score": 700},
+            objectives={"loss": 0.1, "score": 1000},
+            settings={"fidelity": 1.0},
         ),
         Evaluation(
             configuration={"float": 4.3, "int": 7, "bool": True, "categorical": "C"},
             objectives={"loss": None, "score": 900},
+            settings={"fidelity": 1},
         ),
     ]
 
@@ -353,7 +357,7 @@ def test_parallel_coordinate_plot_parameters():
     assert isinstance(fig, Figure)
 
     fig = parallel_coordinate_plot_parameters(
-        evaluations, columns=["float", "int", "loss"]
+        evaluations, columns=["int", "float", "loss"]
     )
     assert isinstance(fig, Figure)
 

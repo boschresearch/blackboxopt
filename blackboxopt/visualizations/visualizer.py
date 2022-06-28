@@ -5,6 +5,7 @@
 
 import datetime
 import itertools
+import warnings
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -207,11 +208,12 @@ def parallel_coordinate_plot_parameters(
 
     Args:
         evaluations: Evaluations to plot.
-        columns: Names of columns to show. Can consist of parameter names and/or
-            objective names. If `None`, all parameters and all objectives are displayed.
-        color_by: Parameter name or objective name. The corresponding column will be
-            shown at the very right, it's value will be used for the color scale. If
-            `None`, all lines have the same color.
+        columns: Names of columns to show. Can contain parameter names, objective names
+            and settings keys. If `None`, all parameters, objectives and settings are
+            displayed.
+        color_by: Parameter name, objective name, settings key. The corresponding column
+            will be shown at the very right, it's value will be used for the color
+            scale. If `None`, all lines have the same color.
 
     Returns:
         Plotly figure
@@ -227,8 +229,9 @@ def parallel_coordinate_plot_parameters(
     df = evaluations_to_df(evaluations)
 
     # Drop unused columns and indices
-    df = df[["configuration", "objectives"]]
+    df = df[["configuration", "settings", "objectives"]]
     objective_cols = df["objectives"].columns.to_list()
+    settings_cols = df["settings"].columns.to_list()
     df = df.droplevel(0, axis=1)
 
     # If no columns are specified, use all:
@@ -243,6 +246,8 @@ def parallel_coordinate_plot_parameters(
 
         if column in objective_cols:
             coordinate["label"] = f"<b>Objective: {column}</b>"
+        elif column in settings_cols:
+            coordinate["label"] = f"Setting: {column}"
         else:
             coordinate["label"] = column
 
@@ -265,9 +270,11 @@ def parallel_coordinate_plot_parameters(
             coordinate["tickvals"] = encoded_categories
             coordinate["values"] = df[column].astype("str")
         else:
-            raise NotImplementedError(
-                f"Unknown column type: {column}<{parameter_type}>"
+            warnings.warn(
+                f"Ignoring column with unknown type: {column}<{parameter_type}>"
             )
+            continue
+
         if column == color_by:
             colored_coordinate = coordinate
         else:
@@ -296,7 +303,7 @@ def parallel_coordinate_plot_parameters(
             ),
             dimensions=coordinates,
         ),
-        layout=dict(title=f"[BBO] Parallel coordinates plot"),
+        layout=dict(title="[BBO] Parallel coordinates plot"),
     )
 
 
