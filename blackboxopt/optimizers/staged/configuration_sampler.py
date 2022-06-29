@@ -6,7 +6,7 @@
 import abc
 from typing import Tuple
 
-from parameterspace.base import SearchSpace
+from parameterspace import ParameterSpace
 
 from blackboxopt import Evaluation
 
@@ -29,7 +29,7 @@ class StagedIterationConfigurationSampler:
 
 
 class RandomSearchSampler(StagedIterationConfigurationSampler):
-    def __init__(self, search_space: SearchSpace):
+    def __init__(self, search_space: ParameterSpace):
         self.search_space = search_space
 
     def sample_configuration(self) -> Tuple[dict, dict]:

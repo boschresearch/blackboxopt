@@ -12,7 +12,7 @@ except ImportError as e:
         "Unable to import SpaceFilling optimizer specific dependencies. "
         + "Make sure to install blackboxopt[space-fill]"
     ) from e
-from blackboxopt.base import MultiObjectiveOptimizer, Objective, SearchSpace
+from blackboxopt.base import MultiObjectiveOptimizer, Objective, ParameterSpace
 from blackboxopt.evaluation import EvaluationSpecification
 
 
@@ -26,7 +26,10 @@ class SpaceFilling(MultiObjectiveOptimizer):
     """
 
     def __init__(
-        self, search_space: SearchSpace, objectives: List[Objective], seed: int = None
+        self,
+        search_space: ParameterSpace,
+        objectives: List[Objective],
+        seed: int = None,
     ) -> None:
         super().__init__(search_space=search_space, objectives=objectives, seed=seed)
         self.sobol = Sobol(d=len(self.search_space), scramble=True, seed=seed)

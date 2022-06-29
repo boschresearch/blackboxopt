@@ -9,7 +9,7 @@ from blackboxopt import (
     EvaluationSpecification,
     Objective,
     OptimizationComplete,
-    SearchSpace,
+    ParameterSpace,
 )
 from blackboxopt.base import MultiObjectiveOptimizer
 
@@ -17,7 +17,7 @@ from blackboxopt.base import MultiObjectiveOptimizer
 class RandomSearch(MultiObjectiveOptimizer):
     def __init__(
         self,
-        search_space: SearchSpace,
+        search_space: ParameterSpace,
         objectives: List[Objective],
         max_steps: int,
         seed: int = None,
