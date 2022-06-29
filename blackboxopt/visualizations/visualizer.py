@@ -6,6 +6,7 @@
 import datetime
 import itertools
 import warnings
+from collections import Counter
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -237,6 +238,14 @@ def parallel_coordinate_plot_parameters(
     # If no columns are specified, use all:
     if not columns:
         columns = df.columns.to_list()
+
+    ambigious_columns = [k for k, v in Counter(df[columns].columns).items() if v > 1]
+    if ambigious_columns:
+        raise ValueError(
+            "All columns to plot must have a unique name, but those are ambigious: "
+            + f"{ambigious_columns}. Either rename parameters/settings/objective to "
+            + "be unique or provide only the unambigious ones as `columns` argument."
+        )
 
     # Prepare a coordinate (vertical line) for every column
     coordinates = []
