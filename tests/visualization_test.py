@@ -369,15 +369,46 @@ def test_parallel_coordinate_plot_parameters():
 
 def test_parallel_coordinate_plot_parameters_raise_on_no_succesful_evals():
     with pytest.raises(NoSuccessfulEvaluationsError):
-        parallel_coordinate_plot_parameters(
-            [], Objective("loss", greater_is_better=False)
-        )
+        parallel_coordinate_plot_parameters([])
 
-    evaluations_without_any_result_with_all_objectives_evaluated = [
+    evaluations_with_all_objectives_none = [
         Evaluation(objectives={"loss": None}, configuration={"p1": 0.14})
     ] * 5
     with pytest.raises(NoSuccessfulEvaluationsError):
-        parallel_coordinate_plot_parameters(
-            evaluations_without_any_result_with_all_objectives_evaluated,
-            Objective("loss", greater_is_better=False),
+        parallel_coordinate_plot_parameters(evaluations_with_all_objectives_none)
+
+
+def test_parallel_coordinate_plot_parameters_raise_on_ambigious_column_names():
+    evaluations = [
+        Evaluation(
+            configuration={"DUP": 1, "A": 2}, objectives={"B": 1}, settings={"DUP": 3}
         )
+    ]
+    with pytest.raises(ValueError, match="DUP"):
+        parallel_coordinate_plot_parameters(
+            parallel_coordinate_plot_parameters(evaluations)
+        )
+
+    evaluations = [
+        Evaluation(
+            configuration={"DUP": 1, "A": 2}, objectives={"DUP": 1}, settings={"B": 3}
+        )
+    ]
+    with pytest.raises(ValueError, match="DUP"):
+        parallel_coordinate_plot_parameters(
+            parallel_coordinate_plot_parameters(evaluations)
+        )
+
+    evaluations = [
+        Evaluation(
+            configuration={"A": 1, "B": 2}, objectives={"DUP": 1}, settings={"DUP": 3}
+        )
+    ]
+    with pytest.raises(ValueError, match="DUP"):
+        parallel_coordinate_plot_parameters(
+            parallel_coordinate_plot_parameters(evaluations)
+        )
+
+    # Don't raise if duplicate column but not selected for plotting
+    fig = parallel_coordinate_plot_parameters(evaluations, columns=["A", "B"])
+    assert isinstance(fig, Figure)
