@@ -581,6 +581,7 @@ numpy = [
     {version = ">=1.18.5", markers = "platform_machine != \"aarch64\" and platform_machine != \"arm64\" and python_version < \"3.10\""},
     {version = ">=1.19.2", markers = "platform_machine == \"aarch64\" and python_version < \"3.10\""},
     {version = ">=1.20.0", markers = "platform_machine == \"arm64\" and python_version < \"3.10\""},
+    {version = ">=1.21.0", markers = "python_version >= \"3.10\""},
 ]
 python-dateutil = ">=2.8.1"
 pytz = ">=2020.1"
@@ -1090,8 +1091,8 @@ visualization = ["plotly", "scipy", "pandas"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.8,<3.10"
-content-hash = "b0c013fb637ff93ce698f77a03c1318edda14324e9ae9edc6f94f324a1eaeaab"
+python-versions = ">=3.8,<3.11"
+content-hash = "2af532952dc0cf87763c82b1ad0c3a88a9a061c8d720e37322174ea4dbe4f07f"
 
 [metadata.files]
 astroid = [

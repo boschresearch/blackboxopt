@@ -41,7 +41,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        python-version: ["python:3.8", "python:3.9"]
+        python-version: ["python:3.8", "python:3.9", "python:3.10"]
     container: ${{ matrix.python-version }}-slim
     steps:
       - uses: actions/checkout@v2
