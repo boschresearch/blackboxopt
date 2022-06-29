@@ -44,7 +44,11 @@ def _initialize_optimizer(
 
 
 def optimize_single_parameter_sequentially_for_n_max_evaluations(
-    optimizer_class, optimizer_kwargs: dict, n_max_evaluations: int = 20
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+    n_max_evaluations: int = 20,
 ) -> bool:
     """[summary]
 
@@ -101,7 +105,12 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     return True
 
 
-def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) -> bool:
+def is_deterministic_with_fixed_seed(
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+) -> bool:
     """Check if optimizer is deterministic.
 
     Repeatedly initialize the optimizer with the same parameter space and a fixed seed,
@@ -111,7 +120,7 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
 
     Args:
         optimizer_class: Optimizer to test.
-        optimizer_kwargs: Expected to contain additional arguments for initializating
+        optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
 
@@ -139,17 +148,22 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
     return True
 
 
-def handles_reporting_evaluations_list(optimizer_class, optimizer_kwargs: dict) -> bool:
-    """Check if optimizer's report method can process an iterable of evalutions.
+def handles_reporting_evaluations_list(
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+) -> bool:
+    """Check if optimizer's report method can process an iterable of evaluations.
 
-    All optimizers should be able to allow reporting batches of evalutions. It's up to
+    All optimizers should be able to allow reporting batches of evaluations. It's up to
     the optimizer's implementation, if evaluations in a batch are processed
     one by one like if they were reported individually, or if a batch is handled
     differently.
 
     Args:
         optimizer_class: Optimizer to test.
-        optimizer_kwargs: Expected to contain additional arguments for initializating
+        optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
 
@@ -173,7 +187,10 @@ def handles_reporting_evaluations_list(optimizer_class, optimizer_kwargs: dict) 
 
 
 def raises_evaluation_error_when_reporting_unknown_objective(
-    optimizer_class, optimizer_kwargs: dict
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
 ) -> bool:
     """Check if optimizer's report method raises exception in case objective is unknown.
 
@@ -182,7 +199,7 @@ def raises_evaluation_error_when_reporting_unknown_objective(
 
     Args:
         optimizer_class: Optimizer to test.
-        optimizer_kwargs: Expected to contain additional arguments for initializating
+        optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
 
@@ -226,6 +243,18 @@ def respects_fixed_parameter(
     ],
     optimizer_kwargs: dict,
 ):
+    """Check if optimizer's generated evaluation specifications contain the values
+    a parameter in the search space was fixed to.
+
+    Args:
+        optimizer_class: Optimizer to test.
+        optimizer_kwargs: Expected to contain additional arguments for initializing
+            the optimizer. (`search_space` and `objective(s)` are set automatically
+            by the test.)
+
+    Returns:
+        `True` if the test is passed.
+    """
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("my_fixed_param", (-10.0, 200.0)))
 
