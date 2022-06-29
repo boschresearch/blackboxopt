@@ -253,7 +253,7 @@ def parallel_coordinate_plot_parameters(
 
         parameter_type = df[column].dtype.name
         if parameter_type.startswith("float") or parameter_type.startswith("int"):
-            # Handling floats and integers as same, vecause unfortunately it's hard to
+            # Handling floats and integers the same, because unfortunately it's hard to
             # use integers only for ticks and still be robust regarding a large range
             # of values.
             coordinate["values"] = df[column]
