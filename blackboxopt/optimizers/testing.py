@@ -6,11 +6,11 @@
 """Tests that can be imported and used to test optimizer implementations against this
 packages blackbox optimizer interface."""
 
-from typing import List
+from typing import List, Optional, Type, Union
 
 import parameterspace as ps
 
-from blackboxopt import Objective, ObjectivesError, OptimizationComplete, Optimizer
+from blackboxopt import Objective, OptimizationComplete, Optimizer
 from blackboxopt.base import (
     EvaluationsError,
     MultiObjectiveOptimizer,
@@ -23,14 +23,16 @@ def _initialize_optimizer(
     optimizer_kwargs: dict,
     objective: Objective,
     objectives: List[Objective],
+    space: Optional[ps.ParameterSpace] = None,
     seed=42,
 ) -> Optimizer:
-    space = ps.ParameterSpace()
-    space.add(ps.IntegerParameter("p1", bounds=[1, 32], transformation="log"))
-    space.add(ps.ContinuousParameter("p2", [-2, 2]))
-    space.add(ps.ContinuousParameter("p3", [0, 1]))
-    space.add(ps.CategoricalParameter("p4", [True, False]))
-    space.add(ps.OrdinalParameter("p5", ("small", "medium", "large")))
+    if not space:
+        space = ps.ParameterSpace()
+        space.add(ps.IntegerParameter("p1", bounds=[1, 32], transformation="log"))
+        space.add(ps.ContinuousParameter("p2", [-2, 2]))
+        space.add(ps.ContinuousParameter("p3", [0, 1]))
+        space.add(ps.CategoricalParameter("p4", [True, False]))
+        space.add(ps.OrdinalParameter("p5", ("small", "medium", "large")))
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
         return optimizer_class(space, objectives, seed=seed, **optimizer_kwargs)
@@ -218,9 +220,36 @@ def raises_evaluation_error_when_reporting_unknown_objective(
     return True
 
 
+def respects_fixed_parameter(
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+):
+    space = ps.ParameterSpace()
+    space.add(ps.ContinuousParameter("my_fixed_param", (-10.0, 200.0)))
+
+    fixed_value = 1.0
+    space.fix(my_fixed_param=1.0)
+
+    for _ in range(5):
+        opt = _initialize_optimizer(
+            optimizer_class,
+            optimizer_kwargs,
+            objective=Objective("loss", False),
+            objectives=[Objective("loss", False)],
+            space=space,
+        )
+        es = opt.generate_evaluation_specification()
+        assert es.configuration["my_fixed_param"] == fixed_value
+
+    return True
+
+
 ALL_REFERENCE_TESTS = [
     optimize_single_parameter_sequentially_for_n_max_evaluations,
     is_deterministic_with_fixed_seed,
     handles_reporting_evaluations_list,
     raises_evaluation_error_when_reporting_unknown_objective,
+    respects_fixed_parameter,
 ]
