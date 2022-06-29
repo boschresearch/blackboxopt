@@ -259,7 +259,7 @@ def respects_fixed_parameter(
     space.add(ps.ContinuousParameter("my_fixed_param", (-10.0, 200.0)))
 
     fixed_value = 1.0
-    space.fix(my_fixed_param=1.0)
+    space.fix(my_fixed_param=fixed_value)
 
     for _ in range(5):
         opt = _initialize_optimizer(
