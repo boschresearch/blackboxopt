@@ -26,7 +26,7 @@ def _initialize_optimizer(
     space: Optional[ps.ParameterSpace] = None,
     seed=42,
 ) -> Optimizer:
-    if not space:
+    if space is None:
         space = ps.ParameterSpace()
         space.add(ps.IntegerParameter("p1", bounds=[1, 32], transformation="log"))
         space.add(ps.ContinuousParameter("p2", [-2, 2]))
