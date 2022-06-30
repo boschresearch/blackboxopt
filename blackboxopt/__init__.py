@@ -1,6 +1,6 @@
-__version__ = "1.0.0"
+__version__ = "4.4.2"
 
-from parameterspace.base import SearchSpace
+from parameterspace import ParameterSpace
 
 from .base import (
     ConstraintsError,

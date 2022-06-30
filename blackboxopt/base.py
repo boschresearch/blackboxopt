@@ -9,7 +9,7 @@ import functools
 from dataclasses import dataclass
 from typing import Callable, Iterable, List, Tuple, Type, Union
 
-from parameterspace.base import SearchSpace
+from parameterspace import ParameterSpace
 
 from blackboxopt.evaluation import Evaluation, EvaluationSpecification
 
@@ -133,7 +133,7 @@ def call_functions_with_evaluations_and_collect_errors(
 class Optimizer(abc.ABC):
     """Abstract base class for blackbox optimizer implementations."""
 
-    def __init__(self, search_space: SearchSpace, seed: int = None) -> None:
+    def __init__(self, search_space: ParameterSpace, seed: int = None) -> None:
         """Initialize the optimizer with an optional seed for reproducibility.
 
         Args:
@@ -175,7 +175,7 @@ class Optimizer(abc.ABC):
 class SingleObjectiveOptimizer(Optimizer):
     def __init__(
         self,
-        search_space: SearchSpace,
+        search_space: ParameterSpace,
         objective: Objective,
         seed: int = None,
     ) -> None:
@@ -216,7 +216,7 @@ class SingleObjectiveOptimizer(Optimizer):
 class MultiObjectiveOptimizer(Optimizer):
     def __init__(
         self,
-        search_space: SearchSpace,
+        search_space: ParameterSpace,
         objectives: List[Objective],
         seed: int = None,
     ) -> None:

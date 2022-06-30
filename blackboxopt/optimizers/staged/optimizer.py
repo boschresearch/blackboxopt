@@ -7,7 +7,7 @@ import abc
 import logging
 from typing import Dict, Iterable, List, Union
 
-from parameterspace.base import SearchSpace
+from parameterspace import ParameterSpace
 
 from blackboxopt import (
     Evaluation,
@@ -31,7 +31,7 @@ def _validate_optimizer_info_id(evaluation: Evaluation):
 class StagedIterationOptimizer(SingleObjectiveOptimizer):
     def __init__(
         self,
-        search_space: SearchSpace,
+        search_space: ParameterSpace,
         objective: Objective,
         num_iterations: int,
         seed: int = None,

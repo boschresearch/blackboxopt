@@ -19,7 +19,7 @@ import numpy as np
 import parameterspace as ps
 import scipy.stats as sps
 import statsmodels.api as sm
-from parameterspace.base import SearchSpace
+from parameterspace import ParameterSpace
 
 from blackboxopt import Evaluation, Objective
 from blackboxopt.optimizers.staged.configuration_sampler import (
@@ -175,7 +175,7 @@ def impute_conditional_data(
 class Sampler(StagedIterationConfigurationSampler):
     def __init__(
         self,
-        search_space: SearchSpace,
+        search_space: ParameterSpace,
         objective: Objective,
         min_samples_in_model: int,
         top_n_percent: int,

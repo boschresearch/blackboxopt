@@ -13,7 +13,7 @@
 
 import logging
 
-from parameterspace.base import SearchSpace
+from parameterspace import ParameterSpace
 
 from blackboxopt import Objective
 
@@ -32,7 +32,7 @@ except ImportError as e:
 class Hyperband(StagedIterationOptimizer):
     def __init__(
         self,
-        search_space: SearchSpace,
+        search_space: ParameterSpace,
         objective: Objective,
         min_fidelity: float,
         max_fidelity: float,
