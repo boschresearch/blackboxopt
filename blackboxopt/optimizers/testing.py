@@ -6,11 +6,11 @@
 """Tests that can be imported and used to test optimizer implementations against this
 packages blackbox optimizer interface."""
 
-from typing import List
+from typing import List, Optional, Type, Union
 
 import parameterspace as ps
 
-from blackboxopt import Objective, ObjectivesError, OptimizationComplete, Optimizer
+from blackboxopt import Objective, OptimizationComplete, Optimizer
 from blackboxopt.base import (
     EvaluationsError,
     MultiObjectiveOptimizer,
@@ -23,14 +23,16 @@ def _initialize_optimizer(
     optimizer_kwargs: dict,
     objective: Objective,
     objectives: List[Objective],
+    space: Optional[ps.ParameterSpace] = None,
     seed=42,
 ) -> Optimizer:
-    space = ps.ParameterSpace()
-    space.add(ps.IntegerParameter("p1", bounds=[1, 32], transformation="log"))
-    space.add(ps.ContinuousParameter("p2", [-2, 2]))
-    space.add(ps.ContinuousParameter("p3", [0, 1]))
-    space.add(ps.CategoricalParameter("p4", [True, False]))
-    space.add(ps.OrdinalParameter("p5", ("small", "medium", "large")))
+    if space is None:
+        space = ps.ParameterSpace()
+        space.add(ps.IntegerParameter("p1", bounds=[1, 32], transformation="log"))
+        space.add(ps.ContinuousParameter("p2", [-2, 2]))
+        space.add(ps.ContinuousParameter("p3", [0, 1]))
+        space.add(ps.CategoricalParameter("p4", [True, False]))
+        space.add(ps.OrdinalParameter("p5", ("small", "medium", "large")))
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
         return optimizer_class(space, objectives, seed=seed, **optimizer_kwargs)
@@ -42,7 +44,11 @@ def _initialize_optimizer(
 
 
 def optimize_single_parameter_sequentially_for_n_max_evaluations(
-    optimizer_class, optimizer_kwargs: dict, n_max_evaluations: int = 20
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+    n_max_evaluations: int = 20,
 ) -> bool:
     """[summary]
 
@@ -99,7 +105,12 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     return True
 
 
-def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) -> bool:
+def is_deterministic_with_fixed_seed(
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+) -> bool:
     """Check if optimizer is deterministic.
 
     Repeatedly initialize the optimizer with the same parameter space and a fixed seed,
@@ -109,7 +120,7 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
 
     Args:
         optimizer_class: Optimizer to test.
-        optimizer_kwargs: Expected to contain additional arguments for initializating
+        optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
 
@@ -137,17 +148,22 @@ def is_deterministic_with_fixed_seed(optimizer_class, optimizer_kwargs: dict) ->
     return True
 
 
-def handles_reporting_evaluations_list(optimizer_class, optimizer_kwargs: dict) -> bool:
-    """Check if optimizer's report method can process an iterable of evalutions.
+def handles_reporting_evaluations_list(
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+) -> bool:
+    """Check if optimizer's report method can process an iterable of evaluations.
 
-    All optimizers should be able to allow reporting batches of evalutions. It's up to
+    All optimizers should be able to allow reporting batches of evaluations. It's up to
     the optimizer's implementation, if evaluations in a batch are processed
     one by one like if they were reported individually, or if a batch is handled
     differently.
 
     Args:
         optimizer_class: Optimizer to test.
-        optimizer_kwargs: Expected to contain additional arguments for initializating
+        optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
 
@@ -171,7 +187,10 @@ def handles_reporting_evaluations_list(optimizer_class, optimizer_kwargs: dict) 
 
 
 def raises_evaluation_error_when_reporting_unknown_objective(
-    optimizer_class, optimizer_kwargs: dict
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
 ) -> bool:
     """Check if optimizer's report method raises exception in case objective is unknown.
 
@@ -180,7 +199,7 @@ def raises_evaluation_error_when_reporting_unknown_objective(
 
     Args:
         optimizer_class: Optimizer to test.
-        optimizer_kwargs: Expected to contain additional arguments for initializating
+        optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
 
@@ -218,9 +237,51 @@ def raises_evaluation_error_when_reporting_unknown_objective(
     return True
 
 
+def respects_fixed_parameter(
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+):
+    """Check if optimizer's generated evaluation specifications contain the values
+    a parameter in the search space was fixed to.
+
+    Args:
+        optimizer_class: Optimizer to test.
+        optimizer_kwargs: Expected to contain additional arguments for initializing
+            the optimizer. (`search_space` and `objective(s)` are set automatically
+            by the test.)
+
+    Returns:
+        `True` if the test is passed.
+    """
+    space = ps.ParameterSpace()
+    space.add(ps.ContinuousParameter("my_fixed_param", (-10.0, 200.0)))
+    space.add(ps.ContinuousParameter("x", (-2.0, 2.0)))
+
+    fixed_value = 1.0
+    space.fix(my_fixed_param=fixed_value)
+    opt = _initialize_optimizer(
+        optimizer_class,
+        optimizer_kwargs,
+        objective=Objective("loss", False),
+        objectives=[Objective("loss", False)],
+        space=space,
+    )
+    for _ in range(5):
+        es = opt.generate_evaluation_specification()
+        assert es.configuration["my_fixed_param"] == fixed_value
+        opt.report(
+            es.create_evaluation(objectives={"loss": es.configuration["x"] ** 2})
+        )
+
+    return True
+
+
 ALL_REFERENCE_TESTS = [
     optimize_single_parameter_sequentially_for_n_max_evaluations,
     is_deterministic_with_fixed_seed,
     handles_reporting_evaluations_list,
     raises_evaluation_error_when_reporting_unknown_objective,
+    respects_fixed_parameter,
 ]
