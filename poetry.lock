@@ -591,14 +591,14 @@ test = ["hypothesis (>=5.5.3)", "pytest (>=6.0)", "pytest-xdist (>=1.31)"]
 
 [[package]]
 name = "parameterspace"
-version = "0.7.14"
+version = "0.7.16"
 description = "Parametrized hierarchical spaces with flexible priors and transformations."
 category = "main"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = ">=3.8,<4.0"
 
 [package.dependencies]
-numpy = ">=1.17.0"
+numpy = ">=1.22.0"
 scipy = ">=1.6.0"
 
 [[package]]
@@ -734,7 +734,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "pylint"
-version = "2.14.3"
+version = "2.14.4"
 description = "python code static checker"
 category = "dev"
 optional = false
@@ -991,6 +991,14 @@ optional = true
 python-versions = ">= 3.5"
 
 [[package]]
+name = "types-toml"
+version = "0.10.7"
+description = "Typing stubs for toml"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.2.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -1092,7 +1100,7 @@ visualization = ["plotly", "scipy", "pandas"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "2af532952dc0cf87763c82b1ad0c3a88a9a061c8d720e37322174ea4dbe4f07f"
+content-hash = "cd32cd1901e682098bbe033fc0feb3eb4b5a98c9de3b555e706f7a189d4cd0e3"
 
 [metadata.files]
 astroid = [
@@ -1523,8 +1531,8 @@ pandas = [
     {file = "pandas-1.4.3.tar.gz", hash = "sha256:2ff7788468e75917574f080cd4681b27e1a7bf36461fe968b49a87b5a54d007c"},
 ]
 parameterspace = [
-    {file = "parameterspace-0.7.14-py3-none-any.whl", hash = "sha256:c50e7e3e6e4359a51665b457f50d675da249e121e4cdb8224e71ecb613611a32"},
-    {file = "parameterspace-0.7.14.tar.gz", hash = "sha256:1407bd72e321e152d64796d9a5e32787e9308b31c8a7ea2eb54398263f4f17dd"},
+    {file = "parameterspace-0.7.16-py3-none-any.whl", hash = "sha256:8c398b54d6c7bb4bd027ab2169a76d0cc63b18a9a61f889b44d50a7333a86b3f"},
+    {file = "parameterspace-0.7.16.tar.gz", hash = "sha256:4149ed1806043f3f7592e466397ff17e1197e372067d7dd8a285c8e240c6a513"},
 ]
 partd = [
     {file = "partd-1.2.0-py3-none-any.whl", hash = "sha256:5c3a5d70da89485c27916328dc1e26232d0e270771bd4caef4a5124b6a457288"},
@@ -1601,8 +1609,8 @@ pygments = [
     {file = "Pygments-2.12.0.tar.gz", hash = "sha256:5eb116118f9612ff1ee89ac96437bb6b49e8f04d8a13b514ba26f620208e26eb"},
 ]
 pylint = [
-    {file = "pylint-2.14.3-py3-none-any.whl", hash = "sha256:6757a027e15816be23625b079ebc45464e4c9d9dde0c826d18beee53fe22a2e7"},
-    {file = "pylint-2.14.3.tar.gz", hash = "sha256:4e1378f815c63e7e44590d0d339ed6435f5281d0a0cc357d29a86ea0365ef868"},
+    {file = "pylint-2.14.4-py3-none-any.whl", hash = "sha256:89b61867db16eefb7b3c5b84afc94081edaf11544189e2b238154677529ad69f"},
+    {file = "pylint-2.14.4.tar.gz", hash = "sha256:47705453aa9dce520e123a7d51843d5f0032cbfa06870f89f00927aa1f735a4a"},
 ]
 pymdown-extensions = [
     {file = "pymdown_extensions-9.5-py3-none-any.whl", hash = "sha256:ec141c0f4983755349f0c8710416348d1a13753976c028186ed14f190c8061c4"},
@@ -1802,6 +1810,10 @@ tornado = [
     {file = "tornado-6.1-cp39-cp39-win32.whl", hash = "sha256:d3d20ea5782ba63ed13bc2b8c291a053c8d807a8fa927d941bd718468f7b950c"},
     {file = "tornado-6.1-cp39-cp39-win_amd64.whl", hash = "sha256:548430be2740e327b3fe0201abe471f314741efcb0067ec4f2d7dcfb4825f3e4"},
     {file = "tornado-6.1.tar.gz", hash = "sha256:33c6e81d7bd55b468d2e793517c909b139960b6c790a60b7991b9b6b76fb9791"},
+]
+types-toml = [
+    {file = "types-toml-0.10.7.tar.gz", hash = "sha256:a567fe2614b177d537ad99a661adc9bfc8c55a46f95e66370a4ed2dd171335f9"},
+    {file = "types_toml-0.10.7-py3-none-any.whl", hash = "sha256:05a8da4bfde2f1ee60e90c7071c063b461f74c63a9c3c1099470c08d6fa58615"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.2.0-py3-none-any.whl", hash = "sha256:6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708"},
