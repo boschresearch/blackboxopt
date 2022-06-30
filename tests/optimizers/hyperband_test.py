@@ -17,7 +17,7 @@ from blackboxopt.optimizers.testing import ALL_REFERENCE_TESTS
 def test_all_reference_tests(reference_test):
     reference_test(
         Hyperband,
-        dict(min_fidelity=0.2, max_fidelity=1, num_iterations=1),
+        dict(min_fidelity=0.2, max_fidelity=1, num_iterations=5),
     )
 
 

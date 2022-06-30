@@ -257,20 +257,23 @@ def respects_fixed_parameter(
     """
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("my_fixed_param", (-10.0, 200.0)))
+    space.add(ps.ContinuousParameter("x", (-2.0, 2.0)))
 
     fixed_value = 1.0
     space.fix(my_fixed_param=fixed_value)
-
+    opt = _initialize_optimizer(
+        optimizer_class,
+        optimizer_kwargs,
+        objective=Objective("loss", False),
+        objectives=[Objective("loss", False)],
+        space=space,
+    )
     for _ in range(5):
-        opt = _initialize_optimizer(
-            optimizer_class,
-            optimizer_kwargs,
-            objective=Objective("loss", False),
-            objectives=[Objective("loss", False)],
-            space=space,
-        )
         es = opt.generate_evaluation_specification()
         assert es.configuration["my_fixed_param"] == fixed_value
+        opt.report(
+            es.create_evaluation(objectives={"loss": es.configuration["x"] ** 2})
+        )
 
     return True
 
