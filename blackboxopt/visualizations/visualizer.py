@@ -212,9 +212,9 @@ def parallel_coordinate_plot_parameters(
         columns: Names of columns to show. Can contain parameter names, objective names
             and settings keys. If `None`, all parameters, objectives and settings are
             displayed.
-        color_by: Parameter name, objective name, settings key. The corresponding column
-            will be shown at the very right, it's value will be used for the color
-            scale. If `None`, all lines have the same color.
+        color_by: Parameter name, objective name or settings key. The corresponding
+            column will be shown at the very right, it's value will be used for the
+            color scale. If `None`, all lines have the same color.
 
     Returns:
         Plotly figure
@@ -230,14 +230,24 @@ def parallel_coordinate_plot_parameters(
     df = evaluations_to_df(evaluations)
 
     # Drop unused columns and indices
-    df = df[["configuration", "settings", "objectives"]]
+    if "settings" in df.columns:
+        df = df[["configuration", "settings", "objectives"]]
+        settings_cols = df["settings"].columns.to_list()
+    else:
+        df = df[["configuration", "objectives"]]
+        settings_cols = []
     objective_cols = df["objectives"].columns.to_list()
-    settings_cols = df["settings"].columns.to_list()
     df = df.droplevel(0, axis=1)
 
     # If no columns are specified, use all:
     if not columns:
         columns = df.columns.to_list()
+
+    if color_by and color_by not in columns:
+        raise ValueError(
+            f"Unknown column name in color_by='{color_by}'. Please make sure, that this"
+            + "column name is correct and one of the visible columns."
+        )
 
     ambigious_columns = [k for k, v in Counter(df[columns].columns).items() if v > 1]
     if ambigious_columns:

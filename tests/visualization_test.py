@@ -412,3 +412,17 @@ def test_parallel_coordinate_plot_parameters_raise_on_ambigious_column_names():
     # Don't raise if duplicate column but not selected for plotting
     fig = parallel_coordinate_plot_parameters(evaluations, columns=["A", "B"])
     assert isinstance(fig, Figure)
+
+
+def test_parallel_coordinate_plot_parameters_raise_on_color_by_not_in_columns():
+    evaluations = [
+        Evaluation(objectives={"loss": 0.3}, configuration={"p1": 0.1, "hidden": 0.2})
+    ]
+    with pytest.raises(ValueError, match="hidden"):
+        parallel_coordinate_plot_parameters(
+            evaluations,
+            columns=["loss", "p1"],
+            color_by="hidden",
+        )
+    with pytest.raises(ValueError, match="not_existing"):
+        parallel_coordinate_plot_parameters(evaluations, color_by="not_existing")
