@@ -76,24 +76,25 @@ class MinimalDaskScheduler:
                 self._not_done_futures, timeout=timeout_s, return_when="FIRST_COMPLETED"
             )
 
-            return_values: List[Evaluation] = []
+            evaluations: List[Evaluation] = []
             for f in all_futures.done:
                 if f.status == "error":
-                    return_values.append(
-                        Evaluation(
-                            objectives={o.name: None for o in self.objectives},
-                            stacktrace=str(f.traceback()),
-                            **f.bbo_eval_spec
-                        )
+                    evaluation = Evaluation(
+                        objectives={o.name: None for o in self.objectives},
+                        stacktrace=str(f.traceback()),
+                        **f.bbo_eval_spec
                     )
                 else:
-                    return_values.append(f.result())
+                    evaluation = f.result()
+
+                self.logger.debug(evaluation.__dict__)
+                evaluations.append(evaluation)
 
             self._not_done_futures = all_futures.not_done
-        except dd.TimeoutError:
-            return_values = []
+            return evaluations
 
-        return return_values
+        except dd.TimeoutError:
+            return []
 
 
 def run_optimization_loop(
