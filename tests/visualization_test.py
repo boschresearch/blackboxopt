@@ -426,3 +426,13 @@ def test_parallel_coordinate_plot_parameters_raise_on_color_by_not_in_columns():
         )
     with pytest.raises(ValueError, match="not_existing"):
         parallel_coordinate_plot_parameters(evaluations, color_by="not_existing")
+
+
+def test_parallel_coordinate_plot_parameters_with_unhashable_parameters():
+    evaluations = [
+        Evaluation(objectives={"loss": 0.3}, configuration={"p1": [1, 2, 3]})
+    ]
+    fig = parallel_coordinate_plot_parameters(
+        evaluations, columns=["loss", "p1"], color_by="p1"
+    )
+    assert isinstance(fig, Figure)
