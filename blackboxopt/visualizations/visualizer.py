@@ -280,7 +280,9 @@ def parallel_coordinate_plot_parameters(
             # Encode categorical values to integers. Unfortunately, ordinal parameters
             # loose there ordering, as there is no information about the order in the
             # evaluations.
-            df[column] = df[column].astype("category")
+            # The string conversion is necessary for unhashable entries, e.g. of
+            # type List, which can't be casted to categories.
+            df[column] = df[column].astype(str).astype("category")
             categories = df[column].cat.categories.to_list()
             encoded_categories = list(range(len(categories)))
             df[column].cat.categories = encoded_categories
