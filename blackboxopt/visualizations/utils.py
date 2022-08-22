@@ -218,7 +218,7 @@ def patch_plotly_io_to_html(method: Callable) -> Callable:
         html = method(*args, **kwargs)
 
         # Test if title text contains "[BBO]"
-        if html.find('"title": {"text": "[BBO]') < 0:
+        if html.find('"title":{"text":"[BBO]') < 0:
             return html
 
         js = importlib.resources.read_text(
