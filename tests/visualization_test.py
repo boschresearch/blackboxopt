@@ -128,7 +128,7 @@ def test_int_none_float_loss_mix_does_not_break_viz():
     viz.cdf_durations()
 
 
-def test_multi_objective_visualization():
+def test_multi_objective_visualization_two_objectives():
     evaluations = [
         Evaluation(
             objectives={"loss_1": 0.5 * i, "loss_2": -0.5 * i},
@@ -147,6 +147,32 @@ def test_multi_objective_visualization():
     multi_objective_visualization(
         evaluations=evaluations,
         objectives=(Objective("loss_1", False), Objective("loss_2", False)),
+    )
+
+
+def test_multi_objective_visualization_more_than_two_objectives():
+    evaluations = [
+        Evaluation(
+            objectives={"loss_1": 0.5 * i, "loss_2": -0.5 * i, "score": -(i**2)},
+            configuration={
+                "mlp_shape": 0.14054333845130684,
+                "optimizer": "Adam",
+                "batch_size": 160,
+            },
+            optimizer_info={"rung": -1},
+            user_info={},
+            settings={"fidelity": 2.5},
+        )
+        for i in range(5)
+    ]
+
+    multi_objective_visualization(
+        evaluations=evaluations,
+        objectives=(
+            Objective("loss_1", False),
+            Objective("loss_2", False),
+            Objective("score", True),
+        ),
     )
 
 

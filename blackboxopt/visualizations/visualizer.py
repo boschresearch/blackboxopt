@@ -178,22 +178,28 @@ def multi_objective_visualization(
     # Create hover template and list of corresponding dataframe column names
     hover_template, hover_data_columns = create_hover_information(hover_sections)
 
-    fig = px.scatter_matrix(
-        df,
-        dimensions=[o.name for o in objectives],
+    fig_kwargs = dict(
+        data_frame=df,
         color="pareto efficient",
         color_discrete_map={
             False: QUALITATIVE_COLORS[5],
             True: QUALITATIVE_COLORS[2],
         },
-        title="[BBO] Scatter matrix of multi objective values",
         custom_data=hover_data_columns,
+        title="[BBO] Multi-objective pairwise scatter plot",
     )
-    fig.update_traces(
-        diagonal_visible=False,
+    traces_kwargs: Dict[str, Union[str, dict, bool]] = dict(
         hovertemplate=hover_template,
         marker=dict(line=dict(width=1, color="white")),
     )
+
+    if len(objectives) == 2:
+        fig = px.scatter(**fig_kwargs, x=objectives[0].name, y=objectives[1].name)
+    else:
+        fig = px.scatter_matrix(**fig_kwargs, dimensions=[o.name for o in objectives])
+        traces_kwargs["diagonal_visible"] = False
+
+    fig.update_traces(**traces_kwargs)
     return fig
 
 
