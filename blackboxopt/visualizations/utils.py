@@ -12,7 +12,7 @@ import numpy as np
 import blackboxopt
 from blackboxopt import Evaluation, Objective
 
-# For backwards compatibility reasons
+# For backwards compatibility; TODO: remove with next major release
 from blackboxopt.utils import mask_pareto_efficient
 
 
