@@ -11,7 +11,6 @@ from plotly.graph_objs._figure import Figure
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.visualizations.utils import (
     get_incumbent_objective_over_time_single_fidelity,
-    mask_pareto_efficient,
 )
 from blackboxopt.visualizations.visualizer import (
     NoSuccessfulEvaluationsError,
@@ -241,31 +240,6 @@ def test_multi_objective_visualization_without_fidelities():
     multi_objective_visualization(
         evaluations, (Objective("loss", False), Objective("score", True))
     )
-
-
-def test_mask_pareto_efficient():
-    evals = np.array(
-        [
-            [0.0, 1.0],
-            [1.1, 0.1],
-            [0.0, 1.0],
-            [1.0, 0.0],
-            [3.1, 1.1],
-            [0.1, 1.0],
-            [0.0, 1.1],
-            [-1.0, 2.0],
-        ]
-    )
-    pareto_efficient = mask_pareto_efficient(evals)
-    assert len(pareto_efficient) == evals.shape[0]
-    assert pareto_efficient[0]
-    assert not pareto_efficient[1]
-    assert pareto_efficient[2]
-    assert pareto_efficient[3]
-    assert not pareto_efficient[4]
-    assert not pareto_efficient[5]
-    assert not pareto_efficient[6]
-    assert pareto_efficient[7]
 
 
 def test_prepare_for_multi_objective_visualization_handles_score_objectives():

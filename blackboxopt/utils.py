@@ -3,9 +3,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from itertools import compress
 from typing import Dict, List, Optional, Sequence
 
+import numpy as np
+
 from blackboxopt.base import Objective
+from blackboxopt.evaluation import Evaluation
 
 
 def get_loss_vector(
@@ -37,3 +41,42 @@ def get_loss_vector(
             losses.append(objective_value)
 
     return losses
+
+
+def mask_pareto_efficient(losses: np.ndarray):
+    """For a given array of objective values where lower values are considered better
+    and the dimensions are samples x objectives, return a mask that is `True` for all
+    pareto efficient values.
+
+    NOTE: The result marks multiple occurrences of the same point all as pareto
+    efficient.
+    """
+    is_efficient = np.ones(losses.shape[0], dtype=bool)
+    for i, c in enumerate(losses):
+        if not is_efficient[i]:
+            continue
+
+        # Keep any point with a lower cost or when they are the same
+        efficient = np.any(losses[is_efficient] < c, axis=1)
+        duplicates = np.all(losses[is_efficient] == c, axis=1)
+        is_efficient[is_efficient] = np.logical_or(efficient, duplicates)
+
+    return is_efficient
+
+
+def filter_pareto_efficient(
+    evaluations: List[Evaluation], objectives: List[Objective]
+) -> List[Evaluation]:
+    """Filter pareto efficient evaluations with respect to given objectives."""
+    losses = np.array(
+        [
+            get_loss_vector(
+                known_objectives=objectives, reported_objectives=e.objectives
+            )
+            for e in evaluations
+        ]
+    )
+
+    pareto_efficient_mask = mask_pareto_efficient(losses)
+
+    return list(compress(evaluations, pareto_efficient_mask))
