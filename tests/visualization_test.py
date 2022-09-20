@@ -326,7 +326,16 @@ def test_get_incumbent_objective_over_time_single_fidelity():
     np.testing.assert_array_equal(times, np.array([2.0, 4.0, 4.0, 6.0]))
 
 
-def test_parallel_coordinate_plot_parameters():
+@pytest.mark.parametrize(
+    "plot_kwargs",
+    (
+        dict(),
+        dict(color_by="loss"),
+        dict(columns=["int", "float", "loss"]),
+        dict(columns=["float", "int", "score"], color_by="score"),
+    ),
+)
+def test_parallel_coordinate_plot_parameters(tmp_path, plot_kwargs):
     evaluations = [
         Evaluation(
             configuration={"float": 1.23, "int": 3, "bool": True, "categorical": "A"},
@@ -350,21 +359,10 @@ def test_parallel_coordinate_plot_parameters():
         ),
     ]
 
-    fig = parallel_coordinate_plot_parameters(evaluations)
+    fig = parallel_coordinate_plot_parameters(evaluations, **plot_kwargs)
     assert isinstance(fig, Figure)
-
-    fig = parallel_coordinate_plot_parameters(evaluations, color_by="loss")
-    assert isinstance(fig, Figure)
-
-    fig = parallel_coordinate_plot_parameters(
-        evaluations, columns=["int", "float", "loss"]
-    )
-    assert isinstance(fig, Figure)
-
-    fig = parallel_coordinate_plot_parameters(
-        evaluations, columns=["float", "int", "score"], color_by="score"
-    )
-    assert isinstance(fig, Figure)
+    # Rendering the plot, because this can raise exception, even if instantiating worked
+    fig.write_image(tmp_path / "figure.png")
 
 
 def test_parallel_coordinate_plot_parameters_raise_on_no_succesful_evals():
