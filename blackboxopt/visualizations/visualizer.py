@@ -321,11 +321,7 @@ def parallel_coordinate_plot_parameters(
                 showscale=True,
                 # Use colorbar as kind of colored extension to the axis
                 colorbar=dict(
-                    thickness=16,
-                    x=1,
-                    xpad=0,
-                    ypad=1,
-                    showticklabels=False,
+                    thickness=16, x=1, xpad=0, ypad=1, tickmode="array", tickvals=[]
                 ),
             ),
             dimensions=coordinates,
