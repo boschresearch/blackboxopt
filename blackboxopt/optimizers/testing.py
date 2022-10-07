@@ -242,7 +242,7 @@ def respects_fixed_parameter(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
-):
+) -> bool:
     """Check if optimizer's generated evaluation specifications contain the values
     a parameter in the search space was fixed to.
 
@@ -278,10 +278,52 @@ def respects_fixed_parameter(
     return True
 
 
+def handles_conditional_space(
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+) -> bool:
+    """Check if optimizer handles conditional i.e. hierarchical search spaces.
+
+    Args:
+        optimizer_class: Optimizer to test.
+        optimizer_kwargs: Expected to contain additional arguments for initializing
+            the optimizer. (`search_space` and `objective(s)` are set automatically
+            by the test.)
+
+    Returns:
+        `True` if the test is passed.
+    """
+    space = ps.ParameterSpace()
+    space.add(ps.CategoricalParameter("optimizer", ("adam", "sgd")))
+    space.add(ps.ContinuousParameter("lr", (0.0001, 0.1), transformation="log"))
+    space.add(
+        ps.ContinuousParameter("momentum", (0.0, 1.0)),
+        lambda optimizer: optimizer == "sgd",
+    )
+
+    opt = _initialize_optimizer(
+        optimizer_class,
+        optimizer_kwargs,
+        objective=Objective("loss", False),
+        objectives=[Objective("loss", False)],
+        space=space,
+    )
+
+    for _ in range(10):
+        es = opt.generate_evaluation_specification()
+        dummy_loss = es.configuration.get("momentum", 1.0) * es.configuration["lr"] ** 2
+        opt.report(es.create_evaluation({"loss": dummy_loss}))
+
+    return True
+
+
 ALL_REFERENCE_TESTS = [
     optimize_single_parameter_sequentially_for_n_max_evaluations,
     is_deterministic_with_fixed_seed,
     handles_reporting_evaluations_list,
     raises_evaluation_error_when_reporting_unknown_objective,
     respects_fixed_parameter,
+    handles_conditional_space,
 ]

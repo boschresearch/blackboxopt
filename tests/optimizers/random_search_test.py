@@ -10,7 +10,7 @@ from blackboxopt import Objective, OptimizationComplete
 from blackboxopt.optimizers.random_search import RandomSearch
 from blackboxopt.optimizers.testing import ALL_REFERENCE_TESTS
 
-MAX_STEPS = 5
+MAX_STEPS = 15
 
 SPACE = ps.ParameterSpace()
 SPACE.add(ps.ContinuousParameter("p1", [0, 1]))
