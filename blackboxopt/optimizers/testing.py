@@ -209,7 +209,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
         opt.report(evaluations)
 
         # Start optimizing
-        for _ in range(8):
+        for _ in range(5):
             es = opt.generate_evaluation_specification()
             opt.report(
                 es.create_evaluation(objectives={"loss": _run_experiment_1d(es)})
