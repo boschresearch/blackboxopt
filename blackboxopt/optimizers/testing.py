@@ -6,8 +6,10 @@
 """Tests that can be imported and used to test optimizer implementations against this
 packages blackbox optimizer interface."""
 
-from typing import List, Optional, Type, Union
+import random
+from typing import Dict, List, Optional, Type, Union
 
+import numpy as np
 import parameterspace as ps
 
 from blackboxopt import Objective, OptimizationComplete, Optimizer
@@ -118,6 +120,7 @@ def is_deterministic_with_fixed_seed_and_larger_space(
     evaluation specification. The configuration of all final evaluation specifications
     should be equal.
 
+
     This tests covers multiple parameter types by using a mixed search space.
 
     Args:
@@ -150,17 +153,17 @@ def is_deterministic_with_fixed_seed_and_larger_space(
     return True
 
 
-def is_deterministic_with_fixed_seed_and_multiple_evaluations(
+def is_deterministic_when_reporting_shuffled_evaluations(
     optimizer_class: Union[
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
 ) -> bool:
-    """Check if optimizer is deterministic, even after multiple evaluations.
+    """Check if determinism isn't affected by the order of initially reported data.
 
-    Repeatedly initialize the optimizer with the same parameter space and a fixed seed,
-    then report a number of evaluations. The configuration of all final evaluations
-    should be equal.
+    Repeatedly initialize the optimizer with the same parameter space and a fixed seed.
+    Report a set of initial evaluations in randomized order as initial data. Start
+    optimizing and check if the generated configurations for all optimizers are equal.
 
     By doing multiple evaluations, this tests covers effects that become visible after
     a while, e.g. only after stages got completed in staged iteration samplers.
@@ -174,28 +177,46 @@ def is_deterministic_with_fixed_seed_and_multiple_evaluations(
     Returns:
         `True` if the test is passed.
     """
-    final_configurations = []
-    for _ in range(2):
-        space = ps.ParameterSpace(seed=42)
-        space.add(ps.ContinuousParameter("p1", [0, 1]))
 
+    space = ps.ParameterSpace()
+    space.add(ps.ContinuousParameter("p1", [0, 1]))
+
+    def _run_experiment_1d(es):
+        x = es.configuration["p1"]
+        _x = np.copy(np.atleast_2d(x))
+        params = np.array([0.75, 0.0, -10.0, 0.0, 0.0])
+        y = np.polyval(params, _x)
+        return float(np.squeeze(y))
+
+    optimization_runs: Dict[int, list] = {0: [], 1: []}
+    for run_idx in optimization_runs:
         opt = _initialize_optimizer(
             optimizer_class,
             optimizer_kwargs,
             objective=Objective("loss", False),
             objectives=[Objective("loss", False)],
             space=space,
-            seed=42,
         )
 
-        for i in range(15):
+        # Report initial data in different order
+        eval_specs = [opt.generate_evaluation_specification() for _ in range(8)]
+        evaluations = [
+            es.create_evaluation(objectives={"loss": _run_experiment_1d(es)})
+            for es in eval_specs
+        ]
+        random.seed(run_idx)
+        random.shuffle(evaluations)
+        opt.report(evaluations)
+
+        # Start optimizing
+        for _ in range(8):
             es = opt.generate_evaluation_specification()
-            evaluation = es.create_evaluation(objectives={"loss": i})
-            opt.report(evaluation)
+            opt.report(
+                es.create_evaluation(objectives={"loss": _run_experiment_1d(es)})
+            )
+            optimization_runs[run_idx].append(es.configuration.copy())
 
-        final_configurations.append(evaluation.configuration.copy())
-
-    assert final_configurations[0] == final_configurations[1]
+    assert optimization_runs[0] == optimization_runs[1]
     return True
 
 
@@ -373,7 +394,7 @@ def handles_conditional_space(
 ALL_REFERENCE_TESTS = [
     optimize_single_parameter_sequentially_for_n_max_evaluations,
     is_deterministic_with_fixed_seed_and_larger_space,
-    is_deterministic_with_fixed_seed_and_multiple_evaluations,
+    is_deterministic_when_reporting_shuffled_evaluations,
     handles_reporting_evaluations_list,
     raises_evaluation_error_when_reporting_unknown_objective,
     respects_fixed_parameter,
