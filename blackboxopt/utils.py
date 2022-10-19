@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import hashlib
+import pickle
 from itertools import compress
 from typing import Dict, List, Optional, Sequence
 
@@ -80,3 +82,20 @@ def filter_pareto_efficient(
     pareto_efficient_mask = mask_pareto_efficient(losses)
 
     return list(compress(evaluations, pareto_efficient_mask))
+
+
+def sort_evaluations(evaluations: List[Evaluation]) -> List[Evaluation]:
+    return sorted(
+        evaluations,
+        key=lambda e: hashlib.md5(
+            pickle.dumps(
+                [
+                    sorted(e.configuration.items()),
+                    sorted(e.objectives.items()),
+                    sorted(e.settings.items()),
+                    sorted(e.constraints.items()) if e.constraints else {},
+                    sorted(e.context.items()) if e.context else {},
+                ]
+            )
+        ).hexdigest(),
+    )
