@@ -188,35 +188,46 @@ def is_deterministic_when_reporting_shuffled_evaluations(
         y = np.polyval(params, _x)
         return float(np.squeeze(y))
 
-    optimization_runs: Dict[int, list] = {0: [], 1: []}
-    for run_idx in optimization_runs:
+    runs: Dict[int, Dict] = {0: {}, 1: {}}
+    for run_idx, run in runs.items():
+        run["evaluations"] = []
         opt = _initialize_optimizer(
             optimizer_class,
             optimizer_kwargs,
             objective=Objective("loss", False),
             objectives=[Objective("loss", False)],
             space=space,
+            seed=0,
         )
 
-        # Report initial data in different order
+        # Report initial data in differenht order
         eval_specs = [opt.generate_evaluation_specification() for _ in range(8)]
-        evaluations = [
+        run["inital_evaluations"] = [
             es.create_evaluation(objectives={"loss": _run_experiment_1d(es)})
             for es in eval_specs
         ]
         random.seed(run_idx)
-        random.shuffle(evaluations)
-        opt.report(evaluations)
+        random.shuffle(run["inital_evaluations"])
+        opt.report(run["inital_evaluations"])
 
         # Start optimizing
         for _ in range(5):
             es = opt.generate_evaluation_specification()
-            opt.report(
-                es.create_evaluation(objectives={"loss": _run_experiment_1d(es)})
+            evaluation = es.create_evaluation(
+                objectives={"loss": _run_experiment_1d(es)}
             )
-            optimization_runs[run_idx].append(es.configuration.copy())
+            opt.report(evaluation)
+            run["evaluations"].append(evaluation)
 
-    assert optimization_runs[0] == optimization_runs[1]
+    initial_configs_run_0 = [e.configuration for e in runs[0]["inital_evaluations"]]
+    initial_configs_run_1 = [e.configuration for e in runs[1]["inital_evaluations"]]
+
+    configs_run_0 = [e.configuration for e in runs[0]["evaluations"]]
+    configs_run_1 = [e.configuration for e in runs[1]["evaluations"]]
+
+    assert initial_configs_run_0 != initial_configs_run_1
+    assert configs_run_0 == configs_run_1
+
     return True
 
 
