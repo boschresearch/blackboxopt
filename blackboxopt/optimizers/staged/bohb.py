@@ -33,6 +33,7 @@ def sample_around_values(
     vartypes: Union[list, np.ndarray],
     min_bandwidth: float,
     bw_factor: float,
+    rng: Optional[np.random.Generator] = None,
 ) -> Optional[np.ndarray]:
     """Sample numerical representation close to a given datum.
 
@@ -49,21 +50,27 @@ def sample_around_values(
             samples agree on a value in a dimension.
         bw_factor: To increase diversity, the bandwidth is actually multiplied by this
             factor before sampling.
+        rng: A random number generator to make the sampling reproducible.
 
     Returns:
         Numerical representation of a configuration close to the provided datum.
     """
+    if rng is None:
+        rng = np.random.default_rng()
+
     vector = []
     for m, bw, t in zip(datum, bandwidths, vartypes):
         bw = max(bw, min_bandwidth)
         if t == 0:
             bw = bw_factor * bw
             try:
-                v = sps.truncnorm.rvs(-m / bw, (1 - m) / bw, loc=m, scale=bw)
+                v = sps.truncnorm.rvs(
+                    -m / bw, (1 - m) / bw, loc=m, scale=bw, random_state=rng
+                )
             except Exception:
                 return None
         elif t > 0:
-            v = m if np.random.rand() < (1 - bw) else np.random.randint(t)
+            v = m if rng.random() < (1 - bw) else rng.integers(t)
         else:
             bw = min(0.9999, bw)  # bandwidth has to be less the one for this kernel!
             diffs = np.abs(np.arange(-t) - m)
@@ -71,7 +78,7 @@ def sample_around_values(
             idx = diffs == 0
             probs[idx] = (idx * (1 - bw))[idx]
             probs /= probs.sum()
-            v = np.random.choice(-t, p=probs)
+            v = rng.choice(-t, p=probs)
         vector.append(v)
     return np.array(vector)
 
@@ -125,7 +132,9 @@ def convert_from_statsmodels_kde_representation(
 
 
 def impute_conditional_data(
-    array: np.ndarray, vartypes: Union[list, np.ndarray]
+    array: np.ndarray,
+    vartypes: Union[list, np.ndarray],
+    rng: Optional[np.random.Generator] = None,
 ) -> np.ndarray:
     """Impute NaNs in numerical representation with observed values or prior samples.
 
@@ -137,11 +146,14 @@ def impute_conditional_data(
             values for inactive variables.
         vartypes: Encoding of the types of the variables: 0 mean continuous, >0 means
             categorical with as many different values, and <0 means ordinal with as many values.
-
+        rng: A random number generator to make the imputation reproducible.
     Returns:
         Numerical representation where all NaNs have been replaced with observed values
         or prior samples.
     """
+    if rng is None:
+        rng = np.random.default_rng()
+
     return_array = np.empty_like(array)
 
     for i in range(array.shape[0]):
@@ -154,7 +166,7 @@ def impute_conditional_data(
 
             if len(valid_indices) > 0:
                 # pick one of them at random and overwrite all NaN values
-                row_idx = np.random.choice(valid_indices)
+                row_idx = rng.choice(valid_indices)
                 datum[nan_indices] = array[row_idx, nan_indices]
 
             else:
@@ -162,11 +174,11 @@ def impute_conditional_data(
                 # but random value
                 t = vartypes[nan_idx]
                 if t == 0:
-                    datum[nan_idx] = np.random.rand()
+                    datum[nan_idx] = rng.random()
                 elif t > 0:
-                    datum[nan_idx] = np.random.randint(t)
+                    datum[nan_idx] = rng.integers(t)
                 elif t < 0:
-                    datum[nan_idx] = np.random.randint(-t)
+                    datum[nan_idx] = rng.integers(-t)
             nan_indices = np.argwhere(np.isnan(datum)).flatten()
         return_array[i, :] = datum
     return return_array
@@ -183,6 +195,7 @@ class Sampler(StagedIterationConfigurationSampler):
         random_fraction: float,
         bandwidth_factor: float,
         min_bandwidth: float,
+        seed: int = None,
         logger=None,
     ):
         """Fits for each given fidelity a kernel density estimator on the best N percent
@@ -203,6 +216,7 @@ class Sampler(StagedIterationConfigurationSampler):
             min_bandwidth: To keep diversity, even when all (good) samples have the
                 same value for one of the parameters, a minimum bandwidth
                 (reasonable default: 1e-3) is used instead of zero.
+            seed: A seed to make the sampler reproducible.
             logger: [description]
 
         Raises:
@@ -216,6 +230,8 @@ class Sampler(StagedIterationConfigurationSampler):
         self.search_space = search_space
         self.bw_factor = bandwidth_factor
         self.min_bandwidth = min_bandwidth
+        self.seed = seed
+        self._rng = np.random.default_rng(self.seed)
 
         if self.min_samples_in_model < len(search_space) + 1:
             self.min_samples_in_model = len(search_space) + 1
@@ -261,7 +277,7 @@ class Sampler(StagedIterationConfigurationSampler):
         self.logger.debug("start sampling a new configuration.")
 
         # Sample from prior, if no model is available or with given probability
-        if len(self.kde_models) == 0 or np.random.rand() < self.random_fraction:
+        if len(self.kde_models) == 0 or self._rng.random() < self.random_fraction:
             return self.search_space.sample(), {"model_based_pick": False}
 
         best = np.inf
@@ -279,8 +295,8 @@ class Sampler(StagedIterationConfigurationSampler):
             kde_good = self.kde_models[fidelity]["good"]
             kde_bad = self.kde_models[fidelity]["bad"]
 
-            for _ in range(self.num_samples):
-                idx = np.random.randint(0, len(kde_good.data))
+            for i in range(self.num_samples):
+                idx = self._rng.integers(0, len(kde_good.data))
                 datum = kde_good.data[idx]
                 vector = sample_around_values(
                     datum,
@@ -288,10 +304,30 @@ class Sampler(StagedIterationConfigurationSampler):
                     self.vartypes,
                     self.min_bandwidth,
                     self.bw_factor,
+                    rng=self._rng,
                 )
                 if vector is None:
                     continue
+
+                # Statsmodels KDE estimators relies on seeding through numpy's global
+                # state. We do this close to the evaluation of the PDF (`good`, `bad`)
+                # to increase robustness for multi threading.
+                # As we seed in a loop, we need to change it each iteration to not get
+                # the same random numbers each time.
+                # We also reset the np.random's global state, in case the user relies
+                # on it in other parts of the code and to not hide other determinism
+                # issues.
+                # TODO: Check github issue if there was progress and the seeding can be
+                # removed: https://github.com/statsmodels/statsmodels/issues/306
+                cached_rng_state = None
+                if self.seed:
+                    cached_rng_state = np.random.get_state()
+                    np.random.seed(self.seed + 1)
+
                 val = minimize_me(vector)
+
+                if cached_rng_state:
+                    np.random.set_state(cached_rng_state)
 
                 if not np.isfinite(val):
                     self.logger.warning(
@@ -337,7 +373,7 @@ class Sampler(StagedIterationConfigurationSampler):
                     {"model_based_pick": True},
                 )
 
-        except Exception:
+        except Exception as e:
             self.logger.debug(
                 "Sample base optimization failed. Falling back to a random sample."
             )
@@ -401,11 +437,10 @@ class Sampler(StagedIterationConfigurationSampler):
         idx = np.argsort(train_losses)
 
         train_data_good = impute_conditional_data(
-            train_configs[idx[:n_good]], self.vartypes
+            train_configs[idx[:n_good]], self.vartypes, rng=self._rng
         )
         train_data_bad = impute_conditional_data(
-            train_configs[idx[n_good : n_good + n_bad]],
-            self.vartypes,
+            train_configs[idx[n_good : n_good + n_bad]], self.vartypes, rng=self._rng
         )
 
         if train_data_good.shape[0] <= train_data_good.shape[1]:
@@ -419,10 +454,14 @@ class Sampler(StagedIterationConfigurationSampler):
         bw_estimation = "normal_reference"
 
         bad_kde = sm.nonparametric.KDEMultivariate(
-            data=train_data_bad, var_type=self.kde_vartypes, bw=bw_estimation
+            data=train_data_bad,
+            var_type=self.kde_vartypes,
+            bw=bw_estimation,
         )
         good_kde = sm.nonparametric.KDEMultivariate(
-            data=train_data_good, var_type=self.kde_vartypes, bw=bw_estimation
+            data=train_data_good,
+            var_type=self.kde_vartypes,
+            bw=bw_estimation,
         )
 
         bad_kde.bw = np.clip(bad_kde.bw, self.min_bandwidth, None)

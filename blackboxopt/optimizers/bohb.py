@@ -107,6 +107,7 @@ class BOHB(StagedIterationOptimizer):
             random_fraction=random_fraction,
             bandwidth_factor=bandwidth_factor,
             min_bandwidth=min_bandwidth,
+            seed=seed,
         )
 
         super().__init__(
