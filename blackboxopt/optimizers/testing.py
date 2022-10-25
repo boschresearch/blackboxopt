@@ -188,9 +188,9 @@ def is_deterministic_with_fixed_seed_and_multiple_evaluations(
             seed=42,
         )
 
-        for _ in range(15):
+        for i in range(15):
             es = opt.generate_evaluation_specification()
-            evaluation = es.create_evaluation(objectives={"loss": 0.42})
+            evaluation = es.create_evaluation(objectives={"loss": i})
             opt.report(evaluation)
 
         final_configurations.append(evaluation.configuration.copy())

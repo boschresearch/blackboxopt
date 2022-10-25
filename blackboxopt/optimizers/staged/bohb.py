@@ -55,8 +55,7 @@ def sample_around_values(
     Returns:
         Numerical representation of a configuration close to the provided datum.
     """
-    if rng is None:
-        rng = np.random.default_rng()
+    rng = np.random.default_rng(rng)
 
     vector = []
     for m, bw, t in zip(datum, bandwidths, vartypes):
@@ -151,8 +150,7 @@ def impute_conditional_data(
         Numerical representation where all NaNs have been replaced with observed values
         or prior samples.
     """
-    if rng is None:
-        rng = np.random.default_rng()
+    rng = np.random.default_rng(rng)
 
     return_array = np.empty_like(array)
 
@@ -322,7 +320,7 @@ class Sampler(StagedIterationConfigurationSampler):
                 cached_rng_state = None
                 if self.seed:
                     cached_rng_state = np.random.get_state()
-                    np.random.seed(self.seed + 1)
+                    np.random.seed(self.seed + i)
 
                 val = minimize_me(vector)
 
