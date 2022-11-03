@@ -98,44 +98,44 @@ def test_filter_pareto_efficient():
     "evals",
     (
         [  # Different parameter values
-            Evaluation(configuration={"i": 3, "c": "A"}, objectives={"l": 0.0}),
-            Evaluation(configuration={"i": 2, "c": "B"}, objectives={"l": 0.0}),
-            Evaluation(configuration={"i": 1, "c": "C"}, objectives={"l": 0.0}),
+            Evaluation(configuration={"p1": 3, "p2": "A"}, objectives={"o": 0.0}),
+            Evaluation(configuration={"p1": 2, "p2": "B"}, objectives={"o": 0.0}),
+            Evaluation(configuration={"p1": 1, "p2": "C"}, objectives={"o": 0.0}),
         ],
         [  # Different objective values
-            Evaluation(configuration={"i": 1}, objectives={"l": 0.0}),
-            Evaluation(configuration={"i": 1}, objectives={"l": 0.3}),
-            Evaluation(configuration={"i": 1}, objectives={"l": 0.2}),
+            Evaluation(configuration={"p": 1}, objectives={"o": 0.0}),
+            Evaluation(configuration={"p": 1}, objectives={"o": 0.3}),
+            Evaluation(configuration={"p": 1}, objectives={"o": 0.2}),
         ],
         [  # Different parameters
-            Evaluation(configuration={"i": 1}, objectives={"l": 0.0}),
-            Evaluation(configuration={"i": 1, "j": 2}, objectives={"l": 0.0}),
-            Evaluation(configuration={"k": 1}, objectives={"l": 0.0}),
+            Evaluation(configuration={"p1": 1}, objectives={"o": 0.0}),
+            Evaluation(configuration={"p1": 1, "p2": 2}, objectives={"o": 0.0}),
+            Evaluation(configuration={"p3": 1}, objectives={"o": 0.0}),
         ],
         [  # Different multi objective values
-            Evaluation(configuration={"i": 1}, objectives={"l": 0.0, "m": 0.1}),
-            Evaluation(configuration={"i": 1}, objectives={"l": 0.0, "m": 0.2}),
-            Evaluation(configuration={"i": 1}, objectives={"l": 0.0, "m": 0.3}),
+            Evaluation(configuration={"p": 1}, objectives={"o1": 0.0, "o2": 0.1}),
+            Evaluation(configuration={"p": 1}, objectives={"o1": 0.0, "o2": 0.2}),
+            Evaluation(configuration={"p": 1}, objectives={"o1": 0.0, "o2": 0.3}),
         ],
         [  # Different context
-            Evaluation(configuration={"i": 1}, objectives={"l": 0}, context={"c": 1}),
-            Evaluation(configuration={"i": 1}, objectives={"l": 0}, context={"c": 2}),
-            Evaluation(configuration={"i": 1}, objectives={"l": 0}, context={"c": 3}),
+            Evaluation(configuration={"p": 1}, objectives={"o": 0}, context={"c": 1}),
+            Evaluation(configuration={"p": 1}, objectives={"o": 0}, context={"c": 2}),
+            Evaluation(configuration={"p": 1}, objectives={"o": 0}, context={"c": 3}),
         ],
         [  # Different settings
-            Evaluation(configuration={"i": 1}, objectives={"l": 0}, settings={"s": 1}),
-            Evaluation(configuration={"i": 1}, objectives={"l": 0}, settings={"s": 2}),
-            Evaluation(configuration={"i": 1}, objectives={"l": 0}, settings={"s": 3}),
+            Evaluation(configuration={"p": 1}, objectives={"o": 0}, settings={"s": 1}),
+            Evaluation(configuration={"p": 1}, objectives={"o": 0}, settings={"s": 2}),
+            Evaluation(configuration={"p": 1}, objectives={"o": 0}, settings={"s": 3}),
         ],
         [  # Different constraints
             Evaluation(
-                configuration={"i": 1}, objectives={"l": 0}, constraints={"c": 1}
+                configuration={"p": 1}, objectives={"o": 0}, constraints={"c": 1}
             ),
             Evaluation(
-                configuration={"i": 1}, objectives={"l": 0}, constraints={"c": 2}
+                configuration={"p": 1}, objectives={"o": 0}, constraints={"c": 2}
             ),
             Evaluation(
-                configuration={"i": 1}, objectives={"l": 0}, constraints={"c": 3}
+                configuration={"p": 1}, objectives={"o": 0}, constraints={"c": 3}
             ),
         ],
     ),
