@@ -28,7 +28,7 @@ pandas = {version = "^1.2.4", optional = true}
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
 isort = "^5.10.1"
-pytest = "^7.1.2"
+pytest = "^7.2.0"
 mypy = "^0.950"
 pytest-timeout = "^2.1.0"
 pytest-cov = "^3.0.0"
