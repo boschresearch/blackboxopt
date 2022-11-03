@@ -51,7 +51,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     ],
     optimizer_kwargs: dict,
     n_max_evaluations: int = 20,
-) -> bool:
+):
     """[summary]
 
     Args:
@@ -104,15 +104,13 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         evaluation = eval_spec.create_evaluation(objectives=evaluation_result)
         optimizer.report(evaluation)
 
-    return True
-
 
 def is_deterministic_with_fixed_seed_and_larger_space(
     optimizer_class: Union[
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
-) -> bool:
+):
     """Check if optimizer is deterministic.
 
     Repeatedly initialize the optimizer with the same parameter space and a fixed seed,
@@ -150,7 +148,6 @@ def is_deterministic_with_fixed_seed_and_larger_space(
         final_configurations.append(es2.configuration.copy())
 
     assert final_configurations[0] == final_configurations[1]
-    return True
 
 
 def is_deterministic_when_reporting_shuffled_evaluations(
@@ -158,7 +155,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
-) -> bool:
+):
     """Check if determinism isn't affected by the order of initially reported data.
 
     Repeatedly initialize the optimizer with the same parameter space and a fixed seed.
@@ -228,15 +225,13 @@ def is_deterministic_when_reporting_shuffled_evaluations(
     assert initial_configs_run_0 != initial_configs_run_1
     assert configs_run_0 == configs_run_1
 
-    return True
-
 
 def handles_reporting_evaluations_list(
     optimizer_class: Union[
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
-) -> bool:
+):
     """Check if optimizer's report method can process an iterable of evaluations.
 
     All optimizers should be able to allow reporting batches of evaluations. It's up to
@@ -266,7 +261,6 @@ def handles_reporting_evaluations_list(
         evaluations.append(evaluation)
 
     opt.report(evaluations)
-    return True
 
 
 def raises_evaluation_error_when_reporting_unknown_objective(
@@ -274,7 +268,7 @@ def raises_evaluation_error_when_reporting_unknown_objective(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
-) -> bool:
+):
     """Check if optimizer's report method raises exception in case objective is unknown.
 
     Also make sure that the faulty evaluations (and only those) are included in the
@@ -317,15 +311,13 @@ def raises_evaluation_error_when_reporting_unknown_objective(
         assert len(invalid_evaluations) == 1
         assert evaluation_2 in invalid_evaluations
 
-    return True
-
 
 def respects_fixed_parameter(
     optimizer_class: Union[
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
-) -> bool:
+):
     """Check if optimizer's generated evaluation specifications contain the values
     a parameter in the search space was fixed to.
 
@@ -358,15 +350,13 @@ def respects_fixed_parameter(
             es.create_evaluation(objectives={"loss": es.configuration["x"] ** 2})
         )
 
-    return True
-
 
 def handles_conditional_space(
     optimizer_class: Union[
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
-) -> bool:
+):
     """Check if optimizer handles conditional i.e. hierarchical search spaces.
 
     Args:
@@ -398,8 +388,6 @@ def handles_conditional_space(
         es = opt.generate_evaluation_specification()
         dummy_loss = es.configuration.get("momentum", 1.0) * es.configuration["lr"] ** 2
         opt.report(es.create_evaluation({"loss": dummy_loss}))
-
-    return True
 
 
 ALL_REFERENCE_TESTS = [
