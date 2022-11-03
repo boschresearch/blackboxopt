@@ -27,7 +27,7 @@ def _initialize_optimizer(
     seed=42,
 ) -> Optimizer:
     if space is None:
-        space = ps.ParameterSpace(seed=seed)
+        space = ps.ParameterSpace()
         space.add(ps.IntegerParameter("p1", bounds=[1, 32], transformation="log"))
         space.add(ps.ContinuousParameter("p2", [-2, 2]))
         space.add(ps.ContinuousParameter("p3", [0, 1]))
@@ -105,7 +105,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     return True
 
 
-def is_deterministic_with_fixed_seed_and_mixed_space(
+def is_deterministic_with_fixed_seed_and_larger_space(
     optimizer_class: Union[
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
@@ -372,7 +372,7 @@ def handles_conditional_space(
 
 ALL_REFERENCE_TESTS = [
     optimize_single_parameter_sequentially_for_n_max_evaluations,
-    is_deterministic_with_fixed_seed_and_mixed_space,
+    is_deterministic_with_fixed_seed_and_larger_space,
     is_deterministic_with_fixed_seed_and_multiple_evaluations,
     handles_reporting_evaluations_list,
     raises_evaluation_error_when_reporting_unknown_objective,
