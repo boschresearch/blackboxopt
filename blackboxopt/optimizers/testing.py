@@ -30,9 +30,9 @@ def _initialize_optimizer(
 ) -> Optimizer:
     if space is None:
         space = ps.ParameterSpace()
-        space.add(ps.IntegerParameter("p1", bounds=[1, 32], transformation="log"))
-        space.add(ps.ContinuousParameter("p2", [-2, 2]))
-        space.add(ps.ContinuousParameter("p3", [0, 1]))
+        space.add(ps.IntegerParameter("p1", bounds=(1, 32), transformation="log"))
+        space.add(ps.ContinuousParameter("p2", (-2, 2)))
+        space.add(ps.ContinuousParameter("p3", (0, 1)))
         space.add(ps.CategoricalParameter("p4", [True, False]))
         space.add(ps.OrdinalParameter("p5", ("small", "medium", "large")))
 
@@ -179,7 +179,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
     """
 
     space = ps.ParameterSpace()
-    space.add(ps.ContinuousParameter("p1", [0, 1]))
+    space.add(ps.ContinuousParameter("p1", (0, 1)))
 
     def _run_experiment_1d(es):
         x = es.configuration["p1"]
