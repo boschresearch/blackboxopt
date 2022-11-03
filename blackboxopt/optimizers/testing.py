@@ -105,7 +105,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     return True
 
 
-def is_deterministic_with_fixed_seed(
+def is_deterministic_with_fixed_seed_and_larger_space(
     optimizer_class: Union[
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
@@ -117,6 +117,8 @@ def is_deterministic_with_fixed_seed(
     get an evaluation specification, report a placeholder result and get another
     evaluation specification. The configuration of all final evaluation specifications
     should be equal.
+
+    This tests covers multiple parameter types by using a mixed search space.
 
     Args:
         optimizer_class: Optimizer to test.
@@ -143,6 +145,55 @@ def is_deterministic_with_fixed_seed(
         es2 = opt.generate_evaluation_specification()
 
         final_configurations.append(es2.configuration.copy())
+
+    assert final_configurations[0] == final_configurations[1]
+    return True
+
+
+def is_deterministic_with_fixed_seed_and_multiple_evaluations(
+    optimizer_class: Union[
+        Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
+    ],
+    optimizer_kwargs: dict,
+) -> bool:
+    """Check if optimizer is deterministic, even after multiple evaluations.
+
+    Repeatedly initialize the optimizer with the same parameter space and a fixed seed,
+    then report a number of evaluations. The configuration of all final evaluations
+    should be equal.
+
+    By doing multiple evaluations, this tests covers effects that become visible after
+    a while, e.g. only after stages got completed in staged iteration samplers.
+
+    Args:
+        optimizer_class: Optimizer to test.
+        optimizer_kwargs: Expected to contain additional arguments for initializing
+            the optimizer. (`search_space` and `objective(s)` are set automatically
+            by the test.)
+
+    Returns:
+        `True` if the test is passed.
+    """
+    final_configurations = []
+    for _ in range(2):
+        space = ps.ParameterSpace(seed=42)
+        space.add(ps.ContinuousParameter("p1", [0, 1]))
+
+        opt = _initialize_optimizer(
+            optimizer_class,
+            optimizer_kwargs,
+            objective=Objective("loss", False),
+            objectives=[Objective("loss", False)],
+            space=space,
+            seed=42,
+        )
+
+        for i in range(15):
+            es = opt.generate_evaluation_specification()
+            evaluation = es.create_evaluation(objectives={"loss": i})
+            opt.report(evaluation)
+
+        final_configurations.append(evaluation.configuration.copy())
 
     assert final_configurations[0] == final_configurations[1]
     return True
@@ -321,7 +372,8 @@ def handles_conditional_space(
 
 ALL_REFERENCE_TESTS = [
     optimize_single_parameter_sequentially_for_n_max_evaluations,
-    is_deterministic_with_fixed_seed,
+    is_deterministic_with_fixed_seed_and_larger_space,
+    is_deterministic_with_fixed_seed_and_multiple_evaluations,
     handles_reporting_evaluations_list,
     raises_evaluation_error_when_reporting_unknown_objective,
     respects_fixed_parameter,
