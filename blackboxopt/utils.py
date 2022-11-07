@@ -6,7 +6,7 @@
 import hashlib
 import pickle
 from itertools import compress
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, Iterable, List, Optional, Sequence
 
 import numpy as np
 
@@ -84,7 +84,7 @@ def filter_pareto_efficient(
     return list(compress(evaluations, pareto_efficient_mask))
 
 
-def sort_evaluations(evaluations: List[Evaluation]) -> List[Evaluation]:
+def sort_evaluations(evaluations: Iterable[Evaluation]) -> Iterable[Evaluation]:
     return sorted(
         evaluations,
         key=lambda e: hashlib.md5(
