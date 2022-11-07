@@ -13,3 +13,4 @@ from .base import (
     OptimizerNotReady,
 )
 from .evaluation import Evaluation, EvaluationSpecification
+from .utils import sort_evaluations
