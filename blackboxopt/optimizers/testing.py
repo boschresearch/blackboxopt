@@ -198,7 +198,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
         )
 
         # Report initial data in different order
-        eval_specs = [opt.generate_evaluation_specification() for _ in range(8)]
+        eval_specs = [opt.generate_evaluation_specification() for _ in range(5)]
         run["inital_evaluations"] = [
             es.create_evaluation(objectives={"loss": _run_experiment_1d(es)})
             for es in eval_specs
