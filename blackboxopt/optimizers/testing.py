@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Type, Union
 import numpy as np
 import parameterspace as ps
 
-from blackboxopt import Objective, OptimizationComplete, Optimizer
+from blackboxopt import Evaluation, Objective, OptimizationComplete, Optimizer
 from blackboxopt.base import (
     EvaluationsError,
     MultiObjectiveOptimizer,
@@ -113,11 +113,10 @@ def is_deterministic_with_fixed_seed_and_larger_space(
 ):
     """Check if optimizer is deterministic.
 
-    Repeatedly initialize the optimizer with the same parameter space and a fixed seed,
-    get an evaluation specification, report a placeholder result and get another
-    evaluation specification. The configuration of all final evaluation specifications
-    should be equal.
-
+    Initialize the optimizer twice with the same parameter space and a fixed seed.
+    For each optimizer run optimization loop `n_evaluations` times, namely,
+    get an evaluation specification and report a placeholder result back.
+    The list of configurations should be equal for both optimizers.
 
     This tests covers multiple parameter types by using a mixed search space.
 
@@ -130,24 +129,29 @@ def is_deterministic_with_fixed_seed_and_larger_space(
     Returns:
         `True` if the test is passed.
     """
-    final_configurations = []
+    n_evaluations = 5
+    losses = [0.1, 0.2, 0.3, 0.4, 0.5]
 
-    for _ in range(2):
+    run_0_configs: List[Evaluation] = []
+    run_1_configs: List[Evaluation] = []
+
+    for run_configs in [run_0_configs, run_1_configs]:
         opt = _initialize_optimizer(
             optimizer_class,
             optimizer_kwargs,
             objective=Objective("loss", False),
             objectives=[Objective("loss", False)],
+            seed=42,
         )
 
-        es1 = opt.generate_evaluation_specification()
-        evaluation1 = es1.create_evaluation(objectives={"loss": 0.42})
-        opt.report(evaluation1)
-        es2 = opt.generate_evaluation_specification()
+        for i in range(n_evaluations):
+            es = opt.generate_evaluation_specification()
+            evaluation = es.create_evaluation(objectives={"loss": losses[i]})
+            opt.report(evaluation)
 
-        final_configurations.append(es2.configuration.copy())
+            run_configs.append(evaluation.configuration)
 
-    assert final_configurations[0] == final_configurations[1]
+    assert run_0_configs == run_1_configs
 
 
 def is_deterministic_when_reporting_shuffled_evaluations(
