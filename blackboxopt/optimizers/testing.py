@@ -151,6 +151,7 @@ def is_deterministic_with_fixed_seed_and_larger_space(
 
             run_configs.append(evaluation.configuration)
 
+    assert len(run_0_configs) == n_evaluations
     assert run_0_configs == run_1_configs
 
 
