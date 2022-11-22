@@ -85,7 +85,9 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
             objectives={"loss": None, "score": None}
         )
     else:
-        evaluation = eval_spec.create_evaluation(objectives={"loss": None})
+        evaluation = eval_spec.create_evaluation(
+            objectives={"loss": None}, constraints={"constraint": None}
+        )
     optimizer.report(evaluation)
 
     for _ in range(n_max_evaluations):
@@ -101,7 +103,9 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         else:
             evaluation_result = {"loss": loss}
 
-        evaluation = eval_spec.create_evaluation(objectives=evaluation_result)
+        evaluation = eval_spec.create_evaluation(
+            objectives=evaluation_result, constraints={"constraint": 10.0}
+        )
         optimizer.report(evaluation)
 
 
@@ -146,7 +150,9 @@ def is_deterministic_with_fixed_seed_and_larger_space(
 
         for i in range(n_evaluations):
             es = opt.generate_evaluation_specification()
-            evaluation = es.create_evaluation(objectives={"loss": losses[i]})
+            evaluation = es.create_evaluation(
+                objectives={"loss": losses[i]}, constraints={"constraint": 10.0}
+            )
             opt.report(evaluation)
 
             run_configs.append(evaluation.configuration)
@@ -204,25 +210,29 @@ def is_deterministic_when_reporting_shuffled_evaluations(
 
         # Report initial data in different order
         eval_specs = [opt.generate_evaluation_specification() for _ in range(5)]
-        run["inital_evaluations"] = [
-            es.create_evaluation(objectives={"loss": _run_experiment_1d(es)})
+        run["initial_evaluations"] = [
+            es.create_evaluation(
+                objectives={"loss": _run_experiment_1d(es)},
+                constraints={"constraint": 10.0},
+            )
             for es in eval_specs
         ]
         random.seed(run_idx)
-        random.shuffle(run["inital_evaluations"])
-        opt.report(run["inital_evaluations"])
+        random.shuffle(run["initial_evaluations"])
+        opt.report(run["initial_evaluations"])
 
         # Start optimizing
         for _ in range(5):
             es = opt.generate_evaluation_specification()
             evaluation = es.create_evaluation(
-                objectives={"loss": _run_experiment_1d(es)}
+                objectives={"loss": _run_experiment_1d(es)},
+                constraints={"constraint": 10.0},
             )
             opt.report(evaluation)
             run["evaluations"].append(evaluation)
 
-    initial_configs_run_0 = [e.configuration for e in runs[0]["inital_evaluations"]]
-    initial_configs_run_1 = [e.configuration for e in runs[1]["inital_evaluations"]]
+    initial_configs_run_0 = [e.configuration for e in runs[0]["initial_evaluations"]]
+    initial_configs_run_1 = [e.configuration for e in runs[1]["initial_evaluations"]]
 
     configs_run_0 = [e.configuration for e in runs[0]["evaluations"]]
     configs_run_1 = [e.configuration for e in runs[1]["evaluations"]]
@@ -263,7 +273,9 @@ def handles_reporting_evaluations_list(
     evaluations = []
     for _ in range(3):
         es = opt.generate_evaluation_specification()
-        evaluation = es.create_evaluation(objectives={"loss": 0.42})
+        evaluation = es.create_evaluation(
+            objectives={"loss": 0.42}, constraints={"constraint": 10.0}
+        )
         evaluations.append(evaluation)
 
     opt.report(evaluations)
@@ -302,9 +314,15 @@ def raises_evaluation_error_when_reporting_unknown_objective(
     # NOTE: The following is not using pytest.raises because this would add pytest as
     #       a regular dependency to blackboxopt.
     try:
-        evaluation_1 = es_1.create_evaluation(objectives={"loss": 1})
-        evaluation_2 = es_2.create_evaluation(objectives={"unknown_objective": 2})
-        evaluation_3 = es_3.create_evaluation(objectives={"loss": 4})
+        evaluation_1 = es_1.create_evaluation(
+            objectives={"loss": 1}, constraints={"constraint": 10.0}
+        )
+        evaluation_2 = es_2.create_evaluation(
+            objectives={"unknown_objective": 2}, constraints={"constraint": 10.0}
+        )
+        evaluation_3 = es_3.create_evaluation(
+            objectives={"loss": 4}, constraints={"constraint": 10.0}
+        )
         opt.report([evaluation_1, evaluation_2, evaluation_3])
 
         raise AssertionError(
@@ -353,7 +371,10 @@ def respects_fixed_parameter(
         es = opt.generate_evaluation_specification()
         assert es.configuration["my_fixed_param"] == fixed_value
         opt.report(
-            es.create_evaluation(objectives={"loss": es.configuration["x"] ** 2})
+            es.create_evaluation(
+                objectives={"loss": es.configuration["x"] ** 2},
+                constraints={"constraint": 10.0},
+            )
         )
 
 
@@ -393,7 +414,11 @@ def handles_conditional_space(
     for _ in range(10):
         es = opt.generate_evaluation_specification()
         dummy_loss = es.configuration.get("momentum", 1.0) * es.configuration["lr"] ** 2
-        opt.report(es.create_evaluation({"loss": dummy_loss}))
+        opt.report(
+            es.create_evaluation(
+                objectives={"loss": dummy_loss}, constraints={"constraint": 10.0}
+            )
+        )
 
 
 ALL_REFERENCE_TESTS = [
