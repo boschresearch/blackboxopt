@@ -29,6 +29,7 @@ try:
     from blackboxopt.base import (
         SingleObjectiveOptimizer,
         call_functions_with_evaluations_and_collect_errors,
+        validate_objectives,
     )
 except ImportError as e:
     raise ImportError(
@@ -236,7 +237,8 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                     self.search_space.to_numerical(e.configuration)
                     for e in self.pending_specifications.values()
                 ]
-            )
+            ),
+            dtype=self.torch_dtype,
         )
 
         model = model.fantasize(pending_X, IIDNormalSampler(1), observation_noise=False)
@@ -369,28 +371,29 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         self.X = torch.cat([self.X, X], dim=-2)
         self.losses = torch.cat([self.losses, Y], dim=-2)
 
-    def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
-        """Validate evaluations and do the bookkeeping.
-
-        Please refer to the docstring of
-        `blackboxopt.base.SingleObjectiveOptimizer.report` for a
-        description of the method.
-        """
-        _evals = (
-            [evaluations]
-            if isinstance(evaluations, Evaluation)
-            else sort_evaluations(evaluations)
-        )
-
-        # Check validity of the evaluations and do optimizer agnostic bookkeeping
+    def _update_internal_evaluation_data(
+        self, evaluations: Iterable[Evaluation]
+    ) -> None:
+        """Check validity of the evaluations and do optimizer agnostic bookkeeping."""
         call_functions_with_evaluations_and_collect_errors(
             [
-                functools.partial(SingleObjectiveOptimizer.report, self),
+                functools.partial(validate_objectives, objectives=[self.objective]),
                 self._remove_pending_specifications,
                 self._append_evaluations_to_data,
             ],
-            _evals,
+            evaluations,
         )
+
+    def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
+        """A simple report method that conditions the model on data.
+        This likely needs to be overridden for more specific BO implementations.
+        """
+        _evals = [evaluations] if isinstance(evaluations, Evaluation) else evaluations
+        self._update_internal_evaluation_data(_evals)
+        # Just for populating all relevant caches
+        self.model.posterior(self.X)
+        # The actual model update
+        self.model.condition_on_observations(self.X, self.losses)
 
     def predict_model_based_best(self) -> Optional[Evaluation]:
         """Get the current configuration that is estimated to be the best (in terms of
