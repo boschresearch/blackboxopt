@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "blackboxopt"
-version = "4.6.4"
+version = "4.7.0"
 description = "A common interface for blackbox optimization algorithms along with useful helpers like parallel optimization loops, analysis and visualization scripts."
 readme = "README.md"
 repository = "https://github.com/boschresearch/blackboxopt"
@@ -24,6 +24,11 @@ statsmodels = {version = "^0.13.2", optional = true}
 dask = {version = "^2021.2.0", optional = true}
 distributed = {version = "^2021.2.0", optional = true}
 pandas = {version = "^1.2.4", optional = true}
+botorch = {version = "^0.7.1", optional = true}
+# version 1.13.0 has a bug where many unnecessary heavy dependencies are installed in
+# the base configuration of torch. Fixing it to <1.13 until the bug is resolved.
+# https://github.com/pytorch/pytorch/issues/88869
+torch = {version = "~1.12", optional = true}
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
@@ -46,9 +51,10 @@ types-toml = "^0.10.7"
 kaleido = "0.2.1"  # pin hard, because 0.2.1post1 fails to install
 
 [tool.poetry.extras]
-all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas"]
+all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas", "botorch"]
 hyperband = ["numpy"]
 bohb = ["numpy", "scipy", "statsmodels"]
+botorch = ["botorch"]
 space-fill = ["numpy", "scipy"]
 dask = ["dask", "distributed"]
 visualization = ["plotly", "scipy", "pandas"]
@@ -73,6 +79,7 @@ filter_files = true
 max-line-length = 88
 
 [tool.pylint.messages_control]
+generated-members = ["torch.*", "numpy.*"]
 disable = [
     # Switched off due to possible collisions with black:
     "bad-continuation",
