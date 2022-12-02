@@ -364,7 +364,9 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         )
 
         # fill in NaNs originating from inactive parameters (conditional spaces support)
-        X = impute_nans_with_constant(X)
+        # botorch expect numerical representation of inputs to be within the unit
+        # hypercube, thus we can't use the default c=-1.0
+        X = impute_nans_with_constant(X, c=0.0)
 
         self.logger.debug(f"Next training configuration(s):{X}, {Y}")
 
