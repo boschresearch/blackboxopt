@@ -1,0 +1,2146 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Various blackbox optimization algorithms with a common interface.">
+      
+      
+      
+        <link rel="canonical" href="https://boschresearch.github.io/blackboxopt/v4.7.0/reference/optimizers/staged/bohb/">
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>Bohb - Blackbox Optimization</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.975780f9.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.2505c338.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#000000">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../../extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="light-blue">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#blackboxopt.optimizers.staged.bohb" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="Blackbox Optimization" class="md-header__button md-logo" aria-label="Blackbox Optimization" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Blackbox Optimization
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Bohb
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/boschresearch/blackboxopt" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    boschresearch/blackboxopt
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Blackbox Optimization" class="md-nav__button md-logo" aria-label="Blackbox Optimization" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Blackbox Optimization
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/boschresearch/blackboxopt" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    boschresearch/blackboxopt
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Examples
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Examples" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/dask-distributed/" class="md-nav__link">
+        Dask Distributed
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../base/" class="md-nav__link">
+        Base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../evaluation/" class="md-nav__link">
+        Evaluation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../utils/" class="md-nav__link">
+        Utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_4">
+          Optimization loops
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Optimization loops" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_4">
+          <span class="md-nav__icon md-icon"></span>
+          Optimization loops
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../optimization_loops/dask_distributed/" class="md-nav__link">
+        Dask distributed
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../optimization_loops/sequential/" class="md-nav__link">
+        Sequential
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../optimization_loops/testing/" class="md-nav__link">
+        Testing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../optimization_loops/utils/" class="md-nav__link">
+        Utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5" type="checkbox" id="__nav_3_5" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_5">
+          Optimizers
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Optimizers" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_5">
+          <span class="md-nav__icon md-icon"></span>
+          Optimizers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../bohb/" class="md-nav__link">
+        Bohb
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../botorch_base/" class="md-nav__link">
+        Botorch base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hyperband/" class="md-nav__link">
+        Hyperband
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../random_search/" class="md-nav__link">
+        Random search
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../space_filling/" class="md-nav__link">
+        Space filling
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        Testing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5_7" type="checkbox" id="__nav_3_5_7" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_5_7">
+          Staged
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Staged" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_5_7">
+          <span class="md-nav__icon md-icon"></span>
+          Staged
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Bohb
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Bohb
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.Sampler" class="md-nav__link">
+    Sampler
+  </a>
+  
+    <nav class="md-nav" aria-label="Sampler">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.Sampler.digest_evaluation" class="md-nav__link">
+    digest_evaluation()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.Sampler.sample_configuration" class="md-nav__link">
+    sample_configuration()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.convert_from_statsmodels_kde_representation" class="md-nav__link">
+    convert_from_statsmodels_kde_representation()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.convert_to_statsmodels_kde_representation" class="md-nav__link">
+    convert_to_statsmodels_kde_representation()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.impute_conditional_data" class="md-nav__link">
+    impute_conditional_data()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.sample_around_values" class="md-nav__link">
+    sample_around_values()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration_sampler/" class="md-nav__link">
+        Configuration sampler
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hyperband/" class="md-nav__link">
+        Hyperband
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../iteration/" class="md-nav__link">
+        Iteration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../optimizer/" class="md-nav__link">
+        Optimizer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        Utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_6" type="checkbox" id="__nav_3_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_6">
+          Visualizations
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Visualizations" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_6">
+          <span class="md-nav__icon md-icon"></span>
+          Visualizations
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../visualizations/utils/" class="md-nav__link">
+        Utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../visualizations/visualizer/" class="md-nav__link">
+        Visualizer
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.Sampler" class="md-nav__link">
+    Sampler
+  </a>
+  
+    <nav class="md-nav" aria-label="Sampler">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.Sampler.digest_evaluation" class="md-nav__link">
+    digest_evaluation()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.Sampler.sample_configuration" class="md-nav__link">
+    sample_configuration()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.convert_from_statsmodels_kde_representation" class="md-nav__link">
+    convert_from_statsmodels_kde_representation()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.convert_to_statsmodels_kde_representation" class="md-nav__link">
+    convert_to_statsmodels_kde_representation()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.impute_conditional_data" class="md-nav__link">
+    impute_conditional_data()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.staged.bohb.sample_around_values" class="md-nav__link">
+    sample_around_values()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h1 id="blackboxopt.optimizers.staged.bohb" class="doc doc-heading">
+        <code>blackboxopt.optimizers.staged.bohb</code>
+
+
+
+</h1>
+
+    <div class="doc doc-contents first">
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="blackboxopt.optimizers.staged.bohb.Sampler" class="doc doc-heading">
+        <code>
+Sampler            (<span title="blackboxopt.optimizers.staged.configuration_sampler.StagedIterationConfigurationSampler">StagedIterationConfigurationSampler</span>)
+        </code>
+
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/staged/bohb.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Sampler</span><span class="p">(</span><span class="n">StagedIterationConfigurationSampler</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">search_space</span><span class="p">:</span> <span class="n">ParameterSpace</span><span class="p">,</span>
+        <span class="n">objective</span><span class="p">:</span> <span class="n">Objective</span><span class="p">,</span>
+        <span class="n">min_samples_in_model</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">top_n_percent</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">random_fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">bandwidth_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">min_bandwidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fits for each given fidelity a kernel density estimator on the best N percent</span>
+<span class="sd">        of the evaluated configurations on this fidelity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            search_space: ConfigurationSpace/ ParameterSpace object.</span>
+<span class="sd">            objective: The objective of the optimization.</span>
+<span class="sd">            min_samples_in_model: Minimum number of datapoints needed to fit a model.</span>
+<span class="sd">            top_n_percent: Determines the percentile of configurations that will be used</span>
+<span class="sd">                as training data for the kernel density estimator of the good</span>
+<span class="sd">                configuration, e.g if set to 10 the best 10% configurations will be</span>
+<span class="sd">                considered for training.</span>
+<span class="sd">            num_samples: Number of samples drawn to optimize EI via sampling.</span>
+<span class="sd">            random_fraction: Fraction of random configurations returned</span>
+<span class="sd">            bandwidth_factor: Widens the bandwidth for contiuous parameters for</span>
+<span class="sd">                proposed points to optimize EI</span>
+<span class="sd">            min_bandwidth: To keep diversity, even when all (good) samples have the</span>
+<span class="sd">                same value for one of the parameters, a minimum bandwidth</span>
+<span class="sd">                (reasonable default: 1e-3) is used instead of zero.</span>
+<span class="sd">            seed: A seed to make the sampler reproducible.</span>
+<span class="sd">            logger: [description]</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: [description]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;blackboxopt&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">logger</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span> <span class="o">=</span> <span class="n">min_samples_in_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_n_percent</span> <span class="o">=</span> <span class="n">top_n_percent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span> <span class="o">=</span> <span class="n">search_space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bw_factor</span> <span class="o">=</span> <span class="n">bandwidth_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_bandwidth</span> <span class="o">=</span> <span class="n">min_bandwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">search_space</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">search_space</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid min_samples_in_model value. &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Setting it to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="n">num_samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_fraction</span> <span class="o">=</span> <span class="n">random_fraction</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kde_vartypes</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="n">vartypes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">hp</span> <span class="ow">in</span> <span class="n">search_space</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+            <span class="n">hp</span> <span class="o">=</span> <span class="n">hp</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">ContinuousParameter</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">IntegerParameter</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kde_vartypes</span> <span class="o">+=</span> <span class="s2">&quot;c&quot;</span>
+                <span class="n">vartypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">CategoricalParameter</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kde_vartypes</span> <span class="o">+=</span> <span class="s2">&quot;u&quot;</span>
+                <span class="n">vartypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hp</span><span class="o">.</span><span class="n">num_values</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">OrdinalParameter</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kde_vartypes</span> <span class="o">+=</span> <span class="s2">&quot;o&quot;</span>
+                <span class="n">vartypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">hp</span><span class="o">.</span><span class="n">num_values</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This version on BOHB does not support </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">hp</span><span class="p">)</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vartypes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">sample_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;[summary]</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [description]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;start sampling a new configuration.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Sample from prior, if no model is available or with given probability</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_fraction</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;model_based_pick&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+        <span class="n">best</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">best_vector</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># sample from largest fidelity</span>
+            <span class="n">fidelity</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+            <span class="n">good</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">][</span><span class="s2">&quot;good&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pdf</span>
+            <span class="n">bad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">][</span><span class="s2">&quot;bad&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pdf</span>
+
+            <span class="n">minimize_me</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1e-32</span><span class="p">,</span> <span class="n">bad</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">good</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mf">1e-32</span><span class="p">)</span>
+
+            <span class="n">kde_good</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">][</span><span class="s2">&quot;good&quot;</span><span class="p">]</span>
+            <span class="n">kde_bad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">][</span><span class="s2">&quot;bad&quot;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">):</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">kde_good</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+                <span class="n">datum</span> <span class="o">=</span> <span class="n">kde_good</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                <span class="n">vector</span> <span class="o">=</span> <span class="n">sample_around_values</span><span class="p">(</span>
+                    <span class="n">datum</span><span class="p">,</span>
+                    <span class="n">kde_good</span><span class="o">.</span><span class="n">bw</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">min_bandwidth</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bw_factor</span><span class="p">,</span>
+                    <span class="n">rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">vector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Statsmodels KDE estimators relies on seeding through numpy&#39;s global</span>
+                <span class="c1"># state. We do this close to the evaluation of the PDF (`good`, `bad`)</span>
+                <span class="c1"># to increase robustness for multi threading.</span>
+                <span class="c1"># As we seed in a loop, we need to change it each iteration to not get</span>
+                <span class="c1"># the same random numbers each time.</span>
+                <span class="c1"># We also reset the np.random&#39;s global state, in case the user relies</span>
+                <span class="c1"># on it in other parts of the code and to not hide other determinism</span>
+                <span class="c1"># issues.</span>
+                <span class="c1"># TODO: Check github issue if there was progress and the seeding can be</span>
+                <span class="c1"># removed: https://github.com/statsmodels/statsmodels/issues/306</span>
+                <span class="n">cached_rng_state</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">:</span>
+                    <span class="n">cached_rng_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+
+                <span class="n">val</span> <span class="o">=</span> <span class="n">minimize_me</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">cached_rng_state</span><span class="p">:</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">cached_rng_state</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;sampled vector: </span><span class="si">%s</span><span class="s2"> has EI value </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;data in the KDEs:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kde_good</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">kde_bad</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;bandwidth of the KDEs:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kde_good</span><span class="o">.</span><span class="n">bw</span><span class="p">,</span> <span class="n">kde_bad</span><span class="o">.</span><span class="n">bw</span><span class="p">)</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># right now, this happens because a KDE does not contain all values</span>
+                    <span class="c1"># for a categorical parameter this cannot be fixed with the</span>
+                    <span class="c1"># statsmodels KDE, so for now, we are just going to evaluate this</span>
+                    <span class="c1"># one if the good_kde has a finite value, i.e. there is no config</span>
+                    <span class="c1"># with that value in the bad kde, so it shouldn&#39;t be terrible.</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">good</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span> <span class="ow">and</span> <span class="n">best_vector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">best_vector</span> <span class="o">=</span> <span class="n">vector</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">:</span>
+                    <span class="n">best</span> <span class="o">=</span> <span class="n">val</span>
+                    <span class="n">best_vector</span> <span class="o">=</span> <span class="n">convert_from_statsmodels_kde_representation</span><span class="p">(</span>
+                        <span class="n">vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span>
+                    <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">best_vector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Sampling based optimization with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="si">}</span><span class="s2"> samples did &quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;not find any finite/numerical acquisition function value &quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;-&gt; using random configuration&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;model_based_pick&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;best_vector: </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">best_vector</span><span class="p">,</span> <span class="n">best</span><span class="p">,</span> <span class="n">good</span><span class="p">(</span><span class="n">best_vector</span><span class="p">),</span> <span class="n">bad</span><span class="p">(</span><span class="n">best_vector</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">from_numerical</span><span class="p">(</span><span class="n">best_vector</span><span class="p">),</span>
+                    <span class="p">{</span><span class="s2">&quot;model_based_pick&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Sample base optimization failed. Falling back to a random sample.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;model_based_pick&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">digest_evaluation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation</span><span class="p">:</span> <span class="n">Evaluation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;[summary]</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            evaluation: [description]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objective_value</span> <span class="o">=</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">objectives</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">objective_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="o">-</span><span class="n">objective_value</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">greater_is_better</span>
+                <span class="k">else</span> <span class="n">objective_value</span>
+            <span class="p">)</span>
+        <span class="n">config_vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">to_numerical</span><span class="p">(</span><span class="n">evaluation</span><span class="o">.</span><span class="n">configuration</span><span class="p">)</span>
+        <span class="n">config_vector</span> <span class="o">=</span> <span class="n">convert_to_statsmodels_kde_representation</span><span class="p">(</span>
+            <span class="n">config_vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span>
+        <span class="p">)</span>
+
+        <span class="n">fidelity</span> <span class="o">=</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;fidelity&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">fidelity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_vector</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="n">fidelity</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">n_runs_finite_loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Only </span><span class="si">{</span><span class="n">n_runs_finite_loss</span><span class="si">}</span><span class="s2"> run(s) with a finite loss for fidelity &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fidelity</span><span class="si">}</span><span class="s2"> available, need more than </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;-&gt; can&#39;t build model!&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">train_configs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">fidelity</span><span class="p">])</span>
+        <span class="n">train_losses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">])</span>
+
+        <span class="n">n_good</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span><span class="p">,</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top_n_percent</span> <span class="o">*</span> <span class="n">train_configs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">//</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">n_bad</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span><span class="p">,</span>
+            <span class="p">((</span><span class="mi">100</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_n_percent</span><span class="p">)</span> <span class="o">*</span> <span class="n">train_configs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">//</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Refit KDE for the current fidelity</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">train_losses</span><span class="p">)</span>
+
+        <span class="n">train_data_good</span> <span class="o">=</span> <span class="n">impute_conditional_data</span><span class="p">(</span>
+            <span class="n">train_configs</span><span class="p">[</span><span class="n">idx</span><span class="p">[:</span><span class="n">n_good</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span>
+        <span class="p">)</span>
+        <span class="n">train_data_bad</span> <span class="o">=</span> <span class="n">impute_conditional_data</span><span class="p">(</span>
+            <span class="n">train_configs</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">n_good</span> <span class="p">:</span> <span class="n">n_good</span> <span class="o">+</span> <span class="n">n_bad</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">train_data_good</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">train_data_good</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">train_data_bad</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">train_data_bad</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># more expensive crossvalidation method</span>
+        <span class="c1"># bw_estimation = &#39;cv_ls&#39;</span>
+        <span class="c1"># quick rule of thumb</span>
+        <span class="n">bw_estimation</span> <span class="o">=</span> <span class="s2">&quot;normal_reference&quot;</span>
+
+        <span class="n">bad_kde</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">nonparametric</span><span class="o">.</span><span class="n">KDEMultivariate</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">train_data_bad</span><span class="p">,</span>
+            <span class="n">var_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_vartypes</span><span class="p">,</span>
+            <span class="n">bw</span><span class="o">=</span><span class="n">bw_estimation</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">good_kde</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">nonparametric</span><span class="o">.</span><span class="n">KDEMultivariate</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">train_data_good</span><span class="p">,</span>
+            <span class="n">var_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_vartypes</span><span class="p">,</span>
+            <span class="n">bw</span><span class="o">=</span><span class="n">bw_estimation</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">bad_kde</span><span class="o">.</span><span class="n">bw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">bad_kde</span><span class="o">.</span><span class="n">bw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bandwidth</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">good_kde</span><span class="o">.</span><span class="n">bw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">good_kde</span><span class="o">.</span><span class="n">bw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bandwidth</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;good&quot;</span><span class="p">:</span> <span class="n">good_kde</span><span class="p">,</span> <span class="s2">&quot;bad&quot;</span><span class="p">:</span> <span class="n">bad_kde</span><span class="p">}</span>
+
+        <span class="c1"># update probs for the categorical parameters for later sampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;done building a new model for fidelity </span><span class="si">{</span><span class="n">fidelity</span><span class="si">}</span><span class="s2"> based on &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n_good</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_bad</span><span class="si">}</span><span class="s2"> split</span><span class="se">\n</span><span class="s2">Best loss for this fidelity: &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">train_losses</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+        <span class="p">)</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="blackboxopt.optimizers.staged.bohb.Sampler.digest_evaluation" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">digest_evaluation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>[summary]</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>evaluation</code></td>
+        <td><code>Evaluation</code></td>
+        <td><p>[description]</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/staged/bohb.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">digest_evaluation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation</span><span class="p">:</span> <span class="n">Evaluation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;[summary]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        evaluation: [description]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">objective_value</span> <span class="o">=</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">objectives</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">objective_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="o">-</span><span class="n">objective_value</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">greater_is_better</span>
+            <span class="k">else</span> <span class="n">objective_value</span>
+        <span class="p">)</span>
+    <span class="n">config_vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">to_numerical</span><span class="p">(</span><span class="n">evaluation</span><span class="o">.</span><span class="n">configuration</span><span class="p">)</span>
+    <span class="n">config_vector</span> <span class="o">=</span> <span class="n">convert_to_statsmodels_kde_representation</span><span class="p">(</span>
+        <span class="n">config_vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span>
+    <span class="p">)</span>
+
+    <span class="n">fidelity</span> <span class="o">=</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;fidelity&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">fidelity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_vector</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="n">fidelity</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">n_runs_finite_loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Only </span><span class="si">{</span><span class="n">n_runs_finite_loss</span><span class="si">}</span><span class="s2"> run(s) with a finite loss for fidelity &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fidelity</span><span class="si">}</span><span class="s2"> available, need more than </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;-&gt; can&#39;t build model!&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">train_configs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">fidelity</span><span class="p">])</span>
+    <span class="n">train_losses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">[</span><span class="n">fidelity</span><span class="p">])</span>
+
+    <span class="n">n_good</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span><span class="p">,</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top_n_percent</span> <span class="o">*</span> <span class="n">train_configs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">//</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">n_bad</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_in_model</span><span class="p">,</span>
+        <span class="p">((</span><span class="mi">100</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_n_percent</span><span class="p">)</span> <span class="o">*</span> <span class="n">train_configs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">//</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Refit KDE for the current fidelity</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">train_losses</span><span class="p">)</span>
+
+    <span class="n">train_data_good</span> <span class="o">=</span> <span class="n">impute_conditional_data</span><span class="p">(</span>
+        <span class="n">train_configs</span><span class="p">[</span><span class="n">idx</span><span class="p">[:</span><span class="n">n_good</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span>
+    <span class="p">)</span>
+    <span class="n">train_data_bad</span> <span class="o">=</span> <span class="n">impute_conditional_data</span><span class="p">(</span>
+        <span class="n">train_configs</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">n_good</span> <span class="p">:</span> <span class="n">n_good</span> <span class="o">+</span> <span class="n">n_bad</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">train_data_good</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">train_data_good</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">train_data_bad</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">train_data_bad</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># more expensive crossvalidation method</span>
+    <span class="c1"># bw_estimation = &#39;cv_ls&#39;</span>
+    <span class="c1"># quick rule of thumb</span>
+    <span class="n">bw_estimation</span> <span class="o">=</span> <span class="s2">&quot;normal_reference&quot;</span>
+
+    <span class="n">bad_kde</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">nonparametric</span><span class="o">.</span><span class="n">KDEMultivariate</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">train_data_bad</span><span class="p">,</span>
+        <span class="n">var_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_vartypes</span><span class="p">,</span>
+        <span class="n">bw</span><span class="o">=</span><span class="n">bw_estimation</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">good_kde</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">nonparametric</span><span class="o">.</span><span class="n">KDEMultivariate</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">train_data_good</span><span class="p">,</span>
+        <span class="n">var_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_vartypes</span><span class="p">,</span>
+        <span class="n">bw</span><span class="o">=</span><span class="n">bw_estimation</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">bad_kde</span><span class="o">.</span><span class="n">bw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">bad_kde</span><span class="o">.</span><span class="n">bw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bandwidth</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">good_kde</span><span class="o">.</span><span class="n">bw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">good_kde</span><span class="o">.</span><span class="n">bw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bandwidth</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;good&quot;</span><span class="p">:</span> <span class="n">good_kde</span><span class="p">,</span> <span class="s2">&quot;bad&quot;</span><span class="p">:</span> <span class="n">bad_kde</span><span class="p">}</span>
+
+    <span class="c1"># update probs for the categorical parameters for later sampling</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;done building a new model for fidelity </span><span class="si">{</span><span class="n">fidelity</span><span class="si">}</span><span class="s2"> based on &quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n_good</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_bad</span><span class="si">}</span><span class="s2"> split</span><span class="se">\n</span><span class="s2">Best loss for this fidelity: &quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">train_losses</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="blackboxopt.optimizers.staged.bohb.Sampler.sample_configuration" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">sample_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>[summary]</p>
+
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[dict, dict]</code></td>
+      <td><p>[description]</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/staged/bohb.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">sample_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;[summary]</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [description]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;start sampling a new configuration.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Sample from prior, if no model is available or with given probability</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_fraction</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;model_based_pick&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+    <span class="n">best</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">best_vector</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># sample from largest fidelity</span>
+        <span class="n">fidelity</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="n">good</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">][</span><span class="s2">&quot;good&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pdf</span>
+        <span class="n">bad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">][</span><span class="s2">&quot;bad&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pdf</span>
+
+        <span class="n">minimize_me</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1e-32</span><span class="p">,</span> <span class="n">bad</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">good</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mf">1e-32</span><span class="p">)</span>
+
+        <span class="n">kde_good</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">][</span><span class="s2">&quot;good&quot;</span><span class="p">]</span>
+        <span class="n">kde_bad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kde_models</span><span class="p">[</span><span class="n">fidelity</span><span class="p">][</span><span class="s2">&quot;bad&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">kde_good</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+            <span class="n">datum</span> <span class="o">=</span> <span class="n">kde_good</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="n">sample_around_values</span><span class="p">(</span>
+                <span class="n">datum</span><span class="p">,</span>
+                <span class="n">kde_good</span><span class="o">.</span><span class="n">bw</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">min_bandwidth</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bw_factor</span><span class="p">,</span>
+                <span class="n">rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">vector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Statsmodels KDE estimators relies on seeding through numpy&#39;s global</span>
+            <span class="c1"># state. We do this close to the evaluation of the PDF (`good`, `bad`)</span>
+            <span class="c1"># to increase robustness for multi threading.</span>
+            <span class="c1"># As we seed in a loop, we need to change it each iteration to not get</span>
+            <span class="c1"># the same random numbers each time.</span>
+            <span class="c1"># We also reset the np.random&#39;s global state, in case the user relies</span>
+            <span class="c1"># on it in other parts of the code and to not hide other determinism</span>
+            <span class="c1"># issues.</span>
+            <span class="c1"># TODO: Check github issue if there was progress and the seeding can be</span>
+            <span class="c1"># removed: https://github.com/statsmodels/statsmodels/issues/306</span>
+            <span class="n">cached_rng_state</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">:</span>
+                <span class="n">cached_rng_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+
+            <span class="n">val</span> <span class="o">=</span> <span class="n">minimize_me</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">cached_rng_state</span><span class="p">:</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">cached_rng_state</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;sampled vector: </span><span class="si">%s</span><span class="s2"> has EI value </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;data in the KDEs:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kde_good</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">kde_bad</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;bandwidth of the KDEs:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kde_good</span><span class="o">.</span><span class="n">bw</span><span class="p">,</span> <span class="n">kde_bad</span><span class="o">.</span><span class="n">bw</span><span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="c1"># right now, this happens because a KDE does not contain all values</span>
+                <span class="c1"># for a categorical parameter this cannot be fixed with the</span>
+                <span class="c1"># statsmodels KDE, so for now, we are just going to evaluate this</span>
+                <span class="c1"># one if the good_kde has a finite value, i.e. there is no config</span>
+                <span class="c1"># with that value in the bad kde, so it shouldn&#39;t be terrible.</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">good</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span> <span class="ow">and</span> <span class="n">best_vector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">best_vector</span> <span class="o">=</span> <span class="n">vector</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">:</span>
+                <span class="n">best</span> <span class="o">=</span> <span class="n">val</span>
+                <span class="n">best_vector</span> <span class="o">=</span> <span class="n">convert_from_statsmodels_kde_representation</span><span class="p">(</span>
+                    <span class="n">vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vartypes</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">best_vector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Sampling based optimization with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="si">}</span><span class="s2"> samples did &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;not find any finite/numerical acquisition function value &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;-&gt; using random configuration&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;model_based_pick&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;best_vector: </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">best_vector</span><span class="p">,</span> <span class="n">best</span><span class="p">,</span> <span class="n">good</span><span class="p">(</span><span class="n">best_vector</span><span class="p">),</span> <span class="n">bad</span><span class="p">(</span><span class="n">best_vector</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">from_numerical</span><span class="p">(</span><span class="n">best_vector</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">&quot;model_based_pick&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+            <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Sample base optimization failed. Falling back to a random sample.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;model_based_pick&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="blackboxopt.optimizers.staged.bohb.convert_from_statsmodels_kde_representation" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">convert_from_statsmodels_kde_representation</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">vartypes</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Convert numerical representation for categoricals and ordinals back into the unit hypercube.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>array</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>Numerical representation of the configurations following the statsmodels convention for
+categorical and ordinal values being integers.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>vartypes</code></td>
+        <td><code>Union[list, numpy.ndarray]</code></td>
+        <td><p>Encoding of the types of the variables: 0 mean continuous, &gt;0 means
+categorical with as many different values, and &lt;0 means ordinal with as many values.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ndarray</code></td>
+      <td><p>Numerical representation consistent with a numerical representation in the hypercube.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/staged/bohb.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">convert_from_statsmodels_kde_representation</span><span class="p">(</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vartypes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert numerical representation for categoricals and ordinals back into the unit hypercube.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        array: Numerical representation of the configurations following the statsmodels convention for</span>
+<span class="sd">            categorical and ordinal values being integers.</span>
+<span class="sd">        vartypes: Encoding of the types of the variables: 0 mean continuous, &gt;0 means</span>
+<span class="sd">            categorical with as many different values, and &lt;0 means ordinal with as many values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Numerical representation consistent with a numerical representation in the hypercube.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">processed_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">processed_vector</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">vartypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">num_values</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vartypes</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">processed_vector</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">processed_vector</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_values</span>
+
+    <span class="k">return</span> <span class="n">processed_vector</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="blackboxopt.optimizers.staged.bohb.convert_to_statsmodels_kde_representation" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">convert_to_statsmodels_kde_representation</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">vartypes</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Convert numerical representation for categoricals and ordinals to integers.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>array</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>Numerical representation of the configurations with categorical and ordinal values
+mapped into the unit hypercube.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>vartypes</code></td>
+        <td><code>Union[list, numpy.ndarray]</code></td>
+        <td><p>Encoding of the types of the variables: 0 mean continuous, &gt;0 means
+categorical with as many different values, and &lt;0 means ordinal with as many values.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ndarray</code></td>
+      <td><p>Numerical representation consistent with the statsmodels package.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/staged/bohb.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">convert_to_statsmodels_kde_representation</span><span class="p">(</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vartypes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert numerical representation for categoricals and ordinals to integers.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        array: Numerical representation of the configurations with categorical and ordinal values</span>
+<span class="sd">            mapped into the unit hypercube.</span>
+<span class="sd">        vartypes: Encoding of the types of the variables: 0 mean continuous, &gt;0 means</span>
+<span class="sd">            categorical with as many different values, and &lt;0 means ordinal with as many values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Numerical representation consistent with the statsmodels package.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">processed_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">processed_vector</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">vartypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">num_values</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vartypes</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">processed_vector</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">((</span><span class="n">processed_vector</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_values</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">processed_vector</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="blackboxopt.optimizers.staged.bohb.impute_conditional_data" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">impute_conditional_data</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">vartypes</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Impute NaNs in numerical representation with observed values or prior samples.</p>
+<p>This method is needed to use the <code>statsmodels</code> KDE, which doesn't handle missing
+values out of the box.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>array</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>Numerical representation of the configurations which can include NaN
+values for inactive variables.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>vartypes</code></td>
+        <td><code>Union[list, numpy.ndarray]</code></td>
+        <td><p>Encoding of the types of the variables: 0 mean continuous, &gt;0 means
+categorical with as many different values, and &lt;0 means ordinal with as many values.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>rng</code></td>
+        <td><code>Optional[numpy.random._generator.Generator]</code></td>
+        <td><p>A random number generator to make the imputation reproducible.</p></td>
+        <td><code>None</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ndarray</code></td>
+      <td><p>Numerical representation where all NaNs have been replaced with observed values
+or prior samples.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/staged/bohb.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">impute_conditional_data</span><span class="p">(</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">vartypes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Impute NaNs in numerical representation with observed values or prior samples.</span>
+
+<span class="sd">    This method is needed to use the `statsmodels` KDE, which doesn&#39;t handle missing</span>
+<span class="sd">    values out of the box.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        array: Numerical representation of the configurations which can include NaN</span>
+<span class="sd">            values for inactive variables.</span>
+<span class="sd">        vartypes: Encoding of the types of the variables: 0 mean continuous, &gt;0 means</span>
+<span class="sd">            categorical with as many different values, and &lt;0 means ordinal with as many values.</span>
+<span class="sd">        rng: A random number generator to make the imputation reproducible.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Numerical representation where all NaNs have been replaced with observed values</span>
+<span class="sd">        or prior samples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="n">return_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">datum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">nan_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">datum</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">nan_indices</span><span class="p">):</span>
+            <span class="n">nan_idx</span> <span class="o">=</span> <span class="n">nan_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">valid_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">array</span><span class="p">[:,</span> <span class="n">nan_idx</span><span class="p">]))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># pick one of them at random and overwrite all NaN values</span>
+                <span class="n">row_idx</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">valid_indices</span><span class="p">)</span>
+                <span class="n">datum</span><span class="p">[</span><span class="n">nan_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">row_idx</span><span class="p">,</span> <span class="n">nan_indices</span><span class="p">]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># no point in the data has this value activated, so fill it with a valid</span>
+                <span class="c1"># but random value</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">vartypes</span><span class="p">[</span><span class="n">nan_idx</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">datum</span><span class="p">[</span><span class="n">nan_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">datum</span><span class="p">[</span><span class="n">nan_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">datum</span><span class="p">[</span><span class="n">nan_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">nan_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">datum</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">return_array</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">datum</span>
+    <span class="k">return</span> <span class="n">return_array</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="blackboxopt.optimizers.staged.bohb.sample_around_values" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">sample_around_values</span><span class="p">(</span><span class="n">datum</span><span class="p">,</span> <span class="n">bandwidths</span><span class="p">,</span> <span class="n">vartypes</span><span class="p">,</span> <span class="n">min_bandwidth</span><span class="p">,</span> <span class="n">bw_factor</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Sample numerical representation close to a given datum.</p>
+<p>This is specific to the KDE in statsmodels and their kernel for the different
+variable types.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>datum</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>Numerical representation of a configuration that is used as the 'center'
+for sampling.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>bandwidths</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>Bandwidth of the corresponding kernels in each dimension.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>vartypes</code></td>
+        <td><code>Union[list, numpy.ndarray]</code></td>
+        <td><p>Encoding of the types of the variables: 0 mean continuous, &gt;0 means
+categorical with as many different values.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>min_bandwidth</code></td>
+        <td><code>float</code></td>
+        <td><p>Smallest allowed bandwidth. Ensures diversity even if all
+samples agree on a value in a dimension.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>bw_factor</code></td>
+        <td><code>float</code></td>
+        <td><p>To increase diversity, the bandwidth is actually multiplied by this
+factor before sampling.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>rng</code></td>
+        <td><code>Optional[numpy.random._generator.Generator]</code></td>
+        <td><p>A random number generator to make the sampling reproducible.</p></td>
+        <td><code>None</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Optional[numpy.ndarray]</code></td>
+      <td><p>Numerical representation of a configuration close to the provided datum.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/staged/bohb.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">sample_around_values</span><span class="p">(</span>
+    <span class="n">datum</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">bandwidths</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">vartypes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">min_bandwidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">bw_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Sample numerical representation close to a given datum.</span>
+
+<span class="sd">    This is specific to the KDE in statsmodels and their kernel for the different</span>
+<span class="sd">    variable types.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        datum: Numerical representation of a configuration that is used as the &#39;center&#39;</span>
+<span class="sd">            for sampling.</span>
+<span class="sd">        bandwidths: Bandwidth of the corresponding kernels in each dimension.</span>
+<span class="sd">        vartypes: Encoding of the types of the variables: 0 mean continuous, &gt;0 means</span>
+<span class="sd">            categorical with as many different values.</span>
+<span class="sd">        min_bandwidth: Smallest allowed bandwidth. Ensures diversity even if all</span>
+<span class="sd">            samples agree on a value in a dimension.</span>
+<span class="sd">        bw_factor: To increase diversity, the bandwidth is actually multiplied by this</span>
+<span class="sd">            factor before sampling.</span>
+<span class="sd">        rng: A random number generator to make the sampling reproducible.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Numerical representation of a configuration close to the provided datum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="n">vector</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">bw</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">datum</span><span class="p">,</span> <span class="n">bandwidths</span><span class="p">,</span> <span class="n">vartypes</span><span class="p">):</span>
+        <span class="n">bw</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">bw</span><span class="p">,</span> <span class="n">min_bandwidth</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">bw</span> <span class="o">=</span> <span class="n">bw_factor</span> <span class="o">*</span> <span class="n">bw</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">sps</span><span class="o">.</span><span class="n">truncnorm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span>
+                    <span class="o">-</span><span class="n">m</span> <span class="o">/</span> <span class="n">bw</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">m</span><span class="p">)</span> <span class="o">/</span> <span class="n">bw</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">bw</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">rng</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">m</span> <span class="k">if</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bw</span><span class="p">)</span> <span class="k">else</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bw</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">0.9999</span><span class="p">,</span> <span class="n">bw</span><span class="p">)</span>  <span class="c1"># bandwidth has to be less the one for this kernel!</span>
+            <span class="n">diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">m</span><span class="p">)</span>
+            <span class="n">probs</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bw</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">bw</span><span class="o">**</span><span class="n">diffs</span><span class="p">)</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">diffs</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">probs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bw</span><span class="p">))[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">probs</span> <span class="o">/=</span> <span class="n">probs</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">probs</span><span class="p">)</span>
+        <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../../testing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Testing" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Testing
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../configuration_sampler/" class="md-footer__link md-footer__link--next" aria-label="Next: Configuration sampler" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Configuration sampler
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      <center>
+<p>Copyright (c) 2020 - for information on the respective copyright owner
+see the NOTICE file and/or the
+<a href=" https://github.com/boschresearch/blackboxopt">project repository</a>
+</p>
+<center>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      
+        <script src="../../../../javascripts/config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+    
+  </body>
+</html>
