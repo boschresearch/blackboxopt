@@ -8,6 +8,19 @@ import logging
 import warnings
 from typing import Callable, Dict, Iterable, Optional, Tuple, Union
 
+from blackboxopt import (
+    Evaluation,
+    EvaluationSpecification,
+    Objective,
+    OptimizerNotReady,
+    sort_evaluations,
+)
+from blackboxopt.base import (
+    SingleObjectiveOptimizer,
+    call_functions_with_evaluations_and_collect_errors,
+    validate_objectives,
+)
+
 try:
     import numpy as np
     import parameterspace as ps
@@ -19,18 +32,6 @@ try:
     from botorch.sampling.samplers import IIDNormalSampler
     from sklearn.impute import SimpleImputer
 
-    from blackboxopt import (
-        Evaluation,
-        EvaluationSpecification,
-        Objective,
-        OptimizerNotReady,
-        sort_evaluations,
-    )
-    from blackboxopt.base import (
-        SingleObjectiveOptimizer,
-        call_functions_with_evaluations_and_collect_errors,
-        validate_objectives,
-    )
 except ImportError as e:
     raise ImportError(
         "Unable to import BOTorch optimizer specific dependencies. "
@@ -390,7 +391,11 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         """A simple report method that conditions the model on data.
         This likely needs to be overridden for more specific BO implementations.
         """
-        _evals = [evaluations] if isinstance(evaluations, Evaluation) else evaluations
+        _evals = (
+            [evaluations]
+            if isinstance(evaluations, Evaluation)
+            else sort_evaluations(evaluations)
+        )
         self._update_internal_evaluation_data(_evals)
         # Just for populating all relevant caches
         self.model.posterior(self.X)
