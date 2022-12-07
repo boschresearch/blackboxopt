@@ -384,18 +384,14 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 self._remove_pending_specifications,
                 self._append_evaluations_to_data,
             ],
-            evaluations,
+            sort_evaluations(evaluations),
         )
 
     def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
         """A simple report method that conditions the model on data.
         This likely needs to be overridden for more specific BO implementations.
         """
-        _evals = (
-            [evaluations]
-            if isinstance(evaluations, Evaluation)
-            else sort_evaluations(evaluations)
-        )
+        _evals = [evaluations] if isinstance(evaluations, Evaluation) else evaluations
         self._update_internal_evaluation_data(_evals)
         # Just for populating all relevant caches
         self.model.posterior(self.X)
