@@ -15,7 +15,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.8,<3.12"
 parameterspace = "^0.7.2"
 numpy = {version = "^1.22.0", optional = true}
 plotly = {version = "^5.10.0", optional = true}
