@@ -8,6 +8,19 @@ import logging
 import warnings
 from typing import Callable, Dict, Iterable, Optional, Tuple, Union
 
+from blackboxopt import (
+    Evaluation,
+    EvaluationSpecification,
+    Objective,
+    OptimizerNotReady,
+    sort_evaluations,
+)
+from blackboxopt.base import (
+    SingleObjectiveOptimizer,
+    call_functions_with_evaluations_and_collect_errors,
+    validate_objectives,
+)
+
 try:
     import numpy as np
     import parameterspace as ps
@@ -19,18 +32,6 @@ try:
     from botorch.sampling.samplers import IIDNormalSampler
     from sklearn.impute import SimpleImputer
 
-    from blackboxopt import (
-        Evaluation,
-        EvaluationSpecification,
-        Objective,
-        OptimizerNotReady,
-        sort_evaluations,
-    )
-    from blackboxopt.base import (
-        SingleObjectiveOptimizer,
-        call_functions_with_evaluations_and_collect_errors,
-        validate_objectives,
-    )
 except ImportError as e:
     raise ImportError(
         "Unable to import BOTorch optimizer specific dependencies. "
@@ -383,7 +384,7 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 self._remove_pending_specifications,
                 self._append_evaluations_to_data,
             ],
-            evaluations,
+            sort_evaluations(evaluations),
         )
 
     def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
