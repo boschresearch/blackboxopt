@@ -8,6 +8,8 @@ import logging
 import warnings
 from typing import Callable, Dict, Iterable, Optional, Tuple, Union
 
+from gpytorch.models import ExactGP
+
 from blackboxopt import (
     Evaluation,
     EvaluationSpecification,
@@ -244,16 +246,18 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
 
         model = model.fantasize(pending_X, IIDNormalSampler(1), observation_noise=False)
 
-        # model.fantasize extends model's X and Y with batch_size, even if originally
-        # not given -> need to reshape these to their original representation
-        n_samples = model.train_targets.size(-1)
-        n_features = len(self.search_space)
-        model.train_inputs[0] = model.train_inputs[0].reshape(
-            torch.Size((*self.batch_shape, n_samples, n_features))
-        )
-        model.train_targets = model.train_targets.reshape(
-            torch.Size((*self.batch_shape, n_samples, 1))
-        )
+        if isinstance(model, ExactGP):
+            # ExactGP.fantasize extends model's X and Y with batch_size, even if
+            # originally not given -> need to reshape these to their original
+            # representation
+            n_samples = model.train_targets.size(-1)
+            n_features = len(self.search_space)
+            model.train_inputs[0] = model.train_inputs[0].reshape(
+                torch.Size((*self.batch_shape, n_samples, n_features))
+            )
+            model.train_targets = model.train_targets.reshape(
+                torch.Size((*self.batch_shape, n_samples, 1))
+            )
         return model
 
     def _generate_evaluation_specification(self):
