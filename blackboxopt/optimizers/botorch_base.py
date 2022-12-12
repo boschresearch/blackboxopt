@@ -155,6 +155,10 @@ def to_numerical(
             raise ConstraintsError(
                 f"Constraint name {e} is not defined in input evaluations."
             )
+        except TypeError:
+            raise ConstraintsError(
+                f"Constraint name(s) {constraint_names} are not defined in input evaluations."
+            )
 
     Y = Y.reshape(*batch_shape + Y.shape)
 

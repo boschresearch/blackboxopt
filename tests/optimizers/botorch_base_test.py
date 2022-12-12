@@ -199,7 +199,7 @@ def test_to_numerical_with_constraints(
             assert Y[i, 1 + c_i] == evaluations_with_constraints[i].constraints[c]
 
 
-def test_to_numerical_raises_error_on_wrong_constraint(
+def test_to_numerical_raises_error_on_wrong_constraints(
     search_space, evaluations_with_constraints
 ):
     # If wrong constraint name is requested raises an error.
@@ -211,4 +211,22 @@ def test_to_numerical_raises_error_on_wrong_constraint(
             search_space,
             objective,
             constraint_names=["WRONG_NAME"],
+        )
+
+    # If evaluation does not contain constraints at all
+    objective = Objective(objective_name, False)
+
+    evaluations = [
+        Evaluation(
+            configuration={"x0": 0.57, "x1": True, "x2": "small", "cp": 0.3, "fp": 0.5},
+            objectives={objective_name: 0.64},
+        )
+    ]
+
+    with pytest.raises(ConstraintsError, match="Constraint name"):
+        to_numerical(
+            evaluations,
+            search_space,
+            objective,
+            constraint_names=[constraint_name_1],
         )
