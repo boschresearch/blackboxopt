@@ -6,11 +6,12 @@
 import functools
 import logging
 import warnings
-from typing import Callable, Dict, Iterable, Optional, Tuple, Union
+from typing import Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 from gpytorch.models import ExactGP
 
 from blackboxopt import (
+    ConstraintsError,
     Evaluation,
     EvaluationSpecification,
     Objective,
@@ -79,6 +80,7 @@ def to_numerical(
     evaluations: Iterable[Evaluation],
     search_space: ps.ParameterSpace,
     objective: Objective,
+    constraint_names: Optional[List[str]] = None,
     batch_shape: torch.Size = torch.Size(),
     torch_dtype: torch.dtype = torch.float32,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -86,23 +88,25 @@ def to_numerical(
     containing the numerical representations of the configurations and
     one `(#batch, #evaluations, 1)` tensor containing the loss representation of
     the evaluations' objective value (flips the sign for objective value
-    if `objective.greater_is_better=True`).
+    if `objective.greater_is_better=True`) and optionally constraints value.
 
     Args:
         evaluations: List of evaluations that were collected during optimization.
         search_space: Search space used during optimization.
         objective: Objective that was used for optimization.
+        constraint_names: Name of constraints that are used for optimization.
         batch_shape: Batch dimension(s) used for batched models.
         torch_dtype: Type of returned tensors.
 
     Returns:
         - X: Numerical representation of the configurations
-        - Y: Numerical representation of the objective values
+        - Y: Numerical representation of the objective values and optionally constraints
 
     Raises:
         ValueError: If one of configurations is not valid w.r.t. search space.
         ValueError: If one of configurations includes parameters that are not part of
             the search space.
+        ConstraintError: If one of the constraint names is not defined in evaluations.
     """
     # validate configuration values and dimensions
     parameter_names = search_space.get_parameter_names() + list(
@@ -133,10 +137,30 @@ def to_numerical(
         np.array([[e.objectives[objective.name]] for e in evaluations], dtype=float),
         dtype=torch_dtype,
     )
-    Y = Y.reshape(*batch_shape + Y.shape)
 
     if objective.greater_is_better:
         Y *= -1
+
+    if constraint_names is not None:
+        try:
+            Y_constraints = torch.tensor(
+                np.array(
+                    [[e.constraints[c] for c in constraint_names] for e in evaluations],
+                    dtype=float,
+                ),
+                dtype=torch_dtype,
+            )
+            Y = torch.cat((Y, Y_constraints), dim=1)
+        except KeyError as e:
+            raise ConstraintsError(
+                f"Constraint name {e} is not defined in input evaluations."
+            )
+        except TypeError:
+            raise ConstraintsError(
+                f"Constraint name(s) {constraint_names} are not defined in input evaluations."
+            )
+
+    Y = Y.reshape(*batch_shape + Y.shape)
 
     return X, Y
 
@@ -364,8 +388,8 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
             _evals,
             self.search_space,
             self.objective,
-            self.batch_shape,
-            self.torch_dtype,
+            batch_shape=self.batch_shape,
+            torch_dtype=self.torch_dtype,
         )
 
         # fill in NaNs originating from inactive parameters (conditional spaces support)

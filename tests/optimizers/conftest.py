@@ -8,6 +8,8 @@ import pytest
 
 from blackboxopt import Evaluation
 
+constraint_name_1 = "constraint1"
+constraint_name_2 = "constraint2"
 objective_name = "objective"
 
 
@@ -33,6 +35,32 @@ def evaluations():
         Evaluation(
             configuration={"x0": 3.0, "x1": False, "x2": "small", "fp": 0.5},
             objectives={objective_name: 0.0},
+        ),
+    ]
+
+
+@pytest.fixture
+def evaluations_with_constraints():
+    return [
+        Evaluation(
+            configuration={"x0": 0.57, "x1": True, "x2": "small", "cp": 0.3, "fp": 0.5},
+            objectives={objective_name: 0.64},
+            constraints={constraint_name_1: 0.3, constraint_name_2: 0.2},
+        ),
+        Evaluation(
+            configuration={"x0": 1.84, "x1": False, "x2": "large", "fp": 0.5},
+            objectives={objective_name: 0.57},
+            constraints={constraint_name_1: 0.8, constraint_name_2: 10.0},
+        ),
+        Evaluation(
+            configuration={"x0": 2.14, "x1": False, "x2": "medium", "fp": 0.5},
+            objectives={objective_name: -0.37},
+            constraints={constraint_name_1: 3.4, constraint_name_2: 0.4},
+        ),
+        Evaluation(
+            configuration={"x0": 3.0, "x1": False, "x2": "small", "fp": 0.5},
+            objectives={objective_name: 0.0},
+            constraints={constraint_name_1: 10.4, constraint_name_2: -1.4},
         ),
     ]
 

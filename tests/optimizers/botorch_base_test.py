@@ -10,7 +10,7 @@ import torch
 from botorch.acquisition import UpperConfidenceBound
 from botorch.models import SingleTaskGP
 
-from blackboxopt import Evaluation, Objective
+from blackboxopt import ConstraintsError, Evaluation, Objective
 from blackboxopt.optimizers.botorch_base import (
     SingleObjectiveBOTorchOptimizer,
     impute_nans_with_constant,
@@ -23,7 +23,7 @@ from blackboxopt.optimizers.testing import (
     respects_fixed_parameter,
 )
 
-from .conftest import objective_name
+from .conftest import constraint_name_1, constraint_name_2, objective_name
 
 
 @pytest.mark.parametrize("reference_test", ALL_REFERENCE_TESTS)
@@ -119,7 +119,7 @@ def test_to_numerical_with_batch(evaluations, search_space):
     objective = Objective(objective_name, False)
 
     batch_shape = torch.Size((1,))
-    X, Y = to_numerical(evaluations, search_space, objective, batch_shape)
+    X, Y = to_numerical(evaluations, search_space, objective, batch_shape=batch_shape)
 
     assert X.dtype == torch.float32
     assert Y.dtype == torch.float32
@@ -164,3 +164,69 @@ def test_to_numerical_raises_errors(search_space):
     )
     with pytest.raises(ValueError, match="not valid"):
         to_numerical([eval_err], search_space, objective)
+
+
+@pytest.mark.parametrize(
+    "constraints",
+    [
+        [constraint_name_1, constraint_name_2],
+        [constraint_name_2, constraint_name_1],
+        [constraint_name_1],
+    ],
+)
+def test_to_numerical_with_constraints(
+    evaluations_with_constraints, search_space, constraints
+):
+    objective = Objective(objective_name, greater_is_better=False)
+    num_eval = len(evaluations_with_constraints)
+    num_constrains = len(constraints)
+
+    _, Y = to_numerical(
+        evaluations_with_constraints,
+        search_space,
+        objective,
+        constraints,
+    )
+
+    assert Y.dtype == torch.float32
+    assert Y.size() == (num_eval, 1 + num_constrains)
+
+    # check order of values in the output tensor: the first is always an objective value,
+    # the order of constraints depends on order in the list of
+    for i in range(num_eval):
+        assert Y[i, 0] == evaluations_with_constraints[i].objectives[objective_name]
+        for c_i, c in enumerate(constraints):
+            assert Y[i, 1 + c_i] == evaluations_with_constraints[i].constraints[c]
+
+
+def test_to_numerical_raises_error_on_wrong_constraints(
+    search_space, evaluations_with_constraints
+):
+    # If wrong constraint name is requested raises an error.
+    objective = Objective(objective_name, False)
+
+    with pytest.raises(ConstraintsError, match="Constraint name"):
+        to_numerical(
+            evaluations_with_constraints,
+            search_space,
+            objective,
+            constraint_names=["WRONG_NAME"],
+        )
+
+    # If evaluation does not contain constraints at all
+    objective = Objective(objective_name, False)
+
+    evaluations = [
+        Evaluation(
+            configuration={"x0": 0.57, "x1": True, "x2": "small", "cp": 0.3, "fp": 0.5},
+            objectives={objective_name: 0.64},
+        )
+    ]
+
+    with pytest.raises(ConstraintsError, match="Constraint name"):
+        to_numerical(
+            evaluations,
+            search_space,
+            objective,
+            constraint_names=[constraint_name_1],
+        )
