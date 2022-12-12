@@ -254,6 +254,7 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
     def _create_fantasy_model(self, model: Model) -> Model:
         """Create model with the pending specifications and model based
         outcomes added to the training data."""
+
         if not self.pending_specifications:
             # nothing to do when there are no pending specs
             return model
@@ -301,7 +302,9 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
             )
 
         # numerical representation always lives on hypercube
-        bounds = torch.tensor([[0, 1]] * len(self.search_space)).float().T
+        bounds = torch.tensor(
+            [[0, 1]] * len(self.search_space), dtype=self.torch_dtype
+        ).T
 
         configuration, _ = optimize_acqf(
             af,
