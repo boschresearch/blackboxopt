@@ -30,6 +30,7 @@ try:
     import scipy.optimize as sci_opt
     import torch
     from botorch.acquisition import AcquisitionFunction
+    from botorch.exceptions import BotorchTensorDimensionWarning
     from botorch.models.model import Model
     from botorch.optim import optimize_acqf
     from botorch.sampling.samplers import IIDNormalSampler
@@ -427,7 +428,13 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         # Just for populating all relevant caches
         self.model.posterior(self.X)
         # The actual model update
-        self.model.condition_on_observations(self.X, self.losses)
+        # Ignore BotorchTensorDimensionWarning which is always reported to make the user
+        # aware that they are reponsible for the right input Tensors dimensionality.
+        with warnings.catch_warnings():
+            warnings.simplefilter(
+                action="ignore", category=BotorchTensorDimensionWarning
+            )
+            self.model.condition_on_observations(self.X, self.losses)
 
     def predict_model_based_best(self) -> Optional[Evaluation]:
         """Get the current configuration that is estimated to be the best (in terms of
