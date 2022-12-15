@@ -271,10 +271,10 @@ def handles_reporting_evaluations_list(
         seed=42,
     )
     evaluations = []
-    for _ in range(3):
+    for i in range(3):
         es = opt.generate_evaluation_specification()
         evaluation = es.create_evaluation(
-            objectives={"loss": 0.42}, constraints={"constraint": 10.0}
+            objectives={"loss": 0.42 * i}, constraints={"constraint": 10.0 * i}
         )
         evaluations.append(evaluation)
 
