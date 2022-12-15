@@ -43,8 +43,8 @@ def test_all_reference_tests(reference_test):
         SingleObjectiveBOTorchOptimizer,
         dict(
             model=SingleTaskGP(
-                torch.empty((*batch_shape, 0, n_features)),
-                torch.empty((*batch_shape, 0, 1)),
+                torch.empty((*batch_shape, 0, n_features), dtype=torch.float64),
+                torch.empty((*batch_shape, 0, 1), dtype=torch.float64),
             ),
             acquisition_function_factory=partial(
                 UpperConfidenceBound, beta=0.1, maximize=False
