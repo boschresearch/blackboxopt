@@ -14,10 +14,11 @@ from blackboxopt.optimizers.testing import ALL_REFERENCE_TESTS
 
 
 @pytest.mark.parametrize("reference_test", ALL_REFERENCE_TESTS)
-def test_all_reference_tests(reference_test):
+def test_all_reference_tests(reference_test, seed):
     reference_test(
         Hyperband,
         dict(min_fidelity=0.2, max_fidelity=1, num_iterations=5),
+        seed=seed,
     )
 
 
