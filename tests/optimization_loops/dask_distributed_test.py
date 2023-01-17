@@ -14,7 +14,13 @@ import dask
 import dask.distributed as dd
 import parameterspace as ps
 import pytest
-from distributed.utils_test import client, cluster_fixture, loop
+from distributed.utils_test import (
+    cleanup,
+    client,
+    cluster_fixture,
+    loop,
+    loop_in_thread,
+)
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.optimization_loops.dask_distributed import (
