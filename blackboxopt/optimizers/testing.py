@@ -60,6 +60,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         optimizer_class: [description]
         optimizer_kwargs: [description]
         n_max_evaluations: [description]
+        seed: (optional) custom seed
 
     Returns:
         [description]
@@ -133,6 +134,7 @@ def is_deterministic_with_fixed_seed_and_larger_space(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -186,6 +188,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -266,6 +269,7 @@ def handles_reporting_evaluations_list(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -305,6 +309,7 @@ def raises_evaluation_error_when_reporting_unknown_objective(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -360,6 +365,7 @@ def respects_fixed_parameter(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -404,6 +410,7 @@ def handles_conditional_space(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
