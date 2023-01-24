@@ -26,7 +26,7 @@ def _initialize_optimizer(
     objective: Objective,
     objectives: List[Objective],
     space: Optional[ps.ParameterSpace] = None,
-    seed=42,
+    seed: Optional[int] = None,
 ) -> Optimizer:
     if space is None:
         space = ps.ParameterSpace()
@@ -35,6 +35,7 @@ def _initialize_optimizer(
         space.add(ps.ContinuousParameter("p3", (0, 1)))
         space.add(ps.CategoricalParameter("p4", [True, False]))
         space.add(ps.OrdinalParameter("p5", ("small", "medium", "large")))
+        space.seed(seed)
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
         return optimizer_class(space, objectives, seed=seed, **optimizer_kwargs)
@@ -50,6 +51,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
+    seed: Optional[int] = None,
     n_max_evaluations: int = 20,
 ):
     """[summary]
@@ -58,6 +60,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         optimizer_class: [description]
         optimizer_kwargs: [description]
         n_max_evaluations: [description]
+        seed: (optional) custom seed
 
     Returns:
         [description]
@@ -76,6 +79,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         optimizer_kwargs,
         objective=Objective("loss", False),
         objectives=[Objective("loss", False), Objective("score", True)],
+        seed=seed,
     )
 
     eval_spec = optimizer.generate_evaluation_specification()
@@ -114,6 +118,7 @@ def is_deterministic_with_fixed_seed_and_larger_space(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
+    seed: Optional[int] = None,
 ):
     """Check if optimizer is deterministic.
 
@@ -129,6 +134,7 @@ def is_deterministic_with_fixed_seed_and_larger_space(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -145,7 +151,7 @@ def is_deterministic_with_fixed_seed_and_larger_space(
             optimizer_kwargs,
             objective=Objective("loss", False),
             objectives=[Objective("loss", False)],
-            seed=42,
+            seed=seed or 42,
         )
 
         for i in range(n_evaluations):
@@ -166,6 +172,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
+    seed: Optional[int] = None,
 ):
     """Check if determinism isn't affected by the order of initially reported data.
 
@@ -181,6 +188,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -188,6 +196,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
 
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("p1", (0, 1)))
+    space.seed(seed)
 
     def _run_experiment_1d(es):
         x = es.configuration["p1"]
@@ -205,7 +214,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
             objective=Objective("loss", False),
             objectives=[Objective("loss", False)],
             space=space,
-            seed=0,
+            seed=seed or 0,
         )
 
         # Report initial data in different order
@@ -217,8 +226,8 @@ def is_deterministic_when_reporting_shuffled_evaluations(
             )
             for es in eval_specs
         ]
-        random.seed(run_idx)
-        random.shuffle(run["initial_evaluations"])
+        shuffle_rng = random.Random(run_idx)
+        shuffle_rng.shuffle(run["initial_evaluations"])
         opt.report(run["initial_evaluations"])
 
         # Start optimizing
@@ -246,6 +255,7 @@ def handles_reporting_evaluations_list(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
+    seed: Optional[int] = None,
 ):
     """Check if optimizer's report method can process an iterable of evaluations.
 
@@ -259,6 +269,7 @@ def handles_reporting_evaluations_list(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -268,7 +279,7 @@ def handles_reporting_evaluations_list(
         optimizer_kwargs,
         objective=Objective("loss", False),
         objectives=[Objective("loss", False)],
-        seed=42,
+        seed=seed,
     )
     evaluations = []
     for i in range(3):
@@ -286,6 +297,7 @@ def raises_evaluation_error_when_reporting_unknown_objective(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
+    seed: Optional[int] = None,
 ):
     """Check if optimizer's report method raises exception in case objective is unknown.
 
@@ -297,6 +309,7 @@ def raises_evaluation_error_when_reporting_unknown_objective(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -306,6 +319,7 @@ def raises_evaluation_error_when_reporting_unknown_objective(
         optimizer_kwargs,
         objective=Objective("loss", False),
         objectives=[Objective("loss", False)],
+        seed=seed,
     )
     es_1 = opt.generate_evaluation_specification()
     es_2 = opt.generate_evaluation_specification()
@@ -341,6 +355,7 @@ def respects_fixed_parameter(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
+    seed: Optional[int] = None,
 ):
     """Check if optimizer's generated evaluation specifications contain the values
     a parameter in the search space was fixed to.
@@ -350,6 +365,7 @@ def respects_fixed_parameter(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -357,6 +373,7 @@ def respects_fixed_parameter(
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("my_fixed_param", (-10.0, 200.0)))
     space.add(ps.ContinuousParameter("x", (-2.0, 2.0)))
+    space.seed(seed)
 
     fixed_value = 1.0
     space.fix(my_fixed_param=fixed_value)
@@ -366,6 +383,7 @@ def respects_fixed_parameter(
         objective=Objective("loss", False),
         objectives=[Objective("loss", False)],
         space=space,
+        seed=seed,
     )
     for _ in range(5):
         es = opt.generate_evaluation_specification()
@@ -383,6 +401,7 @@ def handles_conditional_space(
         Type[SingleObjectiveOptimizer], Type[MultiObjectiveOptimizer]
     ],
     optimizer_kwargs: dict,
+    seed: Optional[int] = None,
 ):
     """Check if optimizer handles conditional i.e. hierarchical search spaces.
 
@@ -391,6 +410,7 @@ def handles_conditional_space(
         optimizer_kwargs: Expected to contain additional arguments for initializing
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
+        seed: (optional) custom seed
 
     Returns:
         `True` if the test is passed.
@@ -402,6 +422,7 @@ def handles_conditional_space(
         ps.ContinuousParameter("momentum", (0.0, 1.0)),
         lambda optimizer: optimizer == "sgd",
     )
+    space.seed(seed)
 
     opt = _initialize_optimizer(
         optimizer_class,
@@ -409,6 +430,7 @@ def handles_conditional_space(
         objective=Objective("loss", False),
         objectives=[Objective("loss", False)],
         space=space,
+        seed=seed,
     )
 
     for _ in range(10):

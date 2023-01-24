@@ -17,8 +17,8 @@ SPACE.add(ps.ContinuousParameter("p1", [0, 1]))
 
 
 @pytest.mark.parametrize("reference_test", ALL_REFERENCE_TESTS)
-def test_all_reference_tests(reference_test):
-    reference_test(RandomSearch, dict(max_steps=MAX_STEPS))
+def test_all_reference_tests(reference_test, seed):
+    reference_test(RandomSearch, dict(max_steps=MAX_STEPS), seed=seed)
 
 
 def test_max_steps_randomsearch():

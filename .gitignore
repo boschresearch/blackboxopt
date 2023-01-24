@@ -1,5 +1,6 @@
 # Custom
 .vscode/
+.idea/
 poetry.toml
 dask-worker-space/
 

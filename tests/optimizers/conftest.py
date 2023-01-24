@@ -2,6 +2,7 @@
 # see the NOTICE file and/or the repository https://github.com/boschresearch/blackboxopt
 #
 # SPDX-License-Identifier: Apache-2.0
+import random
 
 import parameterspace as ps
 import pytest
@@ -11,6 +12,11 @@ from blackboxopt import Evaluation
 constraint_name_1 = "constraint1"
 constraint_name_2 = "constraint2"
 objective_name = "objective"
+
+
+@pytest.fixture
+def seed():
+    return random.getrandbits(32)
 
 
 @pytest.fixture

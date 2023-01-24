@@ -27,7 +27,7 @@ from .conftest import constraint_name_1, constraint_name_2, objective_name
 
 
 @pytest.mark.parametrize("reference_test", ALL_REFERENCE_TESTS)
-def test_all_reference_tests(reference_test):
+def test_all_reference_tests(reference_test, seed):
     if reference_test in (
         respects_fixed_parameter,
         is_deterministic_when_reporting_shuffled_evaluations,
@@ -51,6 +51,7 @@ def test_all_reference_tests(reference_test):
             ),
             max_pending_evaluations=5,
         ),
+        seed=seed,
     )
 
 
