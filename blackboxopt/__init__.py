@@ -1,4 +1,6 @@
-__version__ = "4.8.4"
+import importlib
+
+__version__ = importlib.metadata.version("blackboxopt")
 
 from parameterspace import ParameterSpace
 
