@@ -32,7 +32,7 @@ try:
     from botorch.acquisition import AcquisitionFunction
     from botorch.exceptions import BotorchTensorDimensionWarning
     from botorch.models.model import Model
-    from botorch.optim import optimize_acqf
+    from botorch.optim import optimize_acqf, optimize_acqf_discrete
     from botorch.sampling.samplers import IIDNormalSampler
     from sklearn.impute import SimpleImputer
 
@@ -166,27 +166,50 @@ def to_numerical(
     return X, Y
 
 
-def init_af_opt_kwargs(af_opt_kwargs: Optional[dict]) -> dict:
-    """Provide default initialization for the acquisition function optimizer
-    configuration. Ensure that all mandatory fields are set to be used by BoTorch.
+def _acquisition_function_optimizer_factory(
+    search_space: ps.ParameterSpace,
+    af_opt_kwargs: Optional[dict],
+    torch_dtype: torch.dtype,
+) -> Callable[[AcquisitionFunction], Tuple[torch.Tensor, torch.Tensor]]:
+    """Prepare either BoTorch's `optimize_acqf_discrete` or `optimize_acqf` depending
+    on whether the search space is fully discrete or not and set required defaults if
+    not overridden by `af_opt_kwargs`.
 
     Args:
-        af_opt_kwargs: Acquisition function configuration.
+        search_space: Search space used for optimization.
+        af_opt_kwargs: Acquisition function optimizer configuration, e.g. containing
+            values for `n_samples` for discrete optimization, and `num_restarts`,
+            `raw_samples` for the continuous optimization case.
+        torch_dtype: Torch tensor type.
 
     Returns:
-        Acquisition function optimizer configuration, applicable for BoTorch's
-            optimizer.
+        Acquisition function optimizer that takes an acquisition function and returns a
+        candidate with its associate acquisition function value.
     """
+    kwargs = {} if af_opt_kwargs is None else af_opt_kwargs.copy()
 
-    af_opt_config = {} if af_opt_kwargs is None else af_opt_kwargs
+    is_fully_discrete_space = not any(
+        search_space[n]["parameter"].is_continuous
+        for n in search_space.get_parameter_names()
+    )
+    if is_fully_discrete_space:
+        choices = torch.Tensor(
+            [
+                search_space.to_numerical(search_space.sample())
+                for _ in range(kwargs.pop("n_samples", 5_000))
+            ]
+        ).to(dtype=torch_dtype)
+        return functools.partial(optimize_acqf_discrete, q=1, choices=choices, **kwargs)
 
-    # number of initial samples during AF optimization
-    af_opt_config.setdefault("raw_samples", 1024)
-
-    # number of restarts during AF optimization
-    af_opt_config.setdefault("num_restarts", 4)
-
-    return af_opt_config
+    return functools.partial(
+        optimize_acqf,
+        q=1,
+        # The numerical representation always lives on the unit hypercube
+        bounds=torch.tensor([[0, 1]] * len(search_space), dtype=torch_dtype).T,
+        num_restarts=kwargs.pop("num_restarts", 4),
+        raw_samples=kwargs.pop("raw_samples", 1024),
+        **kwargs,
+    )
 
 
 def filter_y_nans(
@@ -256,7 +279,8 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 Providing a partially initialized class is possible with, e.g.
                 `functools.partial(UpperConfidenceBound, beta=6.0, maximize=False)`.
             af_optimizer_kwargs: Settings for acquisition function optimizer,
-                see `botorch.optim.optimize_acqf`.
+                see `botorch.optim.optimize_acqf` and in case the whole search space
+                is discrete: `botorch.optim.optimize_acqf_discrete`.
             num_initial_random_samples: Size of the initial space-filling design that
                 is used before starting BO. The points are sampled randomly in the
                 search space. If no random sampling is required, set it to 0.
@@ -286,7 +310,7 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
 
         self.model = model
         self.acquisition_function_factory = acquisition_function_factory
-        self.af_opt_kwargs = init_af_opt_kwargs(af_optimizer_kwargs)
+        self.af_optimizer_kwargs = af_optimizer_kwargs
 
     def _create_fantasy_model(self, model: Model) -> Model:
         """Create model with the pending specifications and model based
@@ -327,7 +351,6 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         fantasy_model = self._create_fantasy_model(self.model)
         fantasy_model.eval()
 
-        # find next configuration by optimizing the acquisition function
         af = self.acquisition_function_factory(fantasy_model)
         if getattr(af, "maximize", False):
             raise ValueError(
@@ -338,17 +361,12 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 "acquisition_function_factory init argument."
             )
 
-        # numerical representation always lives on hypercube
-        bounds = torch.tensor(
-            [[0, 1]] * len(self.search_space), dtype=self.torch_dtype
-        ).T
-
-        configuration, _ = optimize_acqf(
-            af,
-            bounds=bounds,
-            q=1,
-            **self.af_opt_kwargs,
+        acquisition_function_optimizer = _acquisition_function_optimizer_factory(
+            search_space=self.search_space,
+            af_opt_kwargs=self.af_optimizer_kwargs,
+            torch_dtype=self.torch_dtype,
         )
+        configuration, _ = acquisition_function_optimizer(af)
 
         return EvaluationSpecification(
             configuration=self.search_space.from_numerical(configuration[0]),
