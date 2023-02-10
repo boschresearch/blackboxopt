@@ -5,6 +5,7 @@
 
 from functools import partial
 
+import numpy as np
 import pytest
 import torch
 from botorch.acquisition import UpperConfidenceBound
@@ -13,6 +14,7 @@ from botorch.models import SingleTaskGP
 from blackboxopt import ConstraintsError, Evaluation, Objective
 from blackboxopt.optimizers.botorch_base import (
     SingleObjectiveBOTorchOptimizer,
+    filter_y_nans,
     impute_nans_with_constant,
     to_numerical,
 )
@@ -231,3 +233,39 @@ def test_to_numerical_raises_error_on_wrong_constraints(
             objective,
             constraint_names=[constraint_name_1],
         )
+
+
+def test_filter_y_nans():
+    x1 = torch.tensor([[0.1], [0.7], [1.0]])
+    y1 = torch.tensor([[0.8], [0.3], [0.5]])
+    x1_f, y1_f = filter_y_nans(x1, y1)
+    assert x1_f.size() == torch.Size([3, 1])
+    assert y1_f.size() == torch.Size([3, 1])
+    assert torch.equal(x1, x1_f)
+    assert torch.equal(y1, y1_f)
+
+    x2 = torch.tensor([[0.1], [0.7], [1.0]])
+    y2 = torch.tensor([[0.8], [np.nan], [0.5]])
+    x2_f, y2_f = filter_y_nans(x2, y2)
+    assert x2_f.size() == torch.Size([2, 1])
+    assert y2_f.size() == torch.Size([2, 1])
+
+    x3 = torch.tensor([[0.1], [0.7], [1.0]])
+    y3 = torch.tensor([[np.nan], [np.nan], [np.nan]])
+    x3_f, y3_f = filter_y_nans(x3, y3)
+    assert x3_f.size() == torch.Size([0, 1])
+    assert y3_f.size() == torch.Size([0, 1])
+
+    # test batched representation
+    x2_batched = x2.reshape(torch.Size((1,)) + x2.shape)
+    y2_batched = y2.reshape(torch.Size((1,)) + y2.shape)
+    x2_batched_f, y2_batched_f = filter_y_nans(x2_batched, y2_batched)
+    assert x2_batched_f.size() == torch.Size([1, 2, 1])
+    assert y2_batched_f.size() == torch.Size([1, 2, 1])
+    assert torch.equal(x2_batched_f, x2_f.reshape(torch.Size((1,)) + x2_f.shape))
+    assert torch.equal(y2_batched_f, y2_f.reshape(torch.Size((1,)) + y2_f.shape))
+
+    x_multi_batch = torch.tensor([[[0.1], [1.0]], [[0.2], [2.0]]])
+    y_multi_batch = torch.tensor([[[0.4], [0.4]], [[0.8], [np.nan]]])
+    with pytest.raises(ValueError, match="Multiple batches"):
+        filter_y_nans(x_multi_batch, y_multi_batch)
