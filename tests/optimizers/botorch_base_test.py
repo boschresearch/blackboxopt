@@ -16,7 +16,7 @@ from botorch.optim import optimize_acqf, optimize_acqf_discrete
 from blackboxopt import ConstraintsError, Evaluation, Objective
 from blackboxopt.optimizers.botorch_base import (
     SingleObjectiveBOTorchOptimizer,
-    _init_acquisition_function_optimizer,
+    _acquisition_function_optimizer_factory,
     filter_y_nans,
     impute_nans_with_constant,
     to_numerical,
@@ -60,37 +60,37 @@ def test_all_reference_tests(reference_test, seed):
     )
 
 
-def test_init_acquisition_function_optimizer_with_continuous():
+def test_acquisition_function_optimizer_factory_with_continuous():
     continuous_space = ps.ParameterSpace()
     continuous_space.add(ps.ContinuousParameter("conti1", (0.0, 1.0)))
     continuous_space.add(ps.ContinuousParameter("conti2", (-1.0, 1.0)))
 
-    af_opt = _init_acquisition_function_optimizer(
+    af_opt = _acquisition_function_optimizer_factory(
         continuous_space, af_opt_kwargs={}, torch_dtype=torch.float64
     )
 
     assert af_opt.func == optimize_acqf  # pylint: disable=no-member
 
 
-def test_init_acquisition_function_optimizer_with_discrete_space():
+def test_acquisition_function_optimizer_factory_with_discrete_space():
     discrete_space = ps.ParameterSpace()
     discrete_space.add(ps.IntegerParameter("integ", (-5, 10)))
     discrete_space.add(ps.OrdinalParameter("ordin", ("small", "medium", "large")))
     discrete_space.add(ps.CategoricalParameter("categ", ("woof", "miaow", "moo")))
 
-    af_opt = _init_acquisition_function_optimizer(
+    af_opt = _acquisition_function_optimizer_factory(
         discrete_space, af_opt_kwargs={}, torch_dtype=torch.float64
     )
 
     assert af_opt.func == optimize_acqf_discrete  # pylint: disable=no-member
 
 
-def test_init_acquisition_function_optimizer_with_mixed_space():
+def test_acquisition_function_optimizer_factory_with_mixed_space():
     mixed_space = ps.ParameterSpace()
     mixed_space.add(ps.OrdinalParameter("ordin", ("small", "medium", "large")))
     mixed_space.add(ps.ContinuousParameter("conti", (0.0, 1.0)))
 
-    af_opt = _init_acquisition_function_optimizer(
+    af_opt = _acquisition_function_optimizer_factory(
         mixed_space, af_opt_kwargs={}, torch_dtype=torch.float64
     )
 

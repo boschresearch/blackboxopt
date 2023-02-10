@@ -166,7 +166,7 @@ def to_numerical(
     return X, Y
 
 
-def _init_acquisition_function_optimizer(
+def _acquisition_function_optimizer_factory(
     search_space: ps.ParameterSpace,
     af_opt_kwargs: Optional[dict],
     torch_dtype: torch.dtype,
@@ -307,11 +307,7 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
 
         self.model = model
         self.acquisition_function_factory = acquisition_function_factory
-        self.acquisition_function_optimizer = _init_acquisition_function_optimizer(
-            search_space=self.search_space,
-            af_opt_kwargs=af_optimizer_kwargs,
-            torch_dtype=self.torch_dtype,
-        )
+        self.af_optimizer_kwargs = af_optimizer_kwargs
 
     def _create_fantasy_model(self, model: Model) -> Model:
         """Create model with the pending specifications and model based
@@ -362,7 +358,12 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 "acquisition_function_factory init argument."
             )
 
-        configuration, _ = self.acquisition_function_optimizer(af)
+        acquisition_function_optimizer = _acquisition_function_optimizer_factory(
+            search_space=self.search_space,
+            af_opt_kwargs=self.af_optimizer_kwargs,
+            torch_dtype=self.torch_dtype,
+        )
+        configuration, _ = acquisition_function_optimizer(af)
 
         return EvaluationSpecification(
             configuration=self.search_space.from_numerical(configuration[0]),
