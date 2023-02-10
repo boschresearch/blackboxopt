@@ -177,7 +177,9 @@ def _acquisition_function_optimizer_factory(
 
     Args:
         search_space: Search space used for optimization.
-        af_opt_kwargs: Acquisition function optimizer configuration.
+        af_opt_kwargs: Acquisition function optimizer configuration, e.g. containing
+            values for `n_samples` for discrete optimization, and `num_restarts`,
+            `raw_samples` for the continuous optimization case.
         torch_dtype: Torch tensor type.
 
     Returns:
@@ -277,7 +279,8 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 Providing a partially initialized class is possible with, e.g.
                 `functools.partial(UpperConfidenceBound, beta=6.0, maximize=False)`.
             af_optimizer_kwargs: Settings for acquisition function optimizer,
-                see `botorch.optim.optimize_acqf`.
+                see `botorch.optim.optimize_acqf` and in case the whole search space
+                is discrete: `botorch.optim.optimize_acqf_discrete`.
             num_initial_random_samples: Size of the initial space-filling design that
                 is used before starting BO. The points are sampled randomly in the
                 search space. If no random sampling is required, set it to 0.
