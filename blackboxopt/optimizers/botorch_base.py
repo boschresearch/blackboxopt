@@ -189,6 +189,42 @@ def init_af_opt_kwargs(af_opt_kwargs: Optional[dict]) -> dict:
     return af_opt_config
 
 
+def filter_y_nans(
+    x: torch.Tensor, y: torch.Tensor
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Filter rows jointly for `x` and `y`, where `y` is `NaN`.
+
+    Args:
+        x: Input tensor of shape `n x d` or `1 x n x d`.
+        y: Input tensor of shape `n x m` or `1 x n x m`.
+
+    Returns:
+        - x_f: Filtered `x`.
+        - y_f: Filtered `y`.
+
+    Raises:
+        ValueError: If input is 3D (batched representation) with first dimension not
+            `1` (multiple batches).
+    """
+    if (len(x.shape) == 3 and x.shape[0] > 1) or (len(y.shape) == 3 and y.shape[0] > 1):
+        raise ValueError("Multiple batches are not supported for now.")
+
+    x_f = x.clone()
+    y_f = y.clone()
+
+    # filter rows jointly where y is NaN
+    x_f = x_f[~torch.any(y_f.isnan(), dim=-1)]
+    y_f = y_f[~torch.any(y_f.isnan(), dim=-1)]
+
+    # cast n x d back to 1 x n x d if originally batch case
+    if len(x.shape) == 3:
+        x_f = x_f.reshape(torch.Size((1,)) + x_f.shape)
+    if len(y.shape) == 3:
+        y_f = y_f.reshape(torch.Size((1,)) + y_f.shape)
+
+    return x_f, y_f
+
+
 class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
     def __init__(
         self,
@@ -427,6 +463,9 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         self._update_internal_evaluation_data(_evals)
         # Just for populating all relevant caches
         self.model.posterior(self.X)
+
+        x_filtered, y_filtered = filter_y_nans(self.X, self.losses)
+
         # The actual model update
         # Ignore BotorchTensorDimensionWarning which is always reported to make the user
         # aware that they are reponsible for the right input Tensors dimensionality.
@@ -434,7 +473,7 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
             warnings.simplefilter(
                 action="ignore", category=BotorchTensorDimensionWarning
             )
-            self.model.condition_on_observations(self.X, self.losses)
+            self.model = self.model.condition_on_observations(x_filtered, y_filtered)
 
     def predict_model_based_best(self) -> Optional[Evaluation]:
         """Get the current configuration that is estimated to be the best (in terms of
