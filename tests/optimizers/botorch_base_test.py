@@ -91,6 +91,42 @@ def test_acquisition_function_optimizer_factory_with_mixed_space():
     assert af_opt.func == optimize_acqf  # pylint: disable=no-member
 
 
+def test_acquisition_function_optimizer_factory_force_discrete():
+    continous_space = ps.ParameterSpace()
+    continous_space.add(ps.ContinuousParameter("conti", (0.0, 1.0)))
+
+    af_opt = _acquisition_function_optimizer_factory(
+        continous_space,
+        af_opt_kwargs={"num_choices_discrete": 1_000},
+        torch_dtype=torch.float64,
+    )
+
+    assert af_opt.func == optimize_acqf_discrete  # pylint: disable=no-member
+
+
+def test_acquisition_function_optimizer_factory_force_continuous():
+    discrete_space = ps.ParameterSpace()
+    discrete_space.add(ps.IntegerParameter("integ", (-5, 10)))
+    discrete_space.add(ps.OrdinalParameter("ordin", ("small", "medium", "large")))
+    discrete_space.add(ps.CategoricalParameter("categ", ("woof", "miaow", "moo")))
+
+    af_opt = _acquisition_function_optimizer_factory(
+        discrete_space,
+        af_opt_kwargs={"num_restarts": 10},
+        torch_dtype=torch.float64,
+    )
+
+    assert af_opt.func == optimize_acqf  # pylint: disable=no-member
+
+    af_opt = _acquisition_function_optimizer_factory(
+        discrete_space,
+        af_opt_kwargs={"raw_samples": 5_000},
+        torch_dtype=torch.float64,
+    )
+
+    assert af_opt.func == optimize_acqf  # pylint: disable=no-member
+
+
 def test_find_optimum_in_1d_discrete_space(seed):
     space = ps.ParameterSpace()
     space.add(ps.IntegerParameter("integ", (0, 2)))

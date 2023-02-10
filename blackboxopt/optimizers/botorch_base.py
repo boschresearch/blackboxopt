@@ -51,13 +51,14 @@ def _acquisition_function_optimizer_factory(
 ) -> Callable[[AcquisitionFunction], Tuple[torch.Tensor, torch.Tensor]]:
     """Prepare either BoTorch's `optimize_acqf_discrete` or `optimize_acqf` depending
     on whether the search space is fully discrete or not and set required defaults if
-    not overridden by `af_opt_kwargs`.
+    not overridden by `af_opt_kwargs`. If any of the af optimizer specific required
+    kwargs are set, this overrides the automatic discrete space detection.
 
     Args:
         search_space: Search space used for optimization.
         af_opt_kwargs: Acquisition function optimizer configuration, e.g. containing
-            values for `n_samples` for discrete optimization, and `num_restarts`,
-            `raw_samples` for the continuous optimization case.
+            values for `num_choices_discrete` for discrete optimization, and
+            `num_restarts`, `raw_samples` for the continuous optimization case.
         torch_dtype: Torch tensor type.
 
     Returns:
@@ -66,28 +67,32 @@ def _acquisition_function_optimizer_factory(
     """
     kwargs = {} if af_opt_kwargs is None else af_opt_kwargs.copy()
 
-    is_fully_discrete_space = not any(
+    space_has_continuous_parameters = any(
         search_space[n]["parameter"].is_continuous
         for n in search_space.get_parameter_names()
     )
-    if is_fully_discrete_space:
-        choices = torch.Tensor(
-            [
-                search_space.to_numerical(search_space.sample())
-                for _ in range(kwargs.pop("n_samples", 5_000))
-            ]
-        ).to(dtype=torch_dtype)
-        return functools.partial(optimize_acqf_discrete, q=1, choices=choices, **kwargs)
+    if "num_choices_discrete" not in kwargs and (
+        "num_restarts" in kwargs
+        or "raw_samples" in kwargs
+        or space_has_continuous_parameters
+    ):
+        return functools.partial(
+            optimize_acqf,
+            q=1,
+            # The numerical representation always lives on the unit hypercube
+            bounds=torch.tensor([[0, 1]] * len(search_space), dtype=torch_dtype).T,
+            num_restarts=kwargs.pop("num_restarts", 4),
+            raw_samples=kwargs.pop("raw_samples", 1024),
+            **kwargs,
+        )
 
-    return functools.partial(
-        optimize_acqf,
-        q=1,
-        # The numerical representation always lives on the unit hypercube
-        bounds=torch.tensor([[0, 1]] * len(search_space), dtype=torch_dtype).T,
-        num_restarts=kwargs.pop("num_restarts", 4),
-        raw_samples=kwargs.pop("raw_samples", 1024),
-        **kwargs,
-    )
+    choices = torch.Tensor(
+        [
+            search_space.to_numerical(search_space.sample())
+            for _ in range(kwargs.pop("num_choices_discrete", 5_000))
+        ]
+    ).to(dtype=torch_dtype)
+    return functools.partial(optimize_acqf_discrete, q=1, choices=choices, **kwargs)
 
 
 class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
@@ -122,7 +127,9 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 `functools.partial(UpperConfidenceBound, beta=6.0, maximize=False)`.
             af_optimizer_kwargs: Settings for acquisition function optimizer,
                 see `botorch.optim.optimize_acqf` and in case the whole search space
-                is discrete: `botorch.optim.optimize_acqf_discrete`.
+                is discrete: `botorch.optim.optimize_acqf_discrete`. The former can be
+                enforced by providing `raw_samples` or `num_restarts`, the latter by
+                providing `num_choices_discrete`.
             num_initial_random_samples: Size of the initial space-filling design that
                 is used before starting BO. The points are sampled randomly in the
                 search space. If no random sampling is required, set it to 0.
