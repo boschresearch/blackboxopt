@@ -788,7 +788,7 @@ test = ["hypothesis (>=5.5.3)", "pytest (>=6.0)", "pytest-xdist (>=1.31)"]
 
 [[package]]
 name = "parameterspace"
-version = "0.7.22"
+version = "0.8.0"
 description = "Parametrized hierarchical spaces with flexible priors and transformations."
 category = "main"
 optional = false
@@ -1456,7 +1456,7 @@ visualization = ["plotly", "scipy", "pandas"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.12"
-content-hash = "156f629e08e95bd1e952d9ad5f430941d27cfed03ba7bc295f4efbd28579098e"
+content-hash = "e4283c8ff54864e5ad9adef959edd7430a08afc7b3e4f332549dbfee90cee144"
 
 [metadata.files]
 astroid = [
@@ -2059,8 +2059,8 @@ pandas = [
     {file = "pandas-1.5.3.tar.gz", hash = "sha256:74a3fd7e5a7ec052f183273dc7b0acd3a863edf7520f5d3a1765c04ffdb3b0b1"},
 ]
 parameterspace = [
-    {file = "parameterspace-0.7.22-py3-none-any.whl", hash = "sha256:4a4dc8e48b2f2d372bb19fc890d1d276fcf125d401f7877f8c973399f0808626"},
-    {file = "parameterspace-0.7.22.tar.gz", hash = "sha256:c3da685d5f30ce0f0695b800fd5ae68ded1aa815c88d2c9745ee3339bc76f889"},
+    {file = "parameterspace-0.8.0-py3-none-any.whl", hash = "sha256:6e4c59cc90c73582f40a637e034009a6fa8fcbe77537cf9a96a9bf3185a001a3"},
+    {file = "parameterspace-0.8.0.tar.gz", hash = "sha256:b4e50d1b72c6c6af64d8a54f5e57276f2cc7a97ba46bcddd45367584b40214f3"},
 ]
 partd = [
     {file = "partd-1.3.0-py3-none-any.whl", hash = "sha256:6393a0c898a0ad945728e34e52de0df3ae295c5aff2e2926ba7cc3c60a734a15"},
