@@ -97,7 +97,7 @@ def test_acquisition_function_optimizer_factory_force_discrete():
 
     af_opt = _acquisition_function_optimizer_factory(
         continous_space,
-        af_opt_kwargs={"num_choices_discrete": 1_000},
+        af_opt_kwargs={"num_random_choices": 1_000},
         torch_dtype=torch.float64,
     )
 

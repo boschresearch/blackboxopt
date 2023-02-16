@@ -57,7 +57,7 @@ def _acquisition_function_optimizer_factory(
     Args:
         search_space: Search space used for optimization.
         af_opt_kwargs: Acquisition function optimizer configuration, e.g. containing
-            values for `num_choices_discrete` for discrete optimization, and
+            values for `num_random_choices` for discrete optimization, and
             `num_restarts`, `raw_samples` for the continuous optimization case.
         torch_dtype: Torch tensor type.
 
@@ -71,7 +71,7 @@ def _acquisition_function_optimizer_factory(
         search_space[n]["parameter"].is_continuous
         for n in search_space.get_parameter_names()
     )
-    if "num_choices_discrete" not in kwargs and (
+    if "num_random_choices" not in kwargs and (
         "num_restarts" in kwargs
         or "raw_samples" in kwargs
         or space_has_continuous_parameters
@@ -89,7 +89,7 @@ def _acquisition_function_optimizer_factory(
     choices = torch.Tensor(
         [
             search_space.to_numerical(search_space.sample())
-            for _ in range(kwargs.pop("num_choices_discrete", 5_000))
+            for _ in range(kwargs.pop("num_random_choices", 5_000))
         ]
     ).to(dtype=torch_dtype)
     return functools.partial(optimize_acqf_discrete, q=1, choices=choices, **kwargs)
@@ -129,7 +129,7 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 see `botorch.optim.optimize_acqf` and in case the whole search space
                 is discrete: `botorch.optim.optimize_acqf_discrete`. The former can be
                 enforced by providing `raw_samples` or `num_restarts`, the latter by
-                providing `num_choices_discrete`.
+                providing `num_random_choices`.
             num_initial_random_samples: Size of the initial space-filling design that
                 is used before starting BO. The points are sampled randomly in the
                 search space. If no random sampling is required, set it to 0.
