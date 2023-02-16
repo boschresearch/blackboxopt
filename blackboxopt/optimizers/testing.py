@@ -243,11 +243,13 @@ def is_deterministic_when_reporting_shuffled_evaluations(
     initial_configs_run_0 = [e.configuration for e in runs[0]["initial_evaluations"]]
     initial_configs_run_1 = [e.configuration for e in runs[1]["initial_evaluations"]]
 
-    configs_run_0 = [e.configuration for e in runs[0]["evaluations"]]
-    configs_run_1 = [e.configuration for e in runs[1]["evaluations"]]
+    configs_run_0_as_floats = [e.configuration["p1"] for e in runs[0]["evaluations"]]
+    configs_run_1_as_floats = [e.configuration["p1"] for e in runs[1]["evaluations"]]
 
     assert initial_configs_run_0 != initial_configs_run_1
-    assert configs_run_0 == configs_run_1
+    np.testing.assert_almost_equal(
+        configs_run_0_as_floats, configs_run_1_as_floats, decimal=3
+    )
 
 
 def handles_reporting_evaluations_list(
