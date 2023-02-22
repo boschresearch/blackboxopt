@@ -2,7 +2,7 @@
 # see the NOTICE file and/or the repository https://github.com/boschresearch/blackboxopt
 #
 # SPDX-License-Identifier: Apache-2.0
-
+import itertools
 from functools import partial
 
 import parameterspace as ps
@@ -12,10 +12,12 @@ from botorch.acquisition import UpperConfidenceBound
 from botorch.models import SingleTaskGP
 from botorch.optim import optimize_acqf, optimize_acqf_discrete
 
+from blackboxopt import EvaluationSpecification
 from blackboxopt.base import Objective
 from blackboxopt.optimizers.botorch_base import (
     SingleObjectiveBOTorchOptimizer,
     _acquisition_function_optimizer_factory,
+    _get_numerical_points_from_discrete_space,
 )
 from blackboxopt.optimizers.testing import (
     ALL_REFERENCE_TESTS,
@@ -120,7 +122,7 @@ def test_acquisition_function_optimizer_factory_force_continuous():
 
     af_opt = _acquisition_function_optimizer_factory(
         discrete_space,
-        af_opt_kwargs={"raw_samples": 5_000},
+        af_opt_kwargs={},
         torch_dtype=torch.float64,
     )
 
@@ -155,3 +157,28 @@ def test_find_optimum_in_1d_discrete_space(seed):
     assert (
         sum(l == 0 for l in losses) > 5
     ), "After figuring out the best of the three points, it should only propose that."
+
+
+def test_get_numerical_points_from_discrete_space():
+    p0l, p0h = -5, 10
+    p1 = ("small", "medium", "large")
+    p2 = ("woof", "miaow", "moo")
+    discrete_space = ps.ParameterSpace()
+    discrete_space.add(ps.IntegerParameter("integ", (p0l, p0h)))
+    discrete_space.add(ps.OrdinalParameter("ordin", p1))
+    discrete_space.add(ps.CategoricalParameter("categ", p2))
+
+    points = _get_numerical_points_from_discrete_space(discrete_space)
+    assert points.shape[0] == 16 * 3 * 3
+    assert points.shape[-1] == 3
+    for integ, ordin, categ in itertools.product(range(p0l, p0h), p1, p2):
+        assert (
+            (
+                points
+                == discrete_space.to_numerical(
+                    dict(integ=integ, ordin=ordin, categ=categ)
+                )
+            )
+            .all(axis=1)
+            .any()
+        )
