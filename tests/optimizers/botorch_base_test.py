@@ -12,7 +12,6 @@ from botorch.acquisition import UpperConfidenceBound
 from botorch.models import SingleTaskGP
 from botorch.optim import optimize_acqf, optimize_acqf_discrete
 
-from blackboxopt import EvaluationSpecification
 from blackboxopt.base import Objective
 from blackboxopt.optimizers.botorch_base import (
     SingleObjectiveBOTorchOptimizer,
@@ -80,6 +79,14 @@ def test_acquisition_function_optimizer_factory_with_discrete_space():
 
     assert af_opt.func == optimize_acqf_discrete  # pylint: disable=no-member
 
+    af_opt = _acquisition_function_optimizer_factory(
+        discrete_space,
+        af_opt_kwargs={"num_random_choices": 50},
+        torch_dtype=torch.float64,
+    )
+
+    assert af_opt.func == optimize_acqf_discrete  # pylint: disable=no-member
+
 
 def test_acquisition_function_optimizer_factory_with_mixed_space():
     mixed_space = ps.ParameterSpace()
@@ -115,14 +122,6 @@ def test_acquisition_function_optimizer_factory_force_continuous():
     af_opt = _acquisition_function_optimizer_factory(
         discrete_space,
         af_opt_kwargs={"num_restarts": 10},
-        torch_dtype=torch.float64,
-    )
-
-    assert af_opt.func == optimize_acqf  # pylint: disable=no-member
-
-    af_opt = _acquisition_function_optimizer_factory(
-        discrete_space,
-        af_opt_kwargs={},
         torch_dtype=torch.float64,
     )
 
