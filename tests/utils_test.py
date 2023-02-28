@@ -18,22 +18,34 @@ from blackboxopt.utils import (
 
 
 @pytest.mark.parametrize(
-    "known,reported,expected",
+    "known,reported,none_replacement,expected",
     [
         (
             [Objective("score", True), Objective("loss", False)],
             {"loss": 2.0, "score": 1.0},
+            float("NaN"),
             [-1.0, 2.0],
         ),
         (
             [Objective("score", True), Objective("loss", False)],
             {"loss": 2.0, "score": None},
-            [np.nan, 2.0],
+            float("NaN"),
+            [float("NaN"), 2.0],
+        ),
+        (
+            [Objective("score", True), Objective("loss", False)],
+            {"loss": None, "score": None},
+            [float("-inf"), float("inf")],
+            [float("-inf"), float("inf")],
         ),
     ],
 )
-def test_get_loss_vector(known, reported, expected):
-    loss_vector = get_loss_vector(known_objectives=known, reported_objectives=reported)
+def test_get_loss_vector(known, reported, none_replacement, expected):
+    loss_vector = get_loss_vector(
+        known_objectives=known,
+        reported_objectives=reported,
+        none_replacement=none_replacement,
+    )
     np.testing.assert_array_equal(loss_vector, np.array(expected))
 
 
