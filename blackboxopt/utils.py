@@ -6,7 +6,7 @@
 import hashlib
 import pickle
 from itertools import compress
-from typing import Dict, Iterable, List, Optional, Sequence
+from typing import Dict, Iterable, List, Optional, Sequence, Union
 
 import numpy as np
 
@@ -17,7 +17,7 @@ from blackboxopt.evaluation import Evaluation
 def get_loss_vector(
     known_objectives: Sequence[Objective],
     reported_objectives: Dict[str, Optional[float]],
-    none_replacement: float = float("NaN"),
+    none_replacement: Union[float, Sequence[float]] = float("NaN"),
 ) -> List[float]:
     """Convert reported objectives into a vector of known objectives.
 
@@ -27,16 +27,29 @@ def get_loss_vector(
             of the returned loss values.
         reported_objectives: A dictionary with the objective value for each of the known
             objectives' names.
-        none_replacement: The value to use for missing objective values that are `None`
+        none_replacement: The value(s) to use for missing objective values that are
+            `None`. Either one for all objectives or a sequence for each known objective
+            respectively.
 
     Returns:
         A list of loss values.
     """
+    if isinstance(none_replacement, Sequence) and (
+        len(none_replacement) != len(known_objectives)
+    ):
+        raise ValueError(
+            f"There are only {len(none_replacement)} None replacement values but there "
+            + f"need to be {len(known_objectives)} to match the number of objectives."
+        )
+
+    if not isinstance(none_replacement, Sequence):
+        none_replacement = [none_replacement] * len(known_objectives)
+
     losses = []
-    for objective in known_objectives:
+    for objective, none_repl in zip(known_objectives, none_replacement):
         objective_value = reported_objectives[objective.name]
         if objective_value is None:
-            losses.append(none_replacement)
+            losses.append(none_repl)
         elif objective.greater_is_better:
             losses.append(-1.0 * objective_value)
         else:
