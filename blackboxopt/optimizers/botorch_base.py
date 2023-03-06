@@ -294,7 +294,7 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         X, Y = to_numerical(
             _evals,
             self.search_space,
-            self.objective,
+            objectives=[self.objective],
             batch_shape=self.batch_shape,
             torch_dtype=self.torch_dtype,
         )

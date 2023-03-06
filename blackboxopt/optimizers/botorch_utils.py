@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
 import parameterspace as ps
@@ -13,6 +13,7 @@ from sklearn.impute import SimpleImputer
 
 from blackboxopt.base import ConstraintsError, Objective
 from blackboxopt.evaluation import Evaluation
+from blackboxopt.utils import get_loss_vector
 
 
 def filter_y_nans(
@@ -88,7 +89,7 @@ def impute_nans_with_constant(x: torch.Tensor, c: float = -1.0) -> torch.Tensor:
 def to_numerical(
     evaluations: Iterable[Evaluation],
     search_space: ps.ParameterSpace,
-    objective: Objective,
+    objectives: Sequence[Objective],
     constraint_names: Optional[List[str]] = None,
     batch_shape: torch.Size = torch.Size(),
     torch_dtype: torch.dtype = torch.float32,
@@ -102,7 +103,7 @@ def to_numerical(
     Args:
         evaluations: List of evaluations that were collected during optimization.
         search_space: Search space used during optimization.
-        objective: Objective that was used for optimization.
+        objectives: Objectives that were used for optimization.
         constraint_names: Name of constraints that are used for optimization.
         batch_shape: Batch dimension(s) used for batched models.
         torch_dtype: Type of returned tensors.
@@ -142,13 +143,15 @@ def to_numerical(
         dtype=torch_dtype,
     )
     X = X.reshape(*batch_shape + X.shape)
-    Y = torch.tensor(
-        np.array([[e.objectives[objective.name]] for e in evaluations], dtype=float),
-        dtype=torch_dtype,
-    )
 
-    if objective.greater_is_better:
-        Y *= -1
+    Y = torch.Tensor(
+        [
+            get_loss_vector(
+                known_objectives=objectives, reported_objectives=e.objectives
+            )
+            for e in evaluations
+        ]
+    ).to(dtype=torch_dtype)
 
     if constraint_names is not None:
         try:
@@ -163,12 +166,12 @@ def to_numerical(
         except KeyError as e:
             raise ConstraintsError(
                 f"Constraint name {e} is not defined in input evaluations."
-            )
-        except TypeError:
+            ) from e
+        except TypeError as e:
             raise ConstraintsError(
                 f"Constraint name(s) {constraint_names} are not defined in input "
                 + "evaluations."
-            )
+            ) from e
 
     Y = Y.reshape(*batch_shape + Y.shape)
 
