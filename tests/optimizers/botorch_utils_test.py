@@ -54,7 +54,7 @@ def test_to_numerical(evaluations, search_space, greater_is_better):
 
     objective = Objective(objective_name, greater_is_better)
 
-    X, Y = to_numerical(evaluations, search_space, objective)
+    X, Y = to_numerical(evaluations, search_space, [objective])
 
     assert X.dtype == torch.float32
     assert Y.dtype == torch.float32
@@ -82,7 +82,7 @@ def test_to_numerical_with_batch(evaluations, search_space):
     objective = Objective(objective_name, False)
 
     batch_shape = torch.Size((1,))
-    X, Y = to_numerical(evaluations, search_space, objective, batch_shape=batch_shape)
+    X, Y = to_numerical(evaluations, search_space, [objective], batch_shape=batch_shape)
 
     assert X.dtype == torch.float32
     assert Y.dtype == torch.float32
@@ -102,7 +102,7 @@ def test_to_numerical_raises_errors(search_space):
         objectives={objective_name: 0.64},
     )
     with pytest.raises(ValueError, match="Mismatch"):
-        to_numerical([eval_err], search_space, objective)
+        to_numerical([eval_err], search_space, [objective])
 
     # parameter not within defined bounds -> invalid configuration
     eval_err = Evaluation(
@@ -110,7 +110,7 @@ def test_to_numerical_raises_errors(search_space):
         objectives={objective_name: 0.64},
     )
     with pytest.raises(ValueError, match="not valid"):
-        to_numerical([eval_err], search_space, objective)
+        to_numerical([eval_err], search_space, [objective])
 
     # conditional parameter should be active, but is inactive -> invalid configuration
     eval_err = Evaluation(
@@ -118,7 +118,7 @@ def test_to_numerical_raises_errors(search_space):
         objectives={objective_name: 0.64},
     )
     with pytest.raises(ValueError, match="not valid"):
-        to_numerical([eval_err], search_space, objective)
+        to_numerical([eval_err], search_space, [objective])
 
     # conditional parameter should be inactive, but is active -> invalid configuration
     eval_err = Evaluation(
@@ -126,7 +126,7 @@ def test_to_numerical_raises_errors(search_space):
         objectives={objective_name: 0.64},
     )
     with pytest.raises(ValueError, match="not valid"):
-        to_numerical([eval_err], search_space, objective)
+        to_numerical([eval_err], search_space, [objective])
 
 
 @pytest.mark.parametrize(
@@ -147,7 +147,7 @@ def test_to_numerical_with_constraints(
     _, Y = to_numerical(
         evaluations_with_constraints,
         search_space,
-        objective,
+        [objective],
         constraints,
     )
 
@@ -172,7 +172,7 @@ def test_to_numerical_raises_error_on_wrong_constraints(
         to_numerical(
             evaluations_with_constraints,
             search_space,
-            objective,
+            [objective],
             constraint_names=["WRONG_NAME"],
         )
 
@@ -190,9 +190,30 @@ def test_to_numerical_raises_error_on_wrong_constraints(
         to_numerical(
             evaluations,
             search_space,
-            objective,
+            [objective],
             constraint_names=[constraint_name_1],
         )
+
+
+def test_to_numerical_multiple_objectives(search_space):
+    objectives = [
+        Objective("score", greater_is_better=True),
+        Objective("loss", greater_is_better=False),
+    ]
+
+    evaluations = [
+        Evaluation(
+            objectives={"score": 0.1, "loss": 0.1}, configuration=search_space.sample()
+        )
+    ]
+
+    X, Y = to_numerical(evaluations, search_space, objectives)
+
+    assert X.dtype == torch.float32
+    assert Y.dtype == torch.float32
+    assert X.size() == (len(evaluations), len(search_space))
+    assert Y.size() == (len(evaluations), len(objectives))
+    assert torch.equal(Y, torch.Tensor([[-0.1, 0.1]]))
 
 
 def test_filter_y_nans():
