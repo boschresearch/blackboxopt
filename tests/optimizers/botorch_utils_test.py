@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import numpy as np
-import parameterspace as ps
 import pytest
 import torch
 
