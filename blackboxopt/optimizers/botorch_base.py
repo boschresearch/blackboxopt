@@ -49,12 +49,24 @@ def _get_numerical_points_from_discrete_space(space: ParameterSpace) -> np.ndarr
     """Retrieve all points from a discrete space in the numerical representation"""
     points_along_dimensions = []
     for parameter_name in space.get_parameter_names():
-        num_values = space.get_parameter_by_name(parameter_name)[
+        parameter = space.get_parameter_by_name(parameter_name)[
             "parameter"
-        ].num_values  # type:ignore
-        points_along_dimensions.append(
-            np.linspace(1 / (2 * num_values), 1 - 1 / (2 * num_values), num_values)
-        )
+        ]  # type:ignore
+        if isinstance(parameter, ps.IntegerParameter):
+            bounds = (parameter.bounds[0], parameter.bounds[1] + 1)
+            points_along_dimensions.append(
+                [parameter.val2num(v) for v in range(*bounds)]
+            )
+        elif isinstance(parameter, ps.OrdinalParameter) or isinstance(
+            parameter, ps.CategoricalParameter
+        ):
+            points_along_dimensions.append(
+                [parameter.val2num(v) for v in parameter.values]
+            )
+        else:
+            raise ValueError(
+                f"Only discrete parameters are allowed but got {parameter}"
+            )
     points = np.meshgrid(*points_along_dimensions)
     points = [p.reshape((p.size, 1)) for p in points]
     return np.concatenate(points, axis=-1)
@@ -68,7 +80,10 @@ def _acquisition_function_optimizer_factory(
     """Prepare either BoTorch's `optimize_acqf_discrete` or `optimize_acqf` depending
     on whether the search space is fully discrete or not and set required defaults if
     not overridden by `af_opt_kwargs`. If any of the af optimizer specific required
-    kwargs are set, this overrides the automatic discrete space detection.
+    kwargs are set, this overrides the automatic discrete space detection. In case an
+    exclusively discrete space is detected and `num_random_choices` is not specified
+    in `af_opt_kwargs`, the discrete acquisition function optimizer is using all
+    possible combinations in the discrete space.
 
     Args:
         search_space: Search space used for optimization.
@@ -91,7 +106,8 @@ def _acquisition_function_optimizer_factory(
         "num_restarts" in kwargs
         or "raw_samples" in kwargs
         or space_has_continuous_parameters
-    ):  # continuous AF optimization
+    ):
+        # continuous AF optimization
         return functools.partial(
             optimize_acqf,
             q=1,

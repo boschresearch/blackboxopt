@@ -127,6 +127,14 @@ def test_acquisition_function_optimizer_factory_force_continuous():
 
     assert af_opt.func == optimize_acqf  # pylint: disable=no-member
 
+    af_opt = _acquisition_function_optimizer_factory(
+        discrete_space,
+        af_opt_kwargs={"raw_samples": 5_000},
+        torch_dtype=torch.float64,
+    )
+
+    assert af_opt.func == optimize_acqf  # pylint: disable=no-member
+
 
 def test_find_optimum_in_1d_discrete_space(seed):
     space = ps.ParameterSpace()
@@ -163,14 +171,21 @@ def test_get_numerical_points_from_discrete_space():
     p1 = ("small", "medium", "large")
     p2 = ("woof", "miaow", "moo")
     discrete_space = ps.ParameterSpace()
-    discrete_space.add(ps.IntegerParameter("integ", (p0l, p0h)))
-    discrete_space.add(ps.OrdinalParameter("ordin", p1))
-    discrete_space.add(ps.CategoricalParameter("categ", p2))
+    p_integ = ps.IntegerParameter("integ", (p0l, p0h))
+    discrete_space.add(p_integ)
+    p_ordin = ps.OrdinalParameter("ordin", p1)
+    discrete_space.add(p_ordin)
+    p_categ = ps.CategoricalParameter("categ", p2)
+    discrete_space.add(p_categ)
 
     points = _get_numerical_points_from_discrete_space(discrete_space)
-    assert points.shape[0] == 16 * 3 * 3
-    assert points.shape[-1] == 3
-    for integ, ordin, categ in itertools.product(range(p0l, p0h), p1, p2):
+    assert (
+        points.shape[0] == p_integ.num_values * p_ordin.num_values * p_categ.num_values
+    )
+    assert points.shape[-1] == len(discrete_space)
+    for integ, ordin, categ in itertools.product(
+        range(p_integ.bounds[0], p_integ.bounds[1] + 1), p_ordin.values, p_categ.values
+    ):
         assert (
             (
                 points
@@ -180,4 +195,4 @@ def test_get_numerical_points_from_discrete_space():
             )
             .all(axis=1)
             .any()
-        )
+        ), f"Point {integ}, {ordin}, {categ} belongs to the search space but is not returned by `_get_numerical_points_from_discrete_space`"
