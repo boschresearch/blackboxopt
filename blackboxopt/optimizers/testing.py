@@ -237,7 +237,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
 
             objectives = {"loss": _run_experiment_1d(es)}
             if isinstance(opt, MultiObjectiveOptimizer):
-                objectives["score"] = -1.0 * e.objectives["loss"] ** 2
+                objectives["score"] = -1.0 * objectives["loss"] ** 2
             evaluation = es.create_evaluation(
                 objectives=objectives, constraints={"constraint": 10.0}
             )
