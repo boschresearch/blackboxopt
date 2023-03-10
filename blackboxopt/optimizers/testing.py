@@ -150,15 +150,20 @@ def is_deterministic_with_fixed_seed_and_larger_space(
             optimizer_class,
             optimizer_kwargs,
             objective=Objective("loss", False),
-            objectives=[Objective("loss", False)],
+            objectives=[Objective("loss", False), Objective("score", True)],
             seed=seed or 42,
         )
 
         for i in range(n_evaluations):
             es = opt.generate_evaluation_specification()
+
+            objectives = {"loss": losses[i]}
+            if isinstance(opt, MultiObjectiveOptimizer):
+                objectives["score"] = -1.0 * losses[i] ** 2
             evaluation = es.create_evaluation(
-                objectives={"loss": losses[i]}, constraints={"constraint": 10.0}
+                objectives=objectives, constraints={"constraint": 10.0}
             )
+
             opt.report(evaluation)
 
             run_configs.append(evaluation.configuration)
