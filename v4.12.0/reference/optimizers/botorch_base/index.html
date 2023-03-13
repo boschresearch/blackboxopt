@@ -1,0 +1,1614 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Various blackbox optimization algorithms with a common interface.">
+      
+      
+      
+        <link rel="canonical" href="https://boschresearch.github.io/blackboxopt/v4.12.0/reference/optimizers/botorch_base/">
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>Botorch base - Blackbox Optimization</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.975780f9.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.2505c338.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#000000">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="light-blue">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#blackboxopt.optimizers.botorch_base" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Blackbox Optimization" class="md-header__button md-logo" aria-label="Blackbox Optimization" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Blackbox Optimization
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Botorch base
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/boschresearch/blackboxopt" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    boschresearch/blackboxopt
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Blackbox Optimization" class="md-nav__button md-logo" aria-label="Blackbox Optimization" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Blackbox Optimization
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/boschresearch/blackboxopt" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    boschresearch/blackboxopt
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Examples
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Examples" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/dask-distributed/" class="md-nav__link">
+        Dask Distributed
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../base/" class="md-nav__link">
+        Base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluation/" class="md-nav__link">
+        Evaluation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/" class="md-nav__link">
+        Utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_4">
+          Optimization loops
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Optimization loops" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_4">
+          <span class="md-nav__icon md-icon"></span>
+          Optimization loops
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../optimization_loops/dask_distributed/" class="md-nav__link">
+        Dask distributed
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../optimization_loops/sequential/" class="md-nav__link">
+        Sequential
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../optimization_loops/testing/" class="md-nav__link">
+        Testing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../optimization_loops/utils/" class="md-nav__link">
+        Utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5" type="checkbox" id="__nav_3_5" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_5">
+          Optimizers
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Optimizers" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_5">
+          <span class="md-nav__icon md-icon"></span>
+          Optimizers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bohb/" class="md-nav__link">
+        Bohb
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Botorch base
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Botorch base
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer" class="md-nav__link">
+    SingleObjectiveBOTorchOptimizer
+  </a>
+  
+    <nav class="md-nav" aria-label="SingleObjectiveBOTorchOptimizer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer.generate_evaluation_specification" class="md-nav__link">
+    generate_evaluation_specification()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer.predict_model_based_best" class="md-nav__link">
+    predict_model_based_best()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer.report" class="md-nav__link">
+    report()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../botorch_utils/" class="md-nav__link">
+        Botorch utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hyperband/" class="md-nav__link">
+        Hyperband
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../random_search/" class="md-nav__link">
+        Random search
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../space_filling/" class="md-nav__link">
+        Space filling
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        Testing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5_8" type="checkbox" id="__nav_3_5_8" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_5_8">
+          Staged
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Staged" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_5_8">
+          <span class="md-nav__icon md-icon"></span>
+          Staged
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../staged/bohb/" class="md-nav__link">
+        Bohb
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../staged/configuration_sampler/" class="md-nav__link">
+        Configuration sampler
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../staged/hyperband/" class="md-nav__link">
+        Hyperband
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../staged/iteration/" class="md-nav__link">
+        Iteration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../staged/optimizer/" class="md-nav__link">
+        Optimizer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../staged/utils/" class="md-nav__link">
+        Utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_6" type="checkbox" id="__nav_3_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_6">
+          Visualizations
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Visualizations" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_6">
+          <span class="md-nav__icon md-icon"></span>
+          Visualizations
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../visualizations/utils/" class="md-nav__link">
+        Utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../visualizations/visualizer/" class="md-nav__link">
+        Visualizer
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer" class="md-nav__link">
+    SingleObjectiveBOTorchOptimizer
+  </a>
+  
+    <nav class="md-nav" aria-label="SingleObjectiveBOTorchOptimizer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer.generate_evaluation_specification" class="md-nav__link">
+    generate_evaluation_specification()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer.predict_model_based_best" class="md-nav__link">
+    predict_model_based_best()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer.report" class="md-nav__link">
+    report()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h1 id="blackboxopt.optimizers.botorch_base" class="doc doc-heading">
+        <code>blackboxopt.optimizers.botorch_base</code>
+
+
+
+</h1>
+
+    <div class="doc doc-contents first">
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer" class="doc doc-heading">
+        <code>
+SingleObjectiveBOTorchOptimizer            (<a class="autorefs autorefs-internal" title="blackboxopt.base.SingleObjectiveOptimizer" href="../../base/#blackboxopt.base.SingleObjectiveOptimizer">SingleObjectiveOptimizer</a>)
+        </code>
+
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/botorch_base.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SingleObjectiveBOTorchOptimizer</span><span class="p">(</span><span class="n">SingleObjectiveOptimizer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">search_space</span><span class="p">:</span> <span class="n">ps</span><span class="o">.</span><span class="n">ParameterSpace</span><span class="p">,</span>
+        <span class="n">objective</span><span class="p">:</span> <span class="n">Objective</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
+        <span class="n">acquisition_function_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Model</span><span class="p">],</span> <span class="n">AcquisitionFunction</span><span class="p">],</span>
+        <span class="n">af_optimizer_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_initial_random_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_pending_evaluations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(),</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">torch_dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Single objective BO optimizer that uses as a surrogate model the `model`</span>
+<span class="sd">        object provided by user.</span>
+
+<span class="sd">        The `model` is expected to be extended from BoTorch base model `Model` class,</span>
+<span class="sd">        and does not require to be a GP model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            search_space: The space in which to optimize.</span>
+<span class="sd">            objective: The objective to optimize.</span>
+<span class="sd">            model: Surrogate model of `Model` type.</span>
+<span class="sd">            acquisition_function_factory: Callable that produces an acquisition function</span>
+<span class="sd">                instance, could also be a compatible acquisition function class.</span>
+<span class="sd">                Only acquisition functions to be minimized are supported.</span>
+<span class="sd">                Providing a partially initialized class is possible with, e.g.</span>
+<span class="sd">                `functools.partial(UpperConfidenceBound, beta=6.0, maximize=False)`.</span>
+<span class="sd">            af_optimizer_kwargs: Settings for acquisition function optimizer,</span>
+<span class="sd">                see `botorch.optim.optimize_acqf` and in case the whole search space</span>
+<span class="sd">                is discrete: `botorch.optim.optimize_acqf_discrete`. The former can be</span>
+<span class="sd">                enforced by providing `raw_samples` or `num_restarts`, the latter by</span>
+<span class="sd">                providing `num_random_choices`.</span>
+<span class="sd">            num_initial_random_samples: Size of the initial space-filling design that</span>
+<span class="sd">                is used before starting BO. The points are sampled randomly in the</span>
+<span class="sd">                search space. If no random sampling is required, set it to 0.</span>
+<span class="sd">            max_pending_evaluations: Maximum number of parallel evaluations. For</span>
+<span class="sd">                sequential BO use the default value of 1. If no limit is required,</span>
+<span class="sd">                set it to None.</span>
+<span class="sd">            batch_shape: Batch dimension(s) used for batched models.</span>
+<span class="sd">            logger: Custom logger.</span>
+<span class="sd">            seed: A seed to make the optimization reproducible.</span>
+<span class="sd">            torch_dtype: Torch data type used for storing the data. This needs to match</span>
+<span class="sd">                the dtype of the model used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">search_space</span><span class="o">=</span><span class="n">search_space</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="n">objective</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_initial_random</span> <span class="o">=</span> <span class="n">num_initial_random_samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_pending_evaluations</span> <span class="o">=</span> <span class="n">max_pending_evaluations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_shape</span> <span class="o">=</span> <span class="n">batch_shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;blackboxopt&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">torch_dtype</span> <span class="o">=</span> <span class="n">torch_dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+            <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_shape</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">search_space</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch_dtype</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">losses</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_shape</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch_dtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">EvaluationSpecification</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_function_factory</span> <span class="o">=</span> <span class="n">acquisition_function_factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">af_optimizer_kwargs</span> <span class="o">=</span> <span class="n">af_optimizer_kwargs</span>
+
+    <span class="k">def</span> <span class="nf">_create_fantasy_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create model with the pending specifications and model based</span>
+<span class="sd">        outcomes added to the training data.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">:</span>
+            <span class="c1"># nothing to do when there are no pending specs</span>
+            <span class="k">return</span> <span class="n">model</span>
+
+        <span class="n">pending_X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">to_numerical</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">configuration</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">torch_dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fantasize</span><span class="p">(</span><span class="n">pending_X</span><span class="p">,</span> <span class="n">IIDNormalSampler</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">observation_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ExactGP</span><span class="p">):</span>
+            <span class="c1"># ExactGP.fantasize extends model&#39;s X and Y with batch_size, even if</span>
+            <span class="c1"># originally not given -&gt; need to reshape these to their original</span>
+            <span class="c1"># representation</span>
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train_targets</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">n_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">((</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_shape</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">train_targets</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train_targets</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">((</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_shape</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="nf">_generate_evaluation_specification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optimize acquisition on fantasy model to pick next point.&quot;&quot;&quot;</span>
+        <span class="n">fantasy_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_fantasy_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">fantasy_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+        <span class="n">af</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_function_factory</span><span class="p">(</span><span class="n">fantasy_model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">af</span><span class="p">,</span> <span class="s2">&quot;maximize&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Only acquisition functions that need to be minimized are supported. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;The given </span><span class="si">{</span><span class="n">af</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> has maximize=True. &quot;</span>
+                <span class="s2">&quot;One potential fix is using functools.partial(&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">af</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, maximize=False) as the &quot;</span>
+                <span class="s2">&quot;acquisition_function_factory init argument.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">acquisition_function_optimizer</span> <span class="o">=</span> <span class="n">_acquisition_function_optimizer_factory</span><span class="p">(</span>
+            <span class="n">search_space</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="p">,</span>
+            <span class="n">af_opt_kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">af_optimizer_kwargs</span><span class="p">,</span>
+            <span class="n">torch_dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">torch_dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">configuration</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">acquisition_function_optimizer</span><span class="p">(</span><span class="n">af</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">EvaluationSpecification</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">from_numerical</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">generate_evaluation_specification</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvaluationSpecification</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Call the optimizer specific function and append a unique integer id</span>
+<span class="sd">        to the specification.</span>
+
+<span class="sd">        Please refer to the docstring of</span>
+<span class="sd">        `blackboxopt.base.SingleObjectiveOptimizer.generate_evaluation_specification`</span>
+<span class="sd">        for a description of the method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_pending_evaluations</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_pending_evaluations</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">OptimizerNotReady</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_initial_random</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_initial_random</span>
+            <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="o">~</span><span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">isnan</span><span class="p">(),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="c1"># We keep generating random samples until there are enough samples, and</span>
+            <span class="c1"># at least one of them has a valid objective</span>
+            <span class="n">eval_spec</span> <span class="o">=</span> <span class="n">EvaluationSpecification</span><span class="p">(</span>
+                <span class="n">configuration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eval_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_evaluation_specification</span><span class="p">()</span>
+
+        <span class="n">eval_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">)</span>
+        <span class="n">eval_spec</span><span class="o">.</span><span class="n">optimizer_info</span><span class="p">[</span><span class="s2">&quot;evaluation_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eval_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">[</span><span class="n">eval_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">eval_spec</span>
+        <span class="k">return</span> <span class="n">eval_spec</span>
+
+    <span class="k">def</span> <span class="nf">_remove_pending_specifications</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]]</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find and remove the corresponding entries in `self.pending_specifications`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            evaluations: List of completed evaluations.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If an evaluation is reported with an ID that was not issued</span>
+<span class="sd">            by the optimizer, the method will fail.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_evals</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluations</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evaluations</span><span class="p">,</span> <span class="n">Evaluation</span><span class="p">)</span> <span class="k">else</span> <span class="n">evaluations</span>
+
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">_evals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;evaluation_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">optimizer_info</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;User provided EvaluationSpecification received.&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">optimizer_info</span><span class="p">[</span><span class="s2">&quot;evaluation_id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;Unknown evaluation_id reported. This could indicate that the &quot;</span>
+                    <span class="s2">&quot;evaluation has been reported before!&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">optimizer_info</span><span class="p">[</span><span class="s2">&quot;evaluation_id&quot;</span><span class="p">]]</span>
+
+    <span class="k">def</span> <span class="nf">_append_evaluations_to_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]]</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the reported evaluation into its numerical representation</span>
+<span class="sd">        and append it to the training data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            evaluations: List of completed evaluations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_evals</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluations</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evaluations</span><span class="p">,</span> <span class="n">Evaluation</span><span class="p">)</span> <span class="k">else</span> <span class="n">evaluations</span>
+
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">to_numerical</span><span class="p">(</span>
+            <span class="n">_evals</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="p">,</span>
+            <span class="n">objectives</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">],</span>
+            <span class="n">batch_shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_shape</span><span class="p">,</span>
+            <span class="n">torch_dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">torch_dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># fill in NaNs originating from inactive parameters (conditional spaces support)</span>
+        <span class="c1"># botorch expect numerical representation of inputs to be within the unit</span>
+        <span class="c1"># hypercube, thus we can&#39;t use the default c=-1.0</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">impute_nans_with_constant</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Next training configuration(s):</span><span class="si">{</span><span class="n">X</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">Y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">losses</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">,</span> <span class="n">Y</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_internal_evaluation_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check validity of the evaluations and do optimizer agnostic bookkeeping.&quot;&quot;&quot;</span>
+        <span class="n">call_functions_with_evaluations_and_collect_errors</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">validate_objectives</span><span class="p">,</span> <span class="n">objectives</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">]),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_remove_pending_specifications</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_append_evaluations_to_data</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">sort_evaluations</span><span class="p">(</span><span class="n">evaluations</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A simple report method that conditions the model on data.</span>
+<span class="sd">        This likely needs to be overridden for more specific BO implementations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_evals</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluations</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evaluations</span><span class="p">,</span> <span class="n">Evaluation</span><span class="p">)</span> <span class="k">else</span> <span class="n">evaluations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_internal_evaluation_data</span><span class="p">(</span><span class="n">_evals</span><span class="p">)</span>
+        <span class="c1"># Just for populating all relevant caches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="n">x_filtered</span><span class="p">,</span> <span class="n">y_filtered</span> <span class="o">=</span> <span class="n">filter_y_nans</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">)</span>
+
+        <span class="c1"># The actual model update</span>
+        <span class="c1"># Ignore BotorchTensorDimensionWarning which is always reported to make the user</span>
+        <span class="c1"># aware that they are reponsible for the right input Tensors dimensionality.</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span>
+                <span class="n">action</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">BotorchTensorDimensionWarning</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">condition_on_observations</span><span class="p">(</span><span class="n">x_filtered</span><span class="p">,</span> <span class="n">y_filtered</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict_model_based_best</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current configuration that is estimated to be the best (in terms of</span>
+<span class="sd">        optimal objective value) without waiting for a reported evaluation of that</span>
+<span class="sd">        configuration. Instead, the objective value estimation relies on BO&#39;s</span>
+<span class="sd">        underlying model.</span>
+
+<span class="sd">        This might return `None` in case there is no successfully evaluated</span>
+<span class="sd">        configuration yet (thus, the optimizer has not been given training data yet).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            blackboxopt.evaluation.Evaluation</span>
+<span class="sd">                The evaluated specification containing the estimated best configuration</span>
+<span class="sd">                or `None` in case no evaluations have been reported yet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">def</span> <span class="nf">posterior_mean</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="c1"># function to be optimized: posterior mean</span>
+            <span class="c1"># scipy&#39;s minimize expects the following interface:</span>
+            <span class="c1">#  - input: 1-D array with shape (n,)</span>
+            <span class="c1">#  - output: float</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span><span class="o">.</span><span class="n">mean</span>
+            <span class="k">return</span> <span class="n">mean</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="c1"># prepare initial random samples and bounds for scipy&#39;s minimize</span>
+        <span class="n">n_init_samples</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">init_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">to_numerical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_init_samples</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">get_continuous_bounds</span><span class="p">()</span>
+
+        <span class="c1"># use scipy&#39;s minimize to find optimum of the posterior mean</span>
+        <span class="n">optimized_points</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">sci_opt</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
+                <span class="n">fun</span><span class="o">=</span><span class="n">posterior_mean</span><span class="p">,</span>
+                <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">jac</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">x0</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">(),</span>
+                <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">init_points</span>
+        <span class="p">]</span>
+
+        <span class="n">f_optimized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">fun</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">optimized_points</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="c1"># get indexes of optimum value (with a tolerance)</span>
+        <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">f_optimized</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">f_optimized</span><span class="p">)))</span>
+        <span class="c1"># randomly select one index if there are multiple</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">inds</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+        <span class="c1"># create Evaluation from the best estimated configuration</span>
+        <span class="n">best_x</span> <span class="o">=</span> <span class="n">optimized_points</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">best_y</span> <span class="o">=</span> <span class="n">posterior_mean</span><span class="p">(</span><span class="n">best_x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Evaluation</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">from_numerical</span><span class="p">(</span><span class="n">best_x</span><span class="p">),</span>
+            <span class="n">objectives</span><span class="o">=</span><span class="p">{</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">best_y</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">greater_is_better</span>
+                <span class="k">else</span> <span class="n">best_y</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer.generate_evaluation_specification" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">generate_evaluation_specification</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Call the optimizer specific function and append a unique integer id
+to the specification.</p>
+<p>Please refer to the docstring of
+<code>blackboxopt.base.SingleObjectiveOptimizer.generate_evaluation_specification</code>
+for a description of the method.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/botorch_base.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_evaluation_specification</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvaluationSpecification</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Call the optimizer specific function and append a unique integer id</span>
+<span class="sd">    to the specification.</span>
+
+<span class="sd">    Please refer to the docstring of</span>
+<span class="sd">    `blackboxopt.base.SingleObjectiveOptimizer.generate_evaluation_specification`</span>
+<span class="sd">    for a description of the method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_pending_evaluations</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_pending_evaluations</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="n">OptimizerNotReady</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_initial_random</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_initial_random</span>
+        <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="o">~</span><span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">isnan</span><span class="p">(),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="c1"># We keep generating random samples until there are enough samples, and</span>
+        <span class="c1"># at least one of them has a valid objective</span>
+        <span class="n">eval_spec</span> <span class="o">=</span> <span class="n">EvaluationSpecification</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">(),</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">eval_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_evaluation_specification</span><span class="p">()</span>
+
+    <span class="n">eval_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">)</span>
+    <span class="n">eval_spec</span><span class="o">.</span><span class="n">optimizer_info</span><span class="p">[</span><span class="s2">&quot;evaluation_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eval_id</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pending_specifications</span><span class="p">[</span><span class="n">eval_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">eval_spec</span>
+    <span class="k">return</span> <span class="n">eval_spec</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer.predict_model_based_best" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">predict_model_based_best</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Get the current configuration that is estimated to be the best (in terms of
+optimal objective value) without waiting for a reported evaluation of that
+configuration. Instead, the objective value estimation relies on BO's
+underlying model.</p>
+<p>This might return <code>None</code> in case there is no successfully evaluated
+configuration yet (thus, the optimizer has not been given training data yet).</p>
+
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Optional[blackboxopt.evaluation.Evaluation]</code></td>
+      <td><p>blackboxopt.evaluation.Evaluation
+    The evaluated specification containing the estimated best configuration
+    or <code>None</code> in case no evaluations have been reported yet.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/botorch_base.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">predict_model_based_best</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current configuration that is estimated to be the best (in terms of</span>
+<span class="sd">    optimal objective value) without waiting for a reported evaluation of that</span>
+<span class="sd">    configuration. Instead, the objective value estimation relies on BO&#39;s</span>
+<span class="sd">    underlying model.</span>
+
+<span class="sd">    This might return `None` in case there is no successfully evaluated</span>
+<span class="sd">    configuration yet (thus, the optimizer has not been given training data yet).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        blackboxopt.evaluation.Evaluation</span>
+<span class="sd">            The evaluated specification containing the estimated best configuration</span>
+<span class="sd">            or `None` in case no evaluations have been reported yet.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">posterior_mean</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="c1"># function to be optimized: posterior mean</span>
+        <span class="c1"># scipy&#39;s minimize expects the following interface:</span>
+        <span class="c1">#  - input: 1-D array with shape (n,)</span>
+        <span class="c1">#  - output: float</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span><span class="o">.</span><span class="n">mean</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="c1"># prepare initial random samples and bounds for scipy&#39;s minimize</span>
+    <span class="n">n_init_samples</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">init_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">to_numerical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_init_samples</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">get_continuous_bounds</span><span class="p">()</span>
+
+    <span class="c1"># use scipy&#39;s minimize to find optimum of the posterior mean</span>
+    <span class="n">optimized_points</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sci_opt</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
+            <span class="n">fun</span><span class="o">=</span><span class="n">posterior_mean</span><span class="p">,</span>
+            <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">jac</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">x0</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">(),</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">init_points</span>
+    <span class="p">]</span>
+
+    <span class="n">f_optimized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">fun</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">optimized_points</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="c1"># get indexes of optimum value (with a tolerance)</span>
+    <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">f_optimized</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">f_optimized</span><span class="p">)))</span>
+    <span class="c1"># randomly select one index if there are multiple</span>
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">inds</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+    <span class="c1"># create Evaluation from the best estimated configuration</span>
+    <span class="n">best_x</span> <span class="o">=</span> <span class="n">optimized_points</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
+    <span class="n">best_y</span> <span class="o">=</span> <span class="n">posterior_mean</span><span class="p">(</span><span class="n">best_x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Evaluation</span><span class="p">(</span>
+        <span class="n">configuration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">from_numerical</span><span class="p">(</span><span class="n">best_x</span><span class="p">),</span>
+        <span class="n">objectives</span><span class="o">=</span><span class="p">{</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">best_y</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">greater_is_better</span>
+            <span class="k">else</span> <span class="n">best_y</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="blackboxopt.optimizers.botorch_base.SingleObjectiveBOTorchOptimizer.report" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>A simple report method that conditions the model on data.
+This likely needs to be overridden for more specific BO implementations.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>blackboxopt/optimizers/botorch_base.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A simple report method that conditions the model on data.</span>
+<span class="sd">    This likely needs to be overridden for more specific BO implementations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_evals</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluations</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evaluations</span><span class="p">,</span> <span class="n">Evaluation</span><span class="p">)</span> <span class="k">else</span> <span class="n">evaluations</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_update_internal_evaluation_data</span><span class="p">(</span><span class="n">_evals</span><span class="p">)</span>
+    <span class="c1"># Just for populating all relevant caches</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="n">x_filtered</span><span class="p">,</span> <span class="n">y_filtered</span> <span class="o">=</span> <span class="n">filter_y_nans</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">)</span>
+
+    <span class="c1"># The actual model update</span>
+    <span class="c1"># Ignore BotorchTensorDimensionWarning which is always reported to make the user</span>
+    <span class="c1"># aware that they are reponsible for the right input Tensors dimensionality.</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">BotorchTensorDimensionWarning</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">condition_on_observations</span><span class="p">(</span><span class="n">x_filtered</span><span class="p">,</span> <span class="n">y_filtered</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../bohb/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Bohb" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Bohb
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../botorch_utils/" class="md-footer__link md-footer__link--next" aria-label="Next: Botorch utils" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Botorch utils
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      <center>
+<p>Copyright (c) 2020 - for information on the respective copyright owner
+see the NOTICE file and/or the
+<a href=" https://github.com/boschresearch/blackboxopt">project repository</a>
+</p>
+<center>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      
+        <script src="../../../javascripts/config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+    
+  </body>
+</html>
