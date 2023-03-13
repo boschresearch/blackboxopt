@@ -23,8 +23,8 @@ from blackboxopt.base import (
 def _initialize_optimizer(
     optimizer_class,
     optimizer_kwargs: dict,
-    objective: Objective,
-    objectives: List[Objective],
+    objective: Optional[Objective] = None,
+    objectives: Optional[List[Objective]] = None,
     space: Optional[ps.ParameterSpace] = None,
     seed: Optional[int] = None,
 ) -> Optimizer:
@@ -38,9 +38,13 @@ def _initialize_optimizer(
         space.seed(seed)
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
+        if objectives is None:
+            objectives = [Objective("loss", False), Objective("score", True)]
         return optimizer_class(space, objectives, seed=seed, **optimizer_kwargs)
 
     if issubclass(optimizer_class, SingleObjectiveOptimizer):
+        if objective is None:
+            objective = Objective("loss", False)
         return optimizer_class(space, objective, seed=seed, **optimizer_kwargs)
 
     return optimizer_class(space, seed=seed, **optimizer_kwargs)
@@ -74,13 +78,7 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
         "blackboxopt.base.Optimizer"
     )
 
-    optimizer = _initialize_optimizer(
-        optimizer_class,
-        optimizer_kwargs,
-        objective=Objective("loss", False),
-        objectives=[Objective("loss", False), Objective("score", True)],
-        seed=seed,
-    )
+    optimizer = _initialize_optimizer(optimizer_class, optimizer_kwargs, seed=seed)
 
     eval_spec = optimizer.generate_evaluation_specification()
 
@@ -139,6 +137,9 @@ def is_deterministic_with_fixed_seed_and_larger_space(
     Returns:
         `True` if the test is passed.
     """
+    if seed is None:
+        seed = 42
+
     n_evaluations = 5
     losses = [0.1, 0.2, 0.3, 0.4, 0.5]
 
@@ -146,19 +147,18 @@ def is_deterministic_with_fixed_seed_and_larger_space(
     run_1_configs: List[Evaluation] = []
 
     for run_configs in [run_0_configs, run_1_configs]:
-        opt = _initialize_optimizer(
-            optimizer_class,
-            optimizer_kwargs,
-            objective=Objective("loss", False),
-            objectives=[Objective("loss", False)],
-            seed=seed or 42,
-        )
+        opt = _initialize_optimizer(optimizer_class, optimizer_kwargs, seed=seed)
 
         for i in range(n_evaluations):
             es = opt.generate_evaluation_specification()
+
+            objectives = {"loss": losses[i]}
+            if isinstance(opt, MultiObjectiveOptimizer):
+                objectives["score"] = -1.0 * losses[i] ** 2
             evaluation = es.create_evaluation(
-                objectives={"loss": losses[i]}, constraints={"constraint": 10.0}
+                objectives=objectives, constraints={"constraint": 10.0}
             )
+
             opt.report(evaluation)
 
             run_configs.append(evaluation.configuration)
@@ -193,6 +193,8 @@ def is_deterministic_when_reporting_shuffled_evaluations(
     Returns:
         `True` if the test is passed.
     """
+    if seed is None:
+        seed = 0
 
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("p1", (0, 1)))
@@ -209,12 +211,7 @@ def is_deterministic_when_reporting_shuffled_evaluations(
     for run_idx, run in runs.items():
         run["evaluations"] = []
         opt = _initialize_optimizer(
-            optimizer_class,
-            optimizer_kwargs,
-            objective=Objective("loss", False),
-            objectives=[Objective("loss", False)],
-            space=space,
-            seed=seed or 0,
+            optimizer_class, optimizer_kwargs, space=space, seed=seed
         )
 
         # Report initial data in different order
@@ -226,6 +223,10 @@ def is_deterministic_when_reporting_shuffled_evaluations(
             )
             for es in eval_specs
         ]
+        if isinstance(opt, MultiObjectiveOptimizer):
+            for e in run["initial_evaluations"]:
+                e.objectives["score"] = -1.0 * e.objectives["loss"] ** 2
+
         shuffle_rng = random.Random(run_idx)
         shuffle_rng.shuffle(run["initial_evaluations"])
         opt.report(run["initial_evaluations"])
@@ -233,10 +234,14 @@ def is_deterministic_when_reporting_shuffled_evaluations(
         # Start optimizing
         for _ in range(5):
             es = opt.generate_evaluation_specification()
+
+            objectives = {"loss": _run_experiment_1d(es)}
+            if isinstance(opt, MultiObjectiveOptimizer):
+                objectives["score"] = -1.0 * objectives["loss"] ** 2
             evaluation = es.create_evaluation(
-                objectives={"loss": _run_experiment_1d(es)},
-                constraints={"constraint": 10.0},
+                objectives=objectives, constraints={"constraint": 10.0}
             )
+
             opt.report(evaluation)
             run["evaluations"].append(evaluation)
 
@@ -276,18 +281,17 @@ def handles_reporting_evaluations_list(
     Returns:
         `True` if the test is passed.
     """
-    opt = _initialize_optimizer(
-        optimizer_class,
-        optimizer_kwargs,
-        objective=Objective("loss", False),
-        objectives=[Objective("loss", False)],
-        seed=seed,
-    )
+    opt = _initialize_optimizer(optimizer_class, optimizer_kwargs, seed=seed)
     evaluations = []
     for i in range(3):
         es = opt.generate_evaluation_specification()
+
+        objectives = {"loss": 0.42 * i}
+        if isinstance(opt, MultiObjectiveOptimizer):
+            objectives["score"] = float(i)
+
         evaluation = es.create_evaluation(
-            objectives={"loss": 0.42 * i}, constraints={"constraint": 10.0 * i}
+            objectives=objectives, constraints={"constraint": 10.0 * i}
         )
         evaluations.append(evaluation)
 
@@ -316,13 +320,7 @@ def raises_evaluation_error_when_reporting_unknown_objective(
     Returns:
         `True` if the test is passed.
     """
-    opt = _initialize_optimizer(
-        optimizer_class,
-        optimizer_kwargs,
-        objective=Objective("loss", False),
-        objectives=[Objective("loss", False)],
-        seed=seed,
-    )
+    opt = _initialize_optimizer(optimizer_class, optimizer_kwargs, seed=seed)
     es_1 = opt.generate_evaluation_specification()
     es_2 = opt.generate_evaluation_specification()
     es_3 = opt.generate_evaluation_specification()
@@ -339,7 +337,11 @@ def raises_evaluation_error_when_reporting_unknown_objective(
         evaluation_3 = es_3.create_evaluation(
             objectives={"loss": 4}, constraints={"constraint": 10.0}
         )
-        opt.report([evaluation_1, evaluation_2, evaluation_3])
+        evaluations = [evaluation_1, evaluation_2, evaluation_3]
+        if isinstance(opt, MultiObjectiveOptimizer):
+            for e in evaluations:
+                e.objectives["score"] = 0.0
+        opt.report(evaluations)
 
         raise AssertionError(
             f"Optimizer {optimizer_class} did not raise an ObjectivesError when a "
@@ -380,19 +382,19 @@ def respects_fixed_parameter(
     fixed_value = 1.0
     space.fix(my_fixed_param=fixed_value)
     opt = _initialize_optimizer(
-        optimizer_class,
-        optimizer_kwargs,
-        objective=Objective("loss", False),
-        objectives=[Objective("loss", False)],
-        space=space,
-        seed=seed,
+        optimizer_class, optimizer_kwargs, space=space, seed=seed
     )
     for _ in range(5):
         es = opt.generate_evaluation_specification()
         assert es.configuration["my_fixed_param"] == fixed_value
+
+        objectives = {"loss": es.configuration["x"] ** 2}
+        if isinstance(opt, MultiObjectiveOptimizer):
+            objectives["score"] = -objectives["loss"]
+
         opt.report(
             es.create_evaluation(
-                objectives={"loss": es.configuration["x"] ** 2},
+                objectives=objectives,
                 constraints={"constraint": 10.0},
             )
         )
@@ -427,20 +429,19 @@ def handles_conditional_space(
     space.seed(seed)
 
     opt = _initialize_optimizer(
-        optimizer_class,
-        optimizer_kwargs,
-        objective=Objective("loss", False),
-        objectives=[Objective("loss", False)],
-        space=space,
-        seed=seed,
+        optimizer_class, optimizer_kwargs, space=space, seed=seed
     )
 
     for _ in range(10):
         es = opt.generate_evaluation_specification()
-        dummy_loss = es.configuration.get("momentum", 1.0) * es.configuration["lr"] ** 2
+        objectives = {
+            "loss": es.configuration.get("momentum", 1.0) * es.configuration["lr"] ** 2
+        }
+        if isinstance(opt, MultiObjectiveOptimizer):
+            objectives["score"] = -1.0 * es.configuration["lr"] ** 2
         opt.report(
             es.create_evaluation(
-                objectives={"loss": dummy_loss}, constraints={"constraint": 10.0}
+                objectives=objectives, constraints={"constraint": 10.0}
             )
         )
 
