@@ -9,6 +9,7 @@ import warnings
 from typing import Callable, Dict, Iterable, Optional, Tuple, Union
 
 from gpytorch.models import ExactGP
+from parameterspace import ParameterSpace
 
 from blackboxopt.base import (
     Objective,
@@ -44,6 +45,33 @@ except ImportError as e:
     ) from e
 
 
+def _get_numerical_points_from_discrete_space(space: ParameterSpace) -> np.ndarray:
+    """Retrieve all points from a discrete space in the numerical representation"""
+    points_along_dimensions = []
+    for parameter_name in space.get_parameter_names():
+        parameter = space.get_parameter_by_name(parameter_name)[
+            "parameter"
+        ]  # type:ignore
+        if isinstance(parameter, ps.IntegerParameter):
+            bounds = (parameter.bounds[0], parameter.bounds[1] + 1)
+            points_along_dimensions.append(
+                [parameter.val2num(v) for v in range(*bounds)]
+            )
+        elif isinstance(parameter, ps.OrdinalParameter) or isinstance(
+            parameter, ps.CategoricalParameter
+        ):
+            points_along_dimensions.append(
+                [parameter.val2num(v) for v in parameter.values]
+            )
+        else:
+            raise ValueError(
+                f"Only discrete parameters are allowed but got {parameter}"
+            )
+    points = np.meshgrid(*points_along_dimensions)
+    points = [p.reshape((p.size, 1)) for p in points]
+    return np.concatenate(points, axis=-1)
+
+
 def _acquisition_function_optimizer_factory(
     search_space: ps.ParameterSpace,
     af_opt_kwargs: Optional[dict],
@@ -52,7 +80,10 @@ def _acquisition_function_optimizer_factory(
     """Prepare either BoTorch's `optimize_acqf_discrete` or `optimize_acqf` depending
     on whether the search space is fully discrete or not and set required defaults if
     not overridden by `af_opt_kwargs`. If any of the af optimizer specific required
-    kwargs are set, this overrides the automatic discrete space detection.
+    kwargs are set, this overrides the automatic discrete space detection. In case an
+    exclusively discrete space is detected and `num_random_choices` is not specified
+    in `af_opt_kwargs`, the discrete acquisition function optimizer is using all
+    possible combinations in the discrete space.
 
     Args:
         search_space: Search space used for optimization.
@@ -76,6 +107,7 @@ def _acquisition_function_optimizer_factory(
         or "raw_samples" in kwargs
         or space_has_continuous_parameters
     ):
+        # continuous AF optimization
         return functools.partial(
             optimize_acqf,
             q=1,
@@ -86,12 +118,20 @@ def _acquisition_function_optimizer_factory(
             **kwargs,
         )
 
-    choices = torch.Tensor(
-        [
-            search_space.to_numerical(search_space.sample())
-            for _ in range(kwargs.pop("num_random_choices", 5_000))
-        ]
-    ).to(dtype=torch_dtype)
+    if "num_random_choices" not in kwargs and not space_has_continuous_parameters:
+        # Optimize over the entire discrete search space, if the number of random
+        # choices is not specified
+        choices = torch.from_numpy(
+            _get_numerical_points_from_discrete_space(search_space)
+        ).to(torch_dtype)
+    else:
+        # Optimize over the desired number of samples from the discrete search space
+        choices = torch.Tensor(
+            [
+                search_space.to_numerical(search_space.sample())
+                for _ in range(kwargs["num_random_choices"])
+            ]
+        ).to(dtype=torch_dtype)
     return functools.partial(optimize_acqf_discrete, q=1, choices=choices, **kwargs)
 
 
