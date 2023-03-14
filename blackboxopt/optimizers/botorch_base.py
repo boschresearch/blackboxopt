@@ -129,7 +129,7 @@ def _acquisition_function_optimizer_factory(
         choices = torch.Tensor(
             [
                 search_space.to_numerical(search_space.sample())
-                for _ in range(kwargs.pop("num_random_choices", 5_000))
+                for _ in range(kwargs["num_random_choices"])
             ]
         ).to(dtype=torch_dtype)
     return functools.partial(optimize_acqf_discrete, q=1, choices=choices, **kwargs)
