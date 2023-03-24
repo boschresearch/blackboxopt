@@ -40,7 +40,7 @@ mkdocs-material = "^8.2.11"
 mkdocs-gen-files = "^0.3.4"
 mkdocs-awesome-pages-plugin = "^2.7.0"
 mike = "^1.1.2"
-pylint = "^2.13.8"
+ruff = "^0.0.259"
 pydocstyle = "^6.1.1"
 pre-commit = "^2.18.1"
 toml = "^0.10.2"
@@ -72,29 +72,33 @@ profile = "black"
 skip_glob = 'blackboxopt/examples/**'
 filter_files = true
 
-[tool.pylint.format]
-max-line-length = 88
-
-[tool.pylint.messages_control]
-generated-members = ["torch.*", "numpy.*"]
-disable = [
-    # Switched off due to possible collisions with black:
-    "bad-continuation",
-    "bad-whitespace",
-    # Switched off to be less aggressive
-    "missing-module-docstring",
-    "missing-class-docstring",
-    "missing-function-docstring",
-    "invalid-name",
-    "logging-not-lazy",
-    "logging-format-interpolation",
-    "logging-fstring-interpolation",
-    "duplicate-code",
-    "too-many-instance-attributes",
-    "too-many-arguments",
-    "too-few-public-methods",
-    "too-many-function-args"
+[tool.ruff]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F"]
+ignore = []
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F"]
+unfixable = []
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "venv",
 ]
+line-length = 88
 
 [tool.pydocstyle]
 convention = "google"
