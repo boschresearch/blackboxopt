@@ -29,12 +29,8 @@ jobs:
       - name: Linting
         if: always()
         run: |
-          poetry run pylint --errors-only blackboxopt/
-          poetry run pylint --errors-only tests/
-      - name: DocStyle Linting
-        continue-on-error: true
-        if: always()
-        run: poetry run pydocstyle
+          poetry run ruff check blackboxopt/
+          poetry run ruff check tests/
   test:
     runs-on: ${{ matrix.os }}
     strategy:
