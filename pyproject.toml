@@ -41,7 +41,6 @@ mkdocs-gen-files = "^0.3.4"
 mkdocs-awesome-pages-plugin = "^2.7.0"
 mike = "^1.1.2"
 ruff = "^0.0.259"
-pydocstyle = "^6.1.1"
 pre-commit = "^2.18.1"
 toml = "^0.10.2"
 types-toml = "^0.10.7"
@@ -101,12 +100,6 @@ exclude = [
 line-length = 88
 # Ignore unused import in __init__.py files
 per-file-ignores = { "__init__.py" = ["F401"] }
-
-[tool.pydocstyle]
-convention = "google"
-add-ignore = "D105"
-match = '(?!test_|__init__).*\.py'
-match-dir = '[^\tests].*'
 
 [tool.coverage.run]
 source = ['blackboxopt']
