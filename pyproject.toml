@@ -99,6 +99,8 @@ exclude = [
     "venv",
 ]
 line-length = 88
+# Ignore unused import in __init__.py files
+per-file-ignores = { "__init__.py" = ["F401"] }
 
 [tool.pydocstyle]
 convention = "google"
