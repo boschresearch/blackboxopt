@@ -162,7 +162,7 @@ def test_find_optimum_in_1d_discrete_space(seed):
         opt.report(es.create_evaluation(objectives={"loss": loss}))
 
     assert (
-        sum(l == 0 for l in losses) > 5
+        sum(loss == 0 for loss in losses) > 5
     ), "After figuring out the best of the three points, it should only propose that."
 
 
@@ -195,4 +195,7 @@ def test_get_numerical_points_from_discrete_space():
             )
             .all(axis=1)
             .any()
-        ), f"Point {integ}, {ordin}, {categ} belongs to the search space but is not returned by `_get_numerical_points_from_discrete_space`"
+        ), (
+            f"Point {integ}, {ordin}, {categ} belongs to the search space but is not "
+            + "returned by `_get_numerical_points_from_discrete_space`"
+        )

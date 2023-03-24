@@ -3,10 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Pylint doesn't handle well fixtures:
-# pylint: disable=unused-import
-# pylint: disable=redefined-outer-name
-
 import logging
 import time
 
@@ -14,13 +10,11 @@ import dask
 import dask.distributed as dd
 import parameterspace as ps
 import pytest
-from distributed.utils_test import (
-    cleanup,
-    client,
-    cluster_fixture,
-    loop,
-    loop_in_thread,
-)
+from distributed.utils_test import cleanup  # noqa
+from distributed.utils_test import client  # noqa
+from distributed.utils_test import cluster_fixture  # noqa
+from distributed.utils_test import loop  # noqa
+from distributed.utils_test import loop_in_thread  # noqa
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.optimization_loops.dask_distributed import (
@@ -33,7 +27,7 @@ from blackboxopt.optimizers.random_search import RandomSearch
 
 @pytest.mark.timeout(60)
 @pytest.mark.parametrize("reference_test", ALL_REFERENCE_TESTS)
-def test_all_reference_tests(reference_test, client):
+def test_all_reference_tests(reference_test, client):  # noqa
     reference_test(run_optimization_loop, {"dask_client": client})
 
 
@@ -53,10 +47,10 @@ def test_restarting_workers(tmpdir):
     cluster = dd.LocalCluster(
         n_workers=1, threads_per_worker=1, local_directory=tmpdir, processes=True
     )
-    client = dd.Client(cluster)
+    dd_client = dd.Client(cluster)
     objectives = [Objective("loss", False)]
     scheduler = MinimalDaskScheduler(
-        dask_client=client,
+        dask_client=dd_client,
         objectives=objectives,
         logger=logging.getLogger("blackboxopt"),
     )
@@ -86,5 +80,5 @@ def test_restarting_workers(tmpdir):
     # shutdown everything to avoid warning because
     # TemporaryDirectory will be cleaned up first
     scheduler.shutdown()
-    del client
+    del dd_client
     del cluster

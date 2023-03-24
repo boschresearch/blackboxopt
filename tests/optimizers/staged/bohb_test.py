@@ -5,7 +5,6 @@
 
 import numpy as np
 import parameterspace as ps
-import pytest
 
 from blackboxopt import EvaluationSpecification, Objective, OptimizationComplete
 

@@ -154,8 +154,8 @@ def test_to_numerical_with_constraints(
     assert Y.dtype == torch.float32
     assert Y.size() == (num_eval, 1 + num_constrains)
 
-    # check order of values in the output tensor: the first is always an objective value,
-    # the order of constraints depends on order in the list of
+    # check order of values in the output tensor: the first is always an objective
+    # value, the order of constraints depends on order in the list of
     for i in range(num_eval):
         assert Y[i, 0] == evaluations_with_constraints[i].objectives[objective_name]
         for c_i, c in enumerate(constraints):
