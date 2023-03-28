@@ -84,11 +84,12 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
 
     if issubclass(optimizer_class, MultiObjectiveOptimizer):
         evaluation = eval_spec.create_evaluation(
-            objectives={"loss": None, "score": None}
+            objectives={"loss": None, "score": None},
+            constraints={"constraint": 10.0},
         )
     else:
         evaluation = eval_spec.create_evaluation(
-            objectives={"loss": None}, constraints={"constraint": None}
+            objectives={"loss": None}, constraints={"constraint": 10.0}
         )
     optimizer.report(evaluation)
 
