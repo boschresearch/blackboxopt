@@ -10,11 +10,13 @@ import dask
 import dask.distributed as dd
 import parameterspace as ps
 import pytest
-from distributed.utils_test import cleanup  # noqa
-from distributed.utils_test import client  # noqa
-from distributed.utils_test import cluster_fixture  # noqa
-from distributed.utils_test import loop  # noqa
-from distributed.utils_test import loop_in_thread  # noqa
+from distributed.utils_test import (
+    cleanup,  # noqa: F401
+    client,  # noqa: F401
+    cluster_fixture,  # noqa: F401
+    loop,  # noqa: F401
+    loop_in_thread,  # noqa: F401
+)
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.optimization_loops.dask_distributed import (
@@ -27,7 +29,7 @@ from blackboxopt.optimizers.random_search import RandomSearch
 
 @pytest.mark.timeout(60)
 @pytest.mark.parametrize("reference_test", ALL_REFERENCE_TESTS)
-def test_all_reference_tests(reference_test, client):  # noqa
+def test_all_reference_tests(reference_test, client):  # noqa: F811
     reference_test(run_optimization_loop, {"dask_client": client})
 
 

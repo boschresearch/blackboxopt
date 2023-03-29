@@ -29,7 +29,6 @@ botorch = {version = "^0.7.1", optional = true}
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
-isort = "^5.10.1"
 pytest = "^7.2.0"
 mypy = "^0.950"
 pytest-timeout = "^2.1.0"
@@ -65,18 +64,12 @@ line-length = 88
 # Examples should remain with line-length 80:
 exclude = '^blackboxopt/examples/'
 
-[tool.isort]
-profile = "black"
-# Examples should remain with line-length 80:
-skip_glob = 'blackboxopt/examples/**'
-filter_files = true
-
 [tool.ruff]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F"]
+# Enable pycodestyle, Pyflakes, isort
+select = ["E", "F", "I"]
 ignore = []
 # Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["A", "B", "C", "D", "E", "F"]
+fixable = ["A", "B", "C", "D", "E", "F", "I"]
 unfixable = []
 exclude = [
     ".bzr",

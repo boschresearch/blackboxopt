@@ -16,13 +16,6 @@ jobs:
         run: |
           poetry run black --check --exclude blackboxopt/examples/ .
           poetry run black --check --include blackboxopt/examples/ --line-length 80 .
-      - name: Sorted Imports
-        if: always()
-        run: |
-          poetry run isort --check-only --profile black --line-length 88 --skip-glob \
-            blackboxopt/examples/* .
-          poetry run isort --check-only --profile black --line-length 80 \
-            blackboxopt/examples/
       - name: Type Checks
         if: always()
         run: poetry run mypy --config-file pyproject.toml .
