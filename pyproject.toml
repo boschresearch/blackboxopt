@@ -29,7 +29,6 @@ botorch = {version = "^0.7.1", optional = true}
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
-isort = "^5.10.1"
 pytest = "^7.2.0"
 mypy = "^0.950"
 pytest-timeout = "^2.1.0"
@@ -40,8 +39,7 @@ mkdocs-material = "^8.2.11"
 mkdocs-gen-files = "^0.3.4"
 mkdocs-awesome-pages-plugin = "^2.7.0"
 mike = "^1.1.2"
-pylint = "^2.13.8"
-pydocstyle = "^6.1.1"
+ruff = "^0.0.259"
 pre-commit = "^2.18.1"
 toml = "^0.10.2"
 types-toml = "^0.10.7"
@@ -66,41 +64,35 @@ line-length = 88
 # Examples should remain with line-length 80:
 exclude = '^blackboxopt/examples/'
 
-[tool.isort]
-profile = "black"
-# Examples should remain with line-length 80:
-skip_glob = 'blackboxopt/examples/**'
-filter_files = true
-
-[tool.pylint.format]
-max-line-length = 88
-
-[tool.pylint.messages_control]
-generated-members = ["torch.*", "numpy.*"]
-disable = [
-    # Switched off due to possible collisions with black:
-    "bad-continuation",
-    "bad-whitespace",
-    # Switched off to be less aggressive
-    "missing-module-docstring",
-    "missing-class-docstring",
-    "missing-function-docstring",
-    "invalid-name",
-    "logging-not-lazy",
-    "logging-format-interpolation",
-    "logging-fstring-interpolation",
-    "duplicate-code",
-    "too-many-instance-attributes",
-    "too-many-arguments",
-    "too-few-public-methods",
-    "too-many-function-args"
+[tool.ruff]
+# Enable pycodestyle, Pyflakes, isort
+select = ["E", "F", "I"]
+ignore = []
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F", "I"]
+unfixable = []
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "venv",
 ]
-
-[tool.pydocstyle]
-convention = "google"
-add-ignore = "D105"
-match = '(?!test_|__init__).*\.py'
-match-dir = '[^\tests].*'
+line-length = 88
+# Ignore unused import in __init__.py files
+per-file-ignores = { "__init__.py" = ["F401"] }
 
 [tool.coverage.run]
 source = ['blackboxopt']

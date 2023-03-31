@@ -13,7 +13,7 @@ import blackboxopt
 from blackboxopt import Evaluation, Objective
 
 # For backwards compatibility; TODO: remove with next major release
-from blackboxopt.utils import mask_pareto_efficient
+from blackboxopt.utils import mask_pareto_efficient  # noqa: F401
 
 
 def get_t0(evaluations: List[Evaluation]):

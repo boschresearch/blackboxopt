@@ -87,10 +87,11 @@ def convert_to_statsmodels_kde_representation(
 ) -> np.ndarray:
     """Convert numerical representation for categoricals and ordinals to integers.
     Args:
-        array: Numerical representation of the configurations with categorical and ordinal values
-            mapped into the unit hypercube.
+        array: Numerical representation of the configurations with categorical and
+            ordinal values mapped into the unit hypercube.
         vartypes: Encoding of the types of the variables: 0 mean continuous, >0 means
-            categorical with as many different values, and <0 means ordinal with as many values.
+            categorical with as many different values, and <0 means ordinal with as many
+            values.
 
     Returns:
         Numerical representation consistent with the statsmodels package.
@@ -109,16 +110,19 @@ def convert_to_statsmodels_kde_representation(
 def convert_from_statsmodels_kde_representation(
     array: np.ndarray, vartypes: Union[list, np.ndarray]
 ) -> np.ndarray:
-    """Convert numerical representation for categoricals and ordinals back into the unit hypercube.
+    """Convert numerical representation for categoricals and ordinals back into the unit
+    hypercube.
 
     Args:
-        array: Numerical representation of the configurations following the statsmodels convention for
-            categorical and ordinal values being integers.
+        array: Numerical representation of the configurations following the statsmodels
+            convention for categorical and ordinal values being integers.
         vartypes: Encoding of the types of the variables: 0 mean continuous, >0 means
-            categorical with as many different values, and <0 means ordinal with as many values.
+            categorical with as many different values, and <0 means ordinal with as many
+            values.
 
     Returns:
-        Numerical representation consistent with a numerical representation in the hypercube.
+        Numerical representation consistent with a numerical representation in the
+        hypercube.
     """
     processed_vector = np.copy(array)
 
@@ -144,7 +148,8 @@ def impute_conditional_data(
         array: Numerical representation of the configurations which can include NaN
             values for inactive variables.
         vartypes: Encoding of the types of the variables: 0 mean continuous, >0 means
-            categorical with as many different values, and <0 means ordinal with as many values.
+            categorical with as many different values, and <0 means ordinal with as many
+            values.
         rng: A random number generator to make the imputation reproducible.
     Returns:
         Numerical representation where all NaNs have been replaced with observed values
@@ -288,7 +293,8 @@ class Sampler(StagedIterationConfigurationSampler):
             good = self.kde_models[fidelity]["good"].pdf
             bad = self.kde_models[fidelity]["bad"].pdf
 
-            minimize_me = lambda x: max(1e-32, bad(x)) / max(good(x), 1e-32)
+            def minimize_me(x):
+                return max(1e-32, bad(x)) / max(good(x), 1e-32)
 
             kde_good = self.kde_models[fidelity]["good"]
             kde_bad = self.kde_models[fidelity]["bad"]
@@ -371,7 +377,7 @@ class Sampler(StagedIterationConfigurationSampler):
                     {"model_based_pick": True},
                 )
 
-        except Exception as e:
+        except Exception:
             self.logger.debug(
                 "Sample base optimization failed. Falling back to a random sample."
             )
