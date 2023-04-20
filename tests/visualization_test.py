@@ -19,6 +19,7 @@ from blackboxopt.visualizations.visualizer import (
     evaluations_to_df,
     multi_objective_visualization,
     parallel_coordinate_plot_parameters,
+    hypervolume_over_iterations,
 )
 
 
@@ -147,6 +148,32 @@ def test_multi_objective_visualization_two_objectives():
         evaluations=evaluations,
         objectives=(Objective("loss_1", False), Objective("loss_2", False)),
     )
+
+
+def test_hypervolume_over_iterations_two_objectives():
+    evaluations = [
+        Evaluation(
+            objectives={"loss_1": 0.5 * i, "loss_2": -0.5 * i},
+            configuration={
+                "mlp_shape": 0.14054333845130684,
+                "optimizer": "Adam",
+                "batch_size": 160,
+            },
+            optimizer_info={"rung": -1},
+            user_info={},
+            settings={"fidelity": 2.5},
+        )
+        for i in range(5)
+    ]
+
+    evaluations_per_optimizer = {"test_optimizer": [evaluations]}
+
+    fig = hypervolume_over_iterations(
+        evaluations_per_optimizer,
+        objectives=(Objective("loss_1", False), Objective("loss_2", False)),
+        reference_point=[10, 0],
+    )
+    print(fig)
 
 
 def test_multi_objective_visualization_more_than_two_objectives():

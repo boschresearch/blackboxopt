@@ -15,6 +15,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io._html
 import scipy.stats as sps
+from pymoo.indicators.hv import HV
+from pymoo.util.nds.efficient_non_dominated_sort import \
+    efficient_non_dominated_sort
 
 from blackboxopt import Evaluation, Objective
 from blackboxopt.utils import get_loss_vector
@@ -200,6 +203,90 @@ def multi_objective_visualization(
         traces_kwargs["diagonal_visible"] = False
 
     fig.update_traces(**traces_kwargs)
+    return fig
+
+
+def compute_hypervolume(
+    evaluations: List[Evaluation],
+    objectives: Sequence[Objective],
+    reference_point: List[float],
+) -> float:
+    losses = np.array(
+        [
+            get_loss_vector(
+                known_objectives=objectives, reported_objectives=e.objectives
+            )
+            for e in evaluations
+        ]
+    )
+    pareto_front_idx = efficient_non_dominated_sort(losses)[0]
+    pareto_front = losses[pareto_front_idx]
+
+    hv = HV(reference_point)
+
+    return hv(pareto_front)
+
+
+def hypervolume_over_iterations(
+    evaluations_per_optimizer: Dict[str, List[List[Evaluation]]],
+    objectives: Sequence[Objective],
+    reference_point: List[float],
+):
+    plotly_data = []
+    for optimizer, studies in evaluations_per_optimizer.items():
+        hv_per_study = []
+        for evaluations in studies:
+            iteration_steps = len(evaluations)
+            hvs = [
+                compute_hypervolume(
+                    evaluations[: (step + 1)], objectives, reference_point
+                )
+                for step in range(iteration_steps)
+            ]
+            hv_per_study.append(hvs)
+
+        hv_means = np.mean(hv_per_study, axis=0)
+        hv_stds = np.std(hv_per_study, axis=0)
+
+        x_plotted = np.arange(len(hv_means))
+
+        color_line = "rgb(26,150,65)"
+        color_fill = "rgba(26,150,65,0.3)"
+
+        plotly_data.extend(
+            [
+                go.Scatter(
+                    name=optimizer,
+                    x=x_plotted,
+                    y=hv_means,
+                    mode="lines",
+                    showlegend=True,
+                    line=dict(color=color_line, simplify=True),
+                ),
+                go.Scatter(
+                    x=x_plotted,
+                    y=hv_means - 1.96 * hv_stds,
+                    mode="lines",
+                    marker=dict(color=color_line),
+                    line=dict(width=0, simplify=True),
+                    showlegend=False,
+                    hoverinfo="skip",
+                ),
+                go.Scatter(
+                    x=x_plotted,
+                    y=hv_means + 1.96 * hv_stds,
+                    mode="lines",
+                    marker=dict(color=color_line),
+                    line=dict(width=0, simplify=True),
+                    showlegend=False,
+                    hoverinfo="skip",
+                    fillcolor=color_fill,
+                    fill="tonexty",
+                ),
+            ]
+        )
+
+    fig = go.Figure(plotly_data)
     return fig
 
 
