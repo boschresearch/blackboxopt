@@ -17,9 +17,9 @@ from blackboxopt.visualizations.visualizer import (
     Visualizer,
     _prepare_for_multi_objective_visualization,
     evaluations_to_df,
+    hypervolume_over_iterations,
     multi_objective_visualization,
     parallel_coordinate_plot_parameters,
-    hypervolume_over_iterations,
 )
 
 

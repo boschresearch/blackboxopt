@@ -16,8 +16,7 @@ import plotly.graph_objects as go
 import plotly.io._html
 import scipy.stats as sps
 from pymoo.indicators.hv import HV
-from pymoo.util.nds.efficient_non_dominated_sort import \
-    efficient_non_dominated_sort
+from pymoo.util.nds.efficient_non_dominated_sort import efficient_non_dominated_sort
 
 from blackboxopt import Evaluation, Objective
 from blackboxopt.utils import get_loss_vector
@@ -232,6 +231,8 @@ def hypervolume_over_iterations(
     objectives: Sequence[Objective],
     reference_point: List[float],
 ):
+    colors = iter(px.colors.qualitative.Dark24)
+
     plotly_data = []
     for optimizer, studies in evaluations_per_optimizer.items():
         hv_per_study = []
@@ -250,8 +251,9 @@ def hypervolume_over_iterations(
 
         x_plotted = np.arange(len(hv_means))
 
-        color_line = "rgb(26,150,65)"
-        color_fill = "rgba(26,150,65,0.3)"
+        r, g, b = plotly.colors.hex_to_rgb(next(colors))
+        color_line = f"rgb({r}, {g}, {b})"
+        color_fill = f"rgba({r}, {g}, {b}, 0.3)"
 
         plotly_data.extend(
             [
