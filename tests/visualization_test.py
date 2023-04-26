@@ -168,12 +168,11 @@ def test_hypervolume_over_iterations_two_objectives():
 
     evaluations_per_optimizer = {"test_optimizer": [evaluations]}
 
-    fig = hypervolume_over_iterations(
+    hypervolume_over_iterations(
         evaluations_per_optimizer,
         objectives=(Objective("loss_1", False), Objective("loss_2", False)),
         reference_point=[10, 0],
     )
-    print(fig)
 
 
 def test_multi_objective_visualization_more_than_two_objectives():
