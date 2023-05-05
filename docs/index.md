@@ -20,8 +20,10 @@ framework.
 
 ### Optimizers
 
-Aside from random search, the two main optimizers part of this package are Hyperband and
-BOHB. Where BOHB is intended as a cleaner replacement of the former implementation in
+Aside from random search and a Sobol sequence based space filling method, the main ones
+in this package are Hyperband, BOHB and a BoTorch based Bayesian optimization base
+implementation.
+BOHB is provided as a cleaner replacement of the former implementation in
 [HpBandSter](https://github.com/automl/HpBandSter).
 
 ### Optimization Loops
