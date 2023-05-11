@@ -14,8 +14,10 @@ from blackboxopt.utils import (
     filter_pareto_efficient,
     get_loss_vector,
     load_study_from_pickle,
+    load_study_from_json,
     mask_pareto_efficient,
     save_study_as_pickle,
+    save_study_as_json,
     sort_evaluations,
 )
 
@@ -216,3 +218,26 @@ def test_save_and_load_study_pickle_fails_on_missing_output_directory():
             evaluations=[],
             pickle_file_path=pickle_file_path,
         )
+
+
+def test_save_and_load_study_json(tmp_path):
+    tmp_file = tmp_path / "out.json"
+
+    search_space = ps.ParameterSpace()
+    objectives = [Objective("loss", False), Objective("score", True)]
+    evaluations = [
+        Evaluation(configuration={"p1": 1.0}, objectives={"loss": 1.0, "score": 3.0}),
+        Evaluation(configuration={"p1": 2.0}, objectives={"loss": 0.1, "score": 2.0}),
+        Evaluation(configuration={"p1": 3.0}, objectives={"loss": 0.0, "score": 1.0}),
+    ]
+    save_study_as_json(search_space, objectives, evaluations, tmp_file)
+
+    # Check that default overwrite=False causes ValueError on existing file
+    with pytest.raises(ValueError):
+        save_study_as_json(search_space, objectives, evaluations, tmp_file)
+
+    loaded_study = load_study_from_json(tmp_file)
+
+    assert loaded_study[0] == search_space
+    assert loaded_study[1] == objectives
+    assert loaded_study[2] == evaluations

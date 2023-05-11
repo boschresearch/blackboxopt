@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import hashlib
+import json
 import os
 import pickle
 from itertools import compress
@@ -102,6 +103,42 @@ def sort_evaluations(evaluations: Iterable[Evaluation]) -> Iterable[Evaluation]:
             )
         ).hexdigest(),
     )
+
+
+def save_study_as_json(
+    search_space: ps.ParameterSpace,
+    objectives: List[Objective],
+    evaluations: List[Evaluation],
+    json_file_path: os.PathLike,
+    overwrite: bool = False,
+):
+    """Save space, objectives and evaluations as json at `json_file_path`."""
+    if Path(json_file_path).exists() and not overwrite:
+        raise ValueError(f"{json_file_path} exists and overwrite is False")
+
+    with open(json_file_path, "w", encoding="UTF-8") as fh:
+        json.dump(
+            {
+                "search_space": search_space.to_dict(),
+                "objectives": [o.__dict__ for o in objectives],
+                "evaluations": [e.__dict__ for e in evaluations],
+            },
+            fh,
+        )
+
+
+def load_study_from_json(
+    json_file_path: os.PathLike,
+) -> Tuple[ps.ParameterSpace, List[Objective], List[Evaluation]]:
+    """Load space, objectives and evaluations from a given `json_file_path`."""
+    with open(json_file_path, "r", encoding="UTF-8") as fh:
+        study = json.load(fh)
+
+    search_space = ps.ParameterSpace.from_dict(study["search_space"])
+    objectives = [Objective(**o) for o in study["objectives"]]
+    evaluations = [Evaluation(**e) for e in study["evaluations"]]
+
+    return search_space, objectives, evaluations
 
 
 def save_study_as_pickle(
