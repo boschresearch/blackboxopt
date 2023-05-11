@@ -6,13 +6,16 @@
 import random
 
 import numpy as np
+import parameterspace as ps
 import pytest
 
 from blackboxopt import Evaluation, Objective
 from blackboxopt.utils import (
     filter_pareto_efficient,
     get_loss_vector,
+    load_study_from_pickle,
     mask_pareto_efficient,
+    save_study_as_pickle,
     sort_evaluations,
 )
 
@@ -177,3 +180,26 @@ def test_sort_evaluations_with_different_parameter_order():
     for a, b in zip(evals_a_sorted, evals_b_sorted):
         assert a.configuration == b.configuration
         assert a.objectives == b.objectives
+
+
+def test_save_and_load_study_pickle(tmp_path):
+    tmp_file = tmp_path / "out.json"
+
+    search_space = ps.ParameterSpace()
+    objectives = [Objective("loss", False), Objective("score", True)]
+    evaluations = [
+        Evaluation(configuration={"p1": 1.0}, objectives={"loss": 1.0, "score": 3.0}),
+        Evaluation(configuration={"p1": 2.0}, objectives={"loss": 0.1, "score": 2.0}),
+        Evaluation(configuration={"p1": 3.0}, objectives={"loss": 0.0, "score": 1.0}),
+    ]
+    save_study_as_pickle(search_space, objectives, evaluations, tmp_file)
+
+    # Check that default overwrite=False causes ValueError on existing file
+    with pytest.raises(ValueError):
+        save_study_as_pickle(search_space, objectives, evaluations, tmp_file)
+
+    loaded_study = load_study_from_pickle(tmp_file)
+
+    assert loaded_study[0] == search_space
+    assert loaded_study[1] == objectives
+    assert loaded_study[2] == evaluations

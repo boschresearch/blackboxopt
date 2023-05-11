@@ -4,11 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import hashlib
+import os
 import pickle
 from itertools import compress
-from typing import Dict, Iterable, List, Optional, Sequence
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
+import parameterspace as ps
 
 from blackboxopt.base import Objective
 from blackboxopt.evaluation import Evaluation
@@ -99,3 +102,35 @@ def sort_evaluations(evaluations: Iterable[Evaluation]) -> Iterable[Evaluation]:
             )
         ).hexdigest(),
     )
+
+
+def save_study_as_pickle(
+    search_space: ps.ParameterSpace,
+    objectives: List[Objective],
+    evaluations: List[Evaluation],
+    pickle_file_path: os.PathLike,
+    overwrite: bool = False,
+):
+    """Save space, objectives and evaluations as pickle at `pickle_file_path`."""
+    if Path(pickle_file_path).exists() and not overwrite:
+        raise ValueError(f"{pickle_file_path} exists and overwrite is False")
+
+    with open(pickle_file_path, "wb") as fh:
+        pickle.dump(
+            {
+                "search_space": search_space,
+                "objectives": objectives,
+                "evaluations": evaluations,
+            },
+            fh,
+        )
+
+
+def load_study_from_pickle(
+    pickle_file_path: os.PathLike,
+) -> Tuple[ps.ParameterSpace, List[Objective], List[Evaluation]]:
+    """Load space, objectives and evaluations from a given `pickle_file_path`."""
+    with open(pickle_file_path, "rb") as fh:
+        study = pickle.load(fh)
+
+    return study["search_space"], study["objectives"], study["evaluations"]
