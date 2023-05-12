@@ -113,10 +113,15 @@ def save_study_as_json(
     overwrite: bool = False,
 ):
     """Save space, objectives and evaluations as json at `json_file_path`."""
-    if Path(json_file_path).exists() and not overwrite:
-        raise ValueError(f"{json_file_path} exists and overwrite is False")
+    _file_path = Path(json_file_path)
+    if not _file_path.parent.exists():
+        raise IOError(
+            f"The parent directory for {_file_path} does not exist, please create it."
+        )
+    if _file_path.exists() and not overwrite:
+        raise IOError(f"{_file_path} exists and overwrite is False")
 
-    with open(json_file_path, "w", encoding="UTF-8") as fh:
+    with open(_file_path, "w", encoding="UTF-8") as fh:
         json.dump(
             {
                 "search_space": search_space.to_dict(),
