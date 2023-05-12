@@ -224,6 +224,7 @@ def test_save_and_load_study_json(tmp_path):
     tmp_file = tmp_path / "out.json"
 
     search_space = ps.ParameterSpace()
+    search_space.add(ps.IntegerParameter("p1", (-10.0, 10.0)))
     objectives = [Objective("loss", False), Objective("score", True)]
     evaluations = [
         Evaluation(configuration={"p1": 1.0}, objectives={"loss": 1.0, "score": 3.0}),
@@ -238,6 +239,25 @@ def test_save_and_load_study_json(tmp_path):
 
     loaded_study = load_study_from_json(tmp_file)
 
-    assert loaded_study[0] == search_space
     assert loaded_study[1] == objectives
     assert loaded_study[2] == evaluations
+
+    for _ in range(128):
+        assert search_space.sample() == loaded_study[0].sample()
+
+
+def test_save_and_load_study_json_fails_with_complex_type_in_evaluation(tmp_path):
+    tmp_file = tmp_path / "out.json"
+
+    search_space = ps.ParameterSpace()
+    objectives = []
+    evaluations = [
+        Evaluation(
+            configuration={},
+            objectives={},
+            user_info={"complex typed value": ps.ParameterSpace()},
+        ),
+    ]
+
+    with pytest.raises(TypeError):
+        save_study_as_json(search_space, objectives, evaluations, tmp_file)
