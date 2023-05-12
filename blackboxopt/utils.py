@@ -112,10 +112,15 @@ def save_study_as_pickle(
     overwrite: bool = False,
 ):
     """Save space, objectives and evaluations as pickle at `pickle_file_path`."""
-    if Path(pickle_file_path).exists() and not overwrite:
-        raise ValueError(f"{pickle_file_path} exists and overwrite is False")
+    _file_path = Path(pickle_file_path)
+    if not _file_path.parent.exists():
+        raise IOError(
+            f"The parent directory for {_file_path} does not exist, please create it."
+        )
+    if _file_path.exists() and not overwrite:
+        raise IOError(f"{_file_path} exists and overwrite is False")
 
-    with open(pickle_file_path, "wb") as fh:
+    with open(_file_path, "wb") as fh:
         pickle.dump(
             {
                 "search_space": search_space,

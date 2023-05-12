@@ -186,6 +186,7 @@ def test_save_and_load_study_pickle(tmp_path):
     tmp_file = tmp_path / "out.json"
 
     search_space = ps.ParameterSpace()
+    search_space.add(ps.IntegerParameter("p1", (-10, 10)))
     objectives = [Objective("loss", False), Objective("score", True)]
     evaluations = [
         Evaluation(configuration={"p1": 1.0}, objectives={"loss": 1.0, "score": 3.0}),
@@ -194,12 +195,24 @@ def test_save_and_load_study_pickle(tmp_path):
     ]
     save_study_as_pickle(search_space, objectives, evaluations, tmp_file)
 
-    # Check that default overwrite=False causes ValueError on existing file
-    with pytest.raises(ValueError):
+    # Check that default overwrite=False causes IOError on existing file
+    with pytest.raises(IOError, match=str(tmp_file)):
         save_study_as_pickle(search_space, objectives, evaluations, tmp_file)
 
     loaded_study = load_study_from_pickle(tmp_file)
 
-    assert loaded_study[0] == search_space
     assert loaded_study[1] == objectives
     assert loaded_study[2] == evaluations
+    for _ in range(128):
+        assert search_space.sample() == loaded_study[0].sample()
+
+
+def test_save_and_load_study_pickle_fails_on_missing_output_directory():
+    pickle_file_path = "/this/directory/does/not/exist/pickles/out.pkl"
+    with pytest.raises(IOError, match=pickle_file_path):
+        save_study_as_pickle(
+            search_space=ps.ParameterSpace(),
+            objectives=[],
+            evaluations=[],
+            pickle_file_path=pickle_file_path,
+        )
