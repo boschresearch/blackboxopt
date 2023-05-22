@@ -40,7 +40,14 @@ jobs:
           poetry install --extras "all"
       - name: Run tests
         if: always()
-        run: poetry run pytest
+        # Leave the stdout output active but also extract the coverage report into a txt file
+        run: poetry run pytest --cov=blackboxopt tests | tee /dev/tty | sed -n '/ -----------/,$p' > coverage.txt
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage.txt
+          path: coverage.txt
+
   deploy:
     needs: [lint, test]
     if: startsWith(github.ref, 'refs/tags/v')

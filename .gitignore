@@ -3,6 +3,7 @@
 .idea/
 poetry.toml
 dask-worker-space/
+coverage.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
