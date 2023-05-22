@@ -3,7 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 import logging
 import time
 from typing import Any, Callable, List, Optional, Union
@@ -27,6 +26,7 @@ def run_optimization_loop(
     timeout_s: float = float("inf"),
     max_evaluations: int = None,
     catch_exceptions_from_evaluation_function: bool = False,
+    pre_evaluation_callback: Optional[Callable[[EvaluationSpecification], Any]] = None,
     post_evaluation_callback: Optional[Callable[[Evaluation], Any]] = None,
     logger: logging.Logger = None,
 ) -> List[Evaluation]:
@@ -53,12 +53,18 @@ def run_optimization_loop(
             trace in the evaluation's `stacktrace` attribute. Set to True if there are
             spurious errors due to e.g. numerical instability that should not halt the
             optimization loop.
-        post_evaluation_callback: Reference to a callable that is invoked after each
-            evaluation and takes a `blackboxopt.Evaluation` as its argument.
+        pre_evaluation_callback: Reference to a callable that is invoked before each
+            evaluation and takes a `blackboxopt.EvaluationSpecification` as its
+            argument. This can be used to e.g. log or modify the evaluation
+            specification by reference.
+        post_evaluation_callback: Reference to a callable that is invoked after the
+            evaluation function is evaluated but before the evaluation is reported to
+            the optimizer and takes a `blackboxopt.Evaluation` as its argument. This
+            can be used to e.g. log or modify the evaluation by reference.
         logger: The logger to use for logging progress.
 
     Returns:
-        List of evluation specification and result for all evaluations.
+        List of evaluation specification and result for all evaluations.
     """
     logger = logging.getLogger("blackboxopt") if logger is None else logger
 
@@ -80,10 +86,9 @@ def run_optimization_loop(
 
         try:
             evaluation_specification = optimizer.generate_evaluation_specification()
-            logger.info(
-                "The optimizer proposed a specification for evaluation:\n"
-                + f"{json.dumps(evaluation_specification.to_dict(), indent=2)}"
-            )
+
+            if pre_evaluation_callback is not None:
+                pre_evaluation_callback(evaluation_specification)
 
             evaluation = evaluation_function_wrapper(
                 evaluation_function=evaluation_function,
@@ -92,15 +97,12 @@ def run_optimization_loop(
                 objectives=objectives,
                 catch_exceptions_from_evaluation_function=catch_exceptions_from_evaluation_function,
             )
-            logger.info(
-                "Reporting the result from the evaluation function to the optimizer:\n"
-                + f"{json.dumps(evaluation.to_dict(), indent=2)}"
-            )
-            optimizer.report(evaluation)
-            evaluations.append(evaluation)
 
             if post_evaluation_callback is not None:
                 post_evaluation_callback(evaluation)
+
+            optimizer.report(evaluation)
+            evaluations.append(evaluation)
 
         except OptimizerNotReady:
             logger.info("Optimizer is not ready yet, retrying in two seconds")
