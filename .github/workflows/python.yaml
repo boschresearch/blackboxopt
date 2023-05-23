@@ -47,6 +47,12 @@ jobs:
         with:
           name: coverage.txt
           path: coverage.txt
+      - name: Coverage to PR comment
+        if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: coverage.txt
+          comment_tag: coverage-summary
 
   deploy:
     needs: [lint, test]
