@@ -1,6 +1,6 @@
 name: ci-cd-pipeline
 
-on: push
+on: [push, pull_request]
 jobs:
   lint:
     runs-on: ubuntu-20.04
