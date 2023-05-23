@@ -1,6 +1,6 @@
 name: ci-cd-pipeline
 
-on: [push, pull_request]
+on: [pull_request]
 jobs:
   lint:
     runs-on: ubuntu-20.04
@@ -40,18 +40,30 @@ jobs:
           poetry install --extras "all"
       - name: Run tests
         if: always()
-        # Leave the stdout output active but also extract the coverage report into a txt file
+        # Leave the stdout output active but also extract the coverage report into a file
         run: poetry run pytest --cov=blackboxopt tests | tee /dev/tty | sed -n '/ -----------/,$p' > coverage.txt
+      # Note, this overrides the coverage file for each python version again.
+      # If different coverage is expected per python version, log separate artifacts.
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
-          name: coverage.txt
+          name: coverage-summary
           path: coverage.txt
+  report:
+    needs: [test]
+    runs-on: ubuntu-20.04
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Download coverage summary
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-summary
+      - name: Markdown format
+        run: echo -e "\`\`\`\n$(cat coverage.txt)\n\`\`\`" > coverage.md
       - name: Coverage to PR comment
-        if: github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@v2
         with:
-          filePath: coverage.txt
+          filePath: coverage.md
           comment_tag: coverage-summary
 
   deploy:
