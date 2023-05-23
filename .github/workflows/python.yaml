@@ -40,8 +40,7 @@ jobs:
           poetry install --extras "all"
       - name: Run tests
         if: always()
-        # Leave the stdout output active but also extract the coverage report into a file
-        run: poetry run pytest --cov=blackboxopt tests | tee /dev/tty | sed -n '/ -----------/,$p' > coverage.txt
+        run: poetry run pytest --cov=blackboxopt tests | sed -n '/ -----------/,$p' > coverage.txt
       # Note, this overrides the coverage file for each python version again.
       # If different coverage is expected per python version, log separate artifacts.
       - name: Upload coverage
