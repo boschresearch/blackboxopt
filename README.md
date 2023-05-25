@@ -29,10 +29,10 @@ requirements and adjust it according to any applicable safety standards
 
 ## Development
 
-Install poetry
+Install poetry >= 1.5.0
 
 ```
-pip install poetry
+pip install --upgrade poetry
 ```
 
 Install the `blackboxopt` package from source by running the following from the root
