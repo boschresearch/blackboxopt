@@ -1529,13 +1529,13 @@ test = ["hypothesis (>=5.5.3)", "pytest (>=6.0)", "pytest-xdist (>=1.31)"]
 
 [[package]]
 name = "parameterspace"
-version = "0.8.0"
+version = "0.9.1"
 description = "Parametrized hierarchical spaces with flexible priors and transformations."
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "parameterspace-0.8.0-py3-none-any.whl", hash = "sha256:6e4c59cc90c73582f40a637e034009a6fa8fcbe77537cf9a96a9bf3185a001a3"},
-    {file = "parameterspace-0.8.0.tar.gz", hash = "sha256:b4e50d1b72c6c6af64d8a54f5e57276f2cc7a97ba46bcddd45367584b40214f3"},
+    {file = "parameterspace-0.9.1-py3-none-any.whl", hash = "sha256:4a74b9ecd281969c59228bcda24c95bded9cc48336c580be332916f7f154b26f"},
+    {file = "parameterspace-0.9.1.tar.gz", hash = "sha256:b36049b59af3d5b093e0adb8de5fae85a6d02e880b0c872c06537129feaedd1c"},
 ]
 
 [package.dependencies]
@@ -2690,4 +2690,4 @@ visualization = ["pandas", "plotly", "pymoo", "scipy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "95e71a30e4271ed862901b48b3c96e8e6cc61131128d6bf18b24f9905a686895"
+content-hash = "214ad5797fb44bf764d0d5d91776ca9159ada96fb080459419665d161d125c04"
