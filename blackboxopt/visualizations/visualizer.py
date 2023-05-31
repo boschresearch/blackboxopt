@@ -231,8 +231,11 @@ def hypervolume_over_iterations(
     objectives: Sequence[Objective],
     reference_point: List[float],
     quantiles: Optional[Tuple[float, float, float]] = (0.25, 0.5, 0.75),
+    hex_colors: Optional[List[str]] = None,
 ):
-    colors = iter(px.colors.qualitative.Dark24)
+    if hex_colors is None:
+        hex_colors = px.colors.qualitative.Dark24
+    hex_color_iterator = iter(hex_colors)
 
     plotly_data = []
     for optimizer, studies in evaluations_per_optimizer.items():
@@ -253,7 +256,7 @@ def hypervolume_over_iterations(
 
         x_plotted = np.arange(len(central))
 
-        r, g, b = plotly.colors.hex_to_rgb(next(colors))
+        r, g, b = plotly.colors.hex_to_rgb(next(hex_color_iterator))
         color_line = f"rgb({r}, {g}, {b})"
         color_fill = f"rgba({r}, {g}, {b}, 0.3)"
 
