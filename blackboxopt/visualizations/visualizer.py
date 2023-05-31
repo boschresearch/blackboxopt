@@ -230,8 +230,33 @@ def hypervolume_over_iterations(
     evaluations_per_optimizer: Dict[str, List[List[Evaluation]]],
     objectives: Sequence[Objective],
     reference_point: List[float],
+    percentiles: Optional[Tuple[float, float, float]] = None,
+    hex_colors: Optional[List[str]] = None,
 ):
-    colors = iter(px.colors.qualitative.Dark24)
+    """Visualize the hypervolume over iterations.
+
+    In case multiple studies per optimizer are provided, a central tendency as well as
+    variability is visualized.
+
+    Args:
+        evaluations_per_optimizer: For each key i.e. optimizer, a list of studies which
+            each contain a list of evaluations for the respective study corresponding to
+            the number of iterations.
+        objectives: The objectives to which the reported objective values correspond.
+        reference_point: The hypervolume reference point.
+        percentiles: When provided (e.g. `(25, 50, 75)`) the median is used as the
+            measure of central tendency, while the area between the 25 and 75
+            percentiles is shaded. In case no percentiles are given, the mean is used as
+            the central tendency and an area indicating the standard error of the mean
+            is shaded.
+        hex_colors: A list of hex color code strings. Defaults to plotly express' Dark24
+
+    Returns:
+        Plotly figure with hypervolume over iterations and a trace per optimizer.
+    """
+    if hex_colors is None:
+        hex_colors = px.colors.qualitative.Dark24
+    hex_color_iterator = iter(hex_colors)
 
     plotly_data = []
     for optimizer, studies in evaluations_per_optimizer.items():
@@ -246,12 +271,19 @@ def hypervolume_over_iterations(
             ]
             hv_per_study.append(hvs)
 
-        hv_means = np.mean(hv_per_study, axis=0)
-        hv_stds = np.std(hv_per_study, axis=0)
+        if percentiles is not None:
+            lower = np.percentile(hv_per_study, percentiles[0], axis=0)
+            central = np.percentile(hv_per_study, percentiles[1], axis=0)
+            upper = np.percentile(hv_per_study, percentiles[2], axis=0)
+        else:
+            central = np.mean(hv_per_study, axis=0)
+            sem = sps.sem(hv_per_study, axis=0)
+            lower = central - sem
+            upper = central + sem
 
-        x_plotted = np.arange(len(hv_means))
+        x_plotted = np.arange(len(central))
 
-        r, g, b = plotly.colors.hex_to_rgb(next(colors))
+        r, g, b = plotly.colors.hex_to_rgb(next(hex_color_iterator))
         color_line = f"rgb({r}, {g}, {b})"
         color_fill = f"rgba({r}, {g}, {b}, 0.3)"
 
@@ -260,26 +292,29 @@ def hypervolume_over_iterations(
                 go.Scatter(
                     name=optimizer,
                     x=x_plotted,
-                    y=hv_means,
+                    y=central,
                     mode="lines",
+                    legendgroup=optimizer,
                     showlegend=True,
                     line=dict(color=color_line, simplify=True),
                 ),
                 go.Scatter(
                     x=x_plotted,
-                    y=hv_means - 1.96 * hv_stds,
+                    y=lower,
                     mode="lines",
                     marker=dict(color=color_line),
                     line=dict(width=0, simplify=True),
+                    legendgroup=optimizer,
                     showlegend=False,
                     hoverinfo="skip",
                 ),
                 go.Scatter(
                     x=x_plotted,
-                    y=hv_means + 1.96 * hv_stds,
+                    y=upper,
                     mode="lines",
                     marker=dict(color=color_line),
                     line=dict(width=0, simplify=True),
+                    legendgroup=optimizer,
                     showlegend=False,
                     hoverinfo="skip",
                     fillcolor=color_fill,
