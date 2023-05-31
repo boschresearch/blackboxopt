@@ -230,9 +230,30 @@ def hypervolume_over_iterations(
     evaluations_per_optimizer: Dict[str, List[List[Evaluation]]],
     objectives: Sequence[Objective],
     reference_point: List[float],
-    quantiles: Optional[Tuple[float, float, float]] = (0.25, 0.5, 0.75),
+    percentiles: Optional[Tuple[float, float, float]] = None,
     hex_colors: Optional[List[str]] = None,
 ):
+    """Visualize the hypervolume over iterations.
+
+    In case multiple studies per optimizer are provided, a central tendency as well as
+    variability is visualized.
+
+    Args:
+        evaluations_per_optimizer: For each key i.e. optimizer, a list of studies which
+            each contain a list of evaluations for the respective study corresponding to
+            the number of iterations.
+        objectives: The objectives to which the reported objective values correspond.
+        reference_point: The hypervolume reference point.
+        percentiles: When provided (e.g. `(25, 50, 75)`) the median is used as the
+            measure of central tendency, while the area between the 25 and 75
+            percentiles is shaded. In case no percentiles are given, the mean is used as
+            the central tendency and an area indicating the standard error of the mean
+            is shaded.
+        hex_colors: A list of hex color code strings. Defaults to plotly express' Dark24
+
+    Returns:
+        Plotly figure with hypervolume over iterations and a trace per optimizer.
+    """
     if hex_colors is None:
         hex_colors = px.colors.qualitative.Dark24
     hex_color_iterator = iter(hex_colors)
@@ -250,9 +271,15 @@ def hypervolume_over_iterations(
             ]
             hv_per_study.append(hvs)
 
-        lower = np.quantile(hv_per_study, quantiles[0], axis=0)
-        central = np.quantile(hv_per_study, quantiles[1], axis=0)
-        upper = np.quantile(hv_per_study, quantiles[2], axis=0)
+        if percentiles is not None:
+            lower = np.percentile(hv_per_study, percentiles[0], axis=0)
+            central = np.percentile(hv_per_study, percentiles[1], axis=0)
+            upper = np.percentile(hv_per_study, percentiles[2], axis=0)
+        else:
+            central = np.mean(hv_per_study, axis=0)
+            sem = sps.sem(hv_per_study, axis=0)
+            lower = central - sem
+            upper = central + sem
 
         x_plotted = np.arange(len(central))
 
