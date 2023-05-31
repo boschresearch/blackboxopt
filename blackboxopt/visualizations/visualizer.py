@@ -230,6 +230,7 @@ def hypervolume_over_iterations(
     evaluations_per_optimizer: Dict[str, List[List[Evaluation]]],
     objectives: Sequence[Objective],
     reference_point: List[float],
+    quantiles: Optional[Tuple[float, float, float]] = (0.25, 0.5, 0.75),
 ):
     colors = iter(px.colors.qualitative.Dark24)
 
@@ -246,10 +247,11 @@ def hypervolume_over_iterations(
             ]
             hv_per_study.append(hvs)
 
-        hv_means = np.mean(hv_per_study, axis=0)
-        hv_stds = np.std(hv_per_study, axis=0)
+        lower = np.quantile(hv_per_study, quantiles[0], axis=0)
+        central = np.quantile(hv_per_study, quantiles[1], axis=0)
+        upper = np.quantile(hv_per_study, quantiles[2], axis=0)
 
-        x_plotted = np.arange(len(hv_means))
+        x_plotted = np.arange(len(central))
 
         r, g, b = plotly.colors.hex_to_rgb(next(colors))
         color_line = f"rgb({r}, {g}, {b})"
@@ -260,7 +262,7 @@ def hypervolume_over_iterations(
                 go.Scatter(
                     name=optimizer,
                     x=x_plotted,
-                    y=hv_means,
+                    y=central,
                     mode="lines",
                     legendgroup=optimizer,
                     showlegend=True,
@@ -268,7 +270,7 @@ def hypervolume_over_iterations(
                 ),
                 go.Scatter(
                     x=x_plotted,
-                    y=hv_means - 1.96 * hv_stds,
+                    y=lower,
                     mode="lines",
                     marker=dict(color=color_line),
                     line=dict(width=0, simplify=True),
@@ -278,7 +280,7 @@ def hypervolume_over_iterations(
                 ),
                 go.Scatter(
                     x=x_plotted,
-                    y=hv_means + 1.96 * hv_stds,
+                    y=upper,
                     mode="lines",
                     marker=dict(color=color_line),
                     line=dict(width=0, simplify=True),
