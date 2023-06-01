@@ -2,7 +2,11 @@ __version__ = "4.15.1"
 
 from parameterspace import ParameterSpace
 
-from . import io, utils
+<<<<<<< HEAD
+from . import io
+=======
+from . import utils
+>>>>>>> 7b90212 (add multi objective example and default logger init)
 from .base import (
     ConstraintsError,
     ContextError,

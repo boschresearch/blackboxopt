@@ -14,6 +14,7 @@ from blackboxopt import (
     OptimizationComplete,
     OptimizerNotReady,
 )
+from blackboxopt import logger as default_logger
 from blackboxopt.base import MultiObjectiveOptimizer, SingleObjectiveOptimizer
 from blackboxopt.optimization_loops.utils import (
     evaluation_function_wrapper,
@@ -55,12 +56,13 @@ def run_optimization_loop(
             optimization loop.
         post_evaluation_callback: Reference to a callable that is invoked after each
             evaluation and takes a `blackboxopt.Evaluation` as its argument.
-        logger: The logger to use for logging progress.
+        logger: The logger to use for logging progress. Default: `blackboxopt.logger`
 
     Returns:
-        List of evluation specification and result for all evaluations.
+        List of evaluation specification and result for all evaluations.
     """
-    logger = logging.getLogger("blackboxopt") if logger is None else logger
+    if logger is None:
+        logger = default_logger
 
     objectives = (
         optimizer.objectives

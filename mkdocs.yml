@@ -30,6 +30,7 @@ nav:
   - Examples:
       - Overview: examples/overview.md
       - examples/dask-distributed.md
+      - examples/multi-objective-multi-param.md
   - ...
 
 plugins:
