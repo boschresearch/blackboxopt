@@ -9,3 +9,4 @@ pip install blackboxopt[examples]
 ## List of available examples
 
 - [Dask Distributed](dask-distributed.md)
+- [Multi Objective Optimization](multi-objective-multi-param.md)

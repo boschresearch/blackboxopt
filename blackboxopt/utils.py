@@ -4,7 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import hashlib
+import logging
+import os
 import pickle
+import sys
 from itertools import compress
 from typing import Dict, Iterable, List, Optional, Sequence
 
@@ -12,6 +15,7 @@ import numpy as np
 
 from blackboxopt.base import Objective
 from blackboxopt.evaluation import Evaluation
+from blackboxopt.logger import logger
 
 
 def get_loss_vector(
@@ -99,3 +103,31 @@ def sort_evaluations(evaluations: Iterable[Evaluation]) -> Iterable[Evaluation]:
             )
         ).hexdigest(),
     )
+
+
+def init_logger(level: int = None) -> logging.Logger:  # pragma: no cover
+    """Initialize the default `blackboxopt.logger` as a nicely formatted stdout logger.
+
+    Should no log level be given, the environment variable `BBO_LOG_LEVEL` is used
+    and if that is not present, the default is `logging.DEBUG`.
+
+    Args:
+        level: the log level to set
+
+    Returns:
+        The logger instance (equivalent to `blackboxopt.logger`)
+    """
+    if level is None:
+        level_name = os.environ.get("BBO_LOG_LEVEL", "DEBUG")
+        level = getattr(logging, level_name)
+
+    logger.setLevel(level)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(level)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    return logger

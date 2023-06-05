@@ -18,10 +18,11 @@ repos:
         entry: poetry run black
         language: system
         types: [python]
+        exclude: ^blackboxopt_client/examples/
       - id: black-examples
         name: black-examples
-        entry: poetry run black --line-length=80
-        files: ^blackboxopt/examples/
+        entry: poetry run black --extend-exclude ^$ --line-length=80
+        files: ^blackboxopt_client/examples/
         language: system
         types: [python]
       - id: mypy

@@ -2,7 +2,7 @@ __version__ = "4.15.1"
 
 from parameterspace import ParameterSpace
 
-from . import io
+from . import io, utils
 from .base import (
     ConstraintsError,
     ContextError,
@@ -14,4 +14,5 @@ from .base import (
     OptimizerNotReady,
 )
 from .evaluation import Evaluation, EvaluationSpecification
-from .utils import sort_evaluations
+from .logger import logger
+from .utils import init_logger, sort_evaluations

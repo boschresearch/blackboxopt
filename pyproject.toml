@@ -54,7 +54,7 @@ types-toml = "^0.10.7"
 kaleido = "0.2.1"  # pin hard, because 0.2.1post1 fails to install
 
 [tool.poetry.extras]
-all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas", "sympy", "torch", "botorch", "pymoo"]
+all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas", "sympy", "torch", "botorch", "pymoo", "scikit-learn"]
 hyperband = ["numpy"]
 bohb = ["numpy", "scipy", "statsmodels"]
 botorch = ["sympy", "torch", "botorch"]
@@ -62,6 +62,7 @@ space-fill = ["numpy", "scipy"]
 dask = ["dask", "distributed"]
 visualization = ["plotly", "scipy", "pandas", "pymoo"]
 testing = ["numpy"]
+examples = ["scikit-learn", "dask", "distributed"]
 
 [tool.mypy]
 ignore_missing_imports = true
@@ -70,7 +71,7 @@ no_strict_optional = true
 [tool.black]
 line-length = 88
 # Examples should remain with line-length 80:
-exclude = '^blackboxopt/examples/'
+extend-exclude = 'blackboxopt/examples'
 
 [tool.ruff]
 # Enable pycodestyle, Pyflakes, isort
