@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import lzma
 import os
 import pickle
 from pathlib import Path
@@ -63,7 +64,7 @@ def save_study_as_pickle(
     pickle_file_path: os.PathLike,
     overwrite: bool = False,
 ):
-    """Save space, objectives and evaluations as pickle at `pickle_file_path`."""
+    """Save space, objectives and evaluations as an lzma compressed pickle."""
     _file_path = Path(pickle_file_path)
     if not _file_path.parent.exists():
         raise IOError(
@@ -72,7 +73,7 @@ def save_study_as_pickle(
     if _file_path.exists() and not overwrite:
         raise IOError(f"{_file_path} exists and overwrite is False")
 
-    with open(_file_path, "wb") as fh:
+    with lzma.open(_file_path, "wb") as fh:
         pickle.dump(
             {
                 "search_space": search_space,
@@ -86,8 +87,8 @@ def save_study_as_pickle(
 def load_study_from_pickle(
     pickle_file_path: os.PathLike,
 ) -> Tuple[ps.ParameterSpace, List[Objective], List[Evaluation]]:
-    """Load space, objectives and evaluations from a given `pickle_file_path`."""
-    with open(pickle_file_path, "rb") as fh:
+    """Load space, objectives and evaluations from a given lzma compressed pickle."""
+    with lzma.open(pickle_file_path, "rb") as fh:
         study = pickle.load(fh)
 
     return study["search_space"], study["objectives"], study["evaluations"]
