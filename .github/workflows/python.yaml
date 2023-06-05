@@ -38,8 +38,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        python-version: ["python:3.8", "python:3.9", "python:3.10", "python:3.11"]
-    container: ${{ matrix.python-version }}-slim
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+    container: python:${{ matrix.python-version }}-slim
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
@@ -48,34 +48,44 @@ jobs:
           poetry install --extras "all"
       - name: Run tests
         if: always()
-        # pipefail ensures that this step still fails when pytest fails
-        run: |
-          set -o pipefail
-          poetry run pytest --cov=blackboxopt tests | sed -n '/ -----------/,$p' > coverage.txt
-        shell: bash
-      # Note, this overrides the coverage file for each python version again.
-      # If different coverage is expected per python version, log separate artifacts.
-      - name: Upload coverage
+        run: poetry run coverage run --branch -m pytest tests
+        env:
+          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
+      - name: Store coverage file
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-summary
-          path: coverage.txt
+          name: coverage
+          path: .coverage.${{ matrix.python-version }}
   report:
     needs: [test]
     runs-on: ubuntu-20.04
     if: github.event_name == 'pull_request'
+    permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
+      pull-requests: write
+      # Gives the action the necessary permissions for pushing data to the
+      # python-coverage-comment-action branch, and for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
+      contents: write
     steps:
+      - uses: actions/checkout@v3
       - name: Download coverage summary
         uses: actions/download-artifact@v3
         with:
-          name: coverage-summary
-      - name: Markdown format
-        run: echo -e "\`\`\`\n$(cat coverage.txt)\n\`\`\`" > coverage.md
-      - name: Coverage to PR comment
-        uses: thollander/actions-comment-pull-request@v2
+          name: coverage
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
         with:
-          filePath: coverage.md
-          comment_tag: coverage-summary
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_COVERAGE_FILES: true
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v3
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt
 
   deploy:
     needs: [lint, test]
