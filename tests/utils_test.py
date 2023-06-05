@@ -6,18 +6,13 @@
 import random
 
 import numpy as np
-import parameterspace as ps
 import pytest
 
 from blackboxopt import Evaluation, Objective
 from blackboxopt.utils import (
     filter_pareto_efficient,
     get_loss_vector,
-    load_study_from_json,
-    load_study_from_pickle,
     mask_pareto_efficient,
-    save_study_as_json,
-    save_study_as_pickle,
     sort_evaluations,
 )
 
@@ -182,92 +177,3 @@ def test_sort_evaluations_with_different_parameter_order():
     for a, b in zip(evals_a_sorted, evals_b_sorted):
         assert a.configuration == b.configuration
         assert a.objectives == b.objectives
-
-
-def test_save_and_load_study_pickle(tmp_path):
-    tmp_file = tmp_path / "out.json"
-
-    search_space = ps.ParameterSpace()
-    search_space.add(ps.IntegerParameter("p1", (-10, 10)))
-    objectives = [Objective("loss", False), Objective("score", True)]
-    evaluations = [
-        Evaluation(configuration={"p1": 1.0}, objectives={"loss": 1.0, "score": 3.0}),
-        Evaluation(configuration={"p1": 2.0}, objectives={"loss": 0.1, "score": 2.0}),
-        Evaluation(configuration={"p1": 3.0}, objectives={"loss": 0.0, "score": 1.0}),
-    ]
-    save_study_as_pickle(search_space, objectives, evaluations, tmp_file)
-
-    # Check that default overwrite=False causes IOError on existing file
-    with pytest.raises(IOError, match=str(tmp_file)):
-        save_study_as_pickle(search_space, objectives, evaluations, tmp_file)
-
-    loaded_study = load_study_from_pickle(tmp_file)
-
-    assert loaded_study[1] == objectives
-    assert loaded_study[2] == evaluations
-    for _ in range(128):
-        assert search_space.sample() == loaded_study[0].sample()
-
-
-def test_save_and_load_study_pickle_fails_on_missing_output_directory():
-    pickle_file_path = "/this/directory/does/not/exist/pickles/out.pkl"
-    with pytest.raises(IOError, match=pickle_file_path):
-        save_study_as_pickle(
-            search_space=ps.ParameterSpace(),
-            objectives=[],
-            evaluations=[],
-            pickle_file_path=pickle_file_path,
-        )
-
-
-def test_save_and_load_study_json(tmp_path):
-    tmp_file = tmp_path / "out.json"
-
-    search_space = ps.ParameterSpace()
-    search_space.add(ps.IntegerParameter("p1", (-10.0, 10.0)))
-    objectives = [Objective("loss", False), Objective("score", True)]
-    evaluations = [
-        Evaluation(configuration={"p1": 1.0}, objectives={"loss": 1.0, "score": 3.0}),
-        Evaluation(configuration={"p1": 2.0}, objectives={"loss": 0.1, "score": 2.0}),
-        Evaluation(configuration={"p1": 3.0}, objectives={"loss": 0.0, "score": 1.0}),
-    ]
-    save_study_as_json(search_space, objectives, evaluations, tmp_file)
-
-    # Check that default overwrite=False causes ValueError on existing file
-    with pytest.raises(IOError):
-        save_study_as_json(search_space, objectives, evaluations, tmp_file)
-
-    loaded_study = load_study_from_json(tmp_file)
-
-    assert loaded_study[1] == objectives
-    assert loaded_study[2] == evaluations
-    for _ in range(128):
-        assert search_space.sample() == loaded_study[0].sample()
-
-
-def test_save_and_load_study_json_fails_on_missing_output_directory():
-    json_file_path = "/this/directory/does/not/exist/jsons/out.json"
-    with pytest.raises(IOError, match=json_file_path):
-        save_study_as_json(
-            search_space=ps.ParameterSpace(),
-            objectives=[],
-            evaluations=[],
-            json_file_path=json_file_path,
-        )
-
-
-def test_save_and_load_study_json_fails_with_complex_type_in_evaluation(tmp_path):
-    tmp_file = tmp_path / "out.json"
-
-    search_space = ps.ParameterSpace()
-    objectives = []
-    evaluations = [
-        Evaluation(
-            configuration={},
-            objectives={},
-            user_info={"complex typed value": ps.ParameterSpace()},
-        ),
-    ]
-
-    with pytest.raises(TypeError):
-        save_study_as_json(search_space, objectives, evaluations, tmp_file)
