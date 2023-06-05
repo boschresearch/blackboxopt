@@ -58,3 +58,19 @@ def test_post_evaluation_callback():
 
     assert len(evaluations) == len(evaluations_from_callback)
     assert evaluations == evaluations_from_callback
+
+
+def test_pre_evaluation_callback():
+    eval_specs_from_callback = []
+
+    def callback(e: Evaluation):
+        eval_specs_from_callback.append(e)
+
+    evaluations = run_optimization_loop(
+        RandomSearch(testing.SPACE, [Objective("loss", False)], max_steps=10),
+        lambda e: e.create_evaluation(objectives={"loss": 0.0}),
+        pre_evaluation_callback=callback,
+    )
+
+    assert len(evaluations) == len(eval_specs_from_callback)
+    assert [e.get_specification() for e in evaluations] == eval_specs_from_callback
