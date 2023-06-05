@@ -52,6 +52,7 @@ jobs:
         run: |
           set -o pipefail
           poetry run pytest --cov=blackboxopt tests | sed -n '/ -----------/,$p' > coverage.txt
+        shell: bash
       # Note, this overrides the coverage file for each python version again.
       # If different coverage is expected per python version, log separate artifacts.
       - name: Upload coverage
