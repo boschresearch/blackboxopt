@@ -48,7 +48,11 @@ jobs:
           poetry install --extras "all"
       - name: Run tests
         if: always()
-        run: poetry run pytest --cov=blackboxopt tests | sed -n '/ -----------/,$p' > coverage.txt
+        # pipefail ensures that this step still fails when pytest fails
+        run: |
+          set -o pipefail
+          poetry run pytest --cov=blackboxopt tests | sed -n '/ -----------/,$p' > coverage.txt
+        shell: bash
       # Note, this overrides the coverage file for each python version again.
       # If different coverage is expected per python version, log separate artifacts.
       - name: Upload coverage
