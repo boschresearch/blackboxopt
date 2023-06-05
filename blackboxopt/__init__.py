@@ -2,6 +2,7 @@ __version__ = "4.15.1"
 
 from parameterspace import ParameterSpace
 
+from . import io
 from .base import (
     ConstraintsError,
     ContextError,
