@@ -91,7 +91,7 @@ def run_optimization_loop(
                 "The optimizer proposed the following evaluation specification:\n%s",
                 json.dumps(evaluation_specification.to_dict(), indent=2),
             )
-            if pre_evaluation_callback is not None:
+            if pre_evaluation_callback:
                 pre_evaluation_callback(evaluation_specification)
 
             evaluation = evaluation_function_wrapper(
@@ -114,7 +114,7 @@ def run_optimization_loop(
                     indent=2,
                 ),
             )
-            if post_evaluation_callback is not None:
+            if post_evaluation_callback:
                 post_evaluation_callback(evaluation)
 
             optimizer.report(evaluation)
