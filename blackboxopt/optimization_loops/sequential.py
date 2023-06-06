@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 import logging
+import pprint
 import time
 from typing import Any, Callable, List, Optional, Union
 
@@ -89,7 +89,7 @@ def run_optimization_loop(
 
             logger.info(
                 "The optimizer proposed the following evaluation specification:\n%s",
-                json.dumps(evaluation_specification.to_dict(), indent=2),
+                pprint.pformat(evaluation_specification.to_dict(), compact=True),
             )
             if pre_evaluation_callback:
                 pre_evaluation_callback(evaluation_specification)
@@ -104,15 +104,7 @@ def run_optimization_loop(
 
             logger.info(
                 "Reporting the following evaluation result to the optimizer:\n%s",
-                json.dumps(
-                    {
-                        # Stringify the user_info because it is not guaranteed to be
-                        # json serializable
-                        k: str(v) if k == "user_info" else v
-                        for k, v in evaluation.to_dict().items()
-                    },
-                    indent=2,
-                ),
+                pprint.pformat(evaluation.to_dict(), compact=True),
             )
             if post_evaluation_callback:
                 post_evaluation_callback(evaluation)
