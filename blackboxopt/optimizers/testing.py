@@ -134,9 +134,6 @@ def is_deterministic_with_fixed_seed_and_larger_space(
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
         seed: (optional) custom seed
-
-    Returns:
-        `True` if the test is passed.
     """
     if seed is None:
         seed = 42
@@ -190,9 +187,6 @@ def is_deterministic_when_reporting_shuffled_evaluations(
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
         seed: (optional) custom seed
-
-    Returns:
-        `True` if the test is passed.
     """
     if seed is None:
         seed = 0
@@ -278,9 +272,6 @@ def handles_reporting_evaluations_list(
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
         seed: (optional) custom seed
-
-    Returns:
-        `True` if the test is passed.
     """
     opt = _initialize_optimizer(optimizer_class, optimizer_kwargs, seed=seed)
     evaluations = []
@@ -317,9 +308,6 @@ def raises_evaluation_error_when_reporting_unknown_objective(
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
         seed: (optional) custom seed
-
-    Returns:
-        `True` if the test is passed.
     """
     opt = _initialize_optimizer(optimizer_class, optimizer_kwargs, seed=seed)
     es_1 = opt.generate_evaluation_specification()
@@ -371,9 +359,6 @@ def respects_fixed_parameter(
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
         seed: (optional) custom seed
-
-    Returns:
-        `True` if the test is passed.
     """
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("my_fixed_param", (-10.0, 200.0)))
@@ -407,6 +392,7 @@ def handles_conditional_space(
     ],
     optimizer_kwargs: dict,
     seed: Optional[int] = None,
+    n_max_evaluations: int = 10,
 ):
     """Check if optimizer handles conditional i.e. hierarchical search spaces.
 
@@ -416,9 +402,7 @@ def handles_conditional_space(
             the optimizer. (`search_space` and `objective(s)` are set automatically
             by the test.)
         seed: (optional) custom seed
-
-    Returns:
-        `True` if the test is passed.
+        n_max_evaluations: Maximum number of evaluation to try
     """
     space = ps.ParameterSpace()
     space.add(ps.CategoricalParameter("optimizer", ("adam", "sgd")))
@@ -433,7 +417,7 @@ def handles_conditional_space(
         optimizer_class, optimizer_kwargs, space=space, seed=seed
     )
 
-    for _ in range(10):
+    for _ in range(n_max_evaluations):
         es = opt.generate_evaluation_specification()
         objectives = {
             "loss": es.configuration.get("momentum", 1.0) * es.configuration["lr"] ** 2
