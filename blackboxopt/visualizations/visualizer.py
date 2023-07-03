@@ -16,7 +16,6 @@ import plotly.graph_objects as go
 import plotly.io._html
 import scipy.stats as sps
 from pymoo.indicators.hv import HV
-from pymoo.util.nds.efficient_non_dominated_sort import efficient_non_dominated_sort
 
 from blackboxopt import Evaluation, Objective
 from blackboxopt.utils import get_loss_vector
@@ -210,6 +209,7 @@ def compute_hypervolume(
     objectives: Sequence[Objective],
     reference_point: List[float],
 ) -> float:
+    hv = HV(reference_point, nds=True)
     losses = np.array(
         [
             get_loss_vector(
@@ -218,12 +218,7 @@ def compute_hypervolume(
             for e in evaluations
         ]
     )
-    pareto_front_idx = efficient_non_dominated_sort(losses)[0]
-    pareto_front = losses[pareto_front_idx]
-
-    hv = HV(reference_point)
-
-    return hv(pareto_front)
+    return hv(losses)
 
 
 def hypervolume_over_iterations(
