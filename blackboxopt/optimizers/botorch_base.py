@@ -30,7 +30,7 @@ try:
     from botorch.exceptions import BotorchTensorDimensionWarning
     from botorch.models.model import Model
     from botorch.optim import optimize_acqf, optimize_acqf_discrete
-    from botorch.sampling.samplers import IIDNormalSampler
+    from botorch.sampling import IIDNormalSampler
 
     from blackboxopt.optimizers.botorch_utils import (
         filter_y_nans,
