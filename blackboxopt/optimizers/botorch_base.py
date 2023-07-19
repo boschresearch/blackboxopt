@@ -397,5 +397,8 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 or `None` in case no evaluations have been reported yet.
         """
         return predict_model_based_best(
-            model=self.model, objective=self.objective, search_space=self.search_space
+            model=self.model,
+            objective=self.objective,
+            search_space=self.search_space,
+            torch_dtype=self.torch_dtype,
         )

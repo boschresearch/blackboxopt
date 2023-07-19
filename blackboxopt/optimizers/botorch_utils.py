@@ -184,6 +184,7 @@ def predict_model_based_best(
     model: botorch.models.model.Model,
     search_space: ps.ParameterSpace,
     objective: Objective,
+    torch_dtype: torch.dtype,
 ) -> Optional[Evaluation]:
     """Get the current configuration that is estimated to be the best (in terms of
     optimal objective value) without waiting for a reported evaluation of that
@@ -222,7 +223,6 @@ def predict_model_based_best(
             for _ in range(n_init_samples)
         ]
     )
-    bounds = search_space.get_continuous_bounds()
 
     # use scipy's minimize to find optimum of the posterior mean
     optimized_points = [
@@ -232,7 +232,8 @@ def predict_model_based_best(
             jac=False,
             x0=x,
             args=(),
-            bounds=bounds,
+            # The numerical representation always lives on the unit hypercube
+            bounds=torch.Tensor([[0, 1]] * len(search_space)).to(dtype=torch_dtype),
             method="L-BFGS-B",
             options=None,
         )
