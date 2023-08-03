@@ -283,9 +283,11 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
             # at least one of them has a valid objective
             eval_spec = EvaluationSpecification(
                 configuration=self.search_space.sample(),
+                optimizer_info={"model_based_pick": False},
             )
         else:
             eval_spec = self._generate_evaluation_specification()
+            eval_spec.optimizer_info["model_based_pick"] = True
 
         eval_id = self.X.size(-2) + len(self.pending_specifications)
         eval_spec.optimizer_info["evaluation_id"] = eval_id
