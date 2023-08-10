@@ -2680,4 +2680,4 @@ visualization = ["pandas", "plotly", "pymoo", "scipy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "e484dcd94a5cc27a26be4c79b817a922509f85d3c97bc5eaf7ce965c862588cc"
+content-hash = "8ed8b8b4e17295aea6a0869065b34d38c5caa762a8e3b27f5d4b58c1980c2ceb"
