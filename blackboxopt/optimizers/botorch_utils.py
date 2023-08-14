@@ -6,8 +6,10 @@
 import warnings
 from typing import Iterable, List, Optional, Sequence, Tuple
 
+import botorch.models.model
 import numpy as np
 import parameterspace as ps
+import scipy.optimize as sci_opt
 import torch
 from sklearn.impute import SimpleImputer
 
@@ -176,3 +178,80 @@ def to_numerical(
     Y = Y.reshape(*batch_shape + Y.shape)
 
     return X, Y
+
+
+def predict_model_based_best(
+    model: botorch.models.model.Model,
+    search_space: ps.ParameterSpace,
+    objective: Objective,
+    torch_dtype: torch.dtype,
+) -> Optional[Evaluation]:
+    """Get the current configuration that is estimated to be the best (in terms of
+    optimal objective value) without waiting for a reported evaluation of that
+    configuration. Instead, the objective value estimation relies on BO's
+    underlying model.
+
+    This might return `None` in case there is no successfully evaluated
+    configuration yet (thus, the optimizer has not been given training data yet).
+
+    Args:
+        model: The model to use for predicting the best.
+        search_space: Space to convert between numerical and original configurations.
+        objective: Objective to convert the model based loss prediction to the target.
+
+    Returns:
+        blackboxopt.evaluation.Evaluation
+            The evaluated specification containing the estimated best configuration
+            or `None` in case no evaluations have been reported yet.
+    """
+    if model.train_inputs[0].numel() == 0:
+        return None
+
+    def posterior_mean(x):
+        # function to be optimized: posterior mean
+        # scipy's minimize expects the following interface:
+        #  - input: 1-D array with shape (n,)
+        #  - output: float
+        mean = model.posterior(torch.from_numpy(np.atleast_2d(x))).mean
+        return mean.item()
+
+    # prepare initial random samples and bounds for scipy's minimize
+    n_init_samples = 10
+    init_points = np.asarray(
+        [
+            search_space.to_numerical(search_space.sample())
+            for _ in range(n_init_samples)
+        ]
+    )
+
+    # use scipy's minimize to find optimum of the posterior mean
+    optimized_points = [
+        sci_opt.minimize(
+            fun=posterior_mean,
+            constraints=None,
+            jac=False,
+            x0=x,
+            args=(),
+            # The numerical representation always lives on the unit hypercube
+            bounds=torch.Tensor([[0, 1]] * len(search_space)).to(dtype=torch_dtype),
+            method="L-BFGS-B",
+            options=None,
+        )
+        for x in init_points
+    ]
+
+    f_optimized = np.array([np.atleast_1d(p.fun) for p in optimized_points]).flatten()
+    # get indexes of optimum value (with a tolerance)
+    inds = np.argwhere(np.isclose(f_optimized, np.min(f_optimized)))
+    # randomly select one index if there are multiple
+    ind = np.random.choice(inds.flatten())
+
+    # create Evaluation from the best estimated configuration
+    best_x = optimized_points[ind].x
+    best_y = posterior_mean(best_x)
+    return Evaluation(
+        configuration=search_space.from_numerical(best_x),
+        objectives={
+            objective.name: -1 * best_y if objective.greater_is_better else best_y
+        },
+    )

@@ -165,6 +165,10 @@ def test_find_optimum_in_1d_discrete_space(seed):
         sum(loss == 0 for loss in losses) > 5
     ), "After figuring out the best of the three points, it should only propose that."
 
+    best = opt.predict_model_based_best()
+    assert best.configuration["integ"] == 0
+    assert opt.objective.name in best.objectives
+
 
 def test_get_numerical_points_from_discrete_space():
     p0l, p0h = -5, 10

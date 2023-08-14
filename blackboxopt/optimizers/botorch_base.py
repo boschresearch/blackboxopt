@@ -24,7 +24,6 @@ from blackboxopt.utils import sort_evaluations
 try:
     import numpy as np
     import parameterspace as ps
-    import scipy.optimize as sci_opt
     import torch
     from botorch.acquisition import AcquisitionFunction
     from botorch.exceptions import BotorchTensorDimensionWarning
@@ -35,6 +34,7 @@ try:
     from blackboxopt.optimizers.botorch_utils import (
         filter_y_nans,
         impute_nans_with_constant,
+        predict_model_based_best,
         to_numerical,
     )
 
@@ -396,58 +396,9 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
                 The evaluated specification containing the estimated best configuration
                 or `None` in case no evaluations have been reported yet.
         """
-        if self.model.train_inputs[0].numel() == 0:
-            return None
-
-        def posterior_mean(x):
-            # function to be optimized: posterior mean
-            # scipy's minimize expects the following interface:
-            #  - input: 1-D array with shape (n,)
-            #  - output: float
-            mean = self.model.posterior(torch.from_numpy(np.atleast_2d(x))).mean
-            return mean.item()
-
-        # prepare initial random samples and bounds for scipy's minimize
-        n_init_samples = 10
-        init_points = np.asarray(
-            [
-                self.search_space.to_numerical(self.search_space.sample())
-                for _ in range(n_init_samples)
-            ]
-        )
-        bounds = self.search_space.get_continuous_bounds()
-
-        # use scipy's minimize to find optimum of the posterior mean
-        optimized_points = [
-            sci_opt.minimize(
-                fun=posterior_mean,
-                constraints=None,
-                jac=False,
-                x0=x,
-                args=(),
-                bounds=bounds,
-                method="L-BFGS-B",
-                options=None,
-            )
-            for x in init_points
-        ]
-
-        f_optimized = np.array(
-            [np.atleast_1d(p.fun) for p in optimized_points]
-        ).flatten()
-        # get indexes of optimum value (with a tolerance)
-        inds = np.argwhere(np.isclose(f_optimized, np.min(f_optimized)))
-        # randomly select one index if there are multiple
-        ind = np.random.choice(inds.flatten())
-
-        # create Evaluation from the best estimated configuration
-        best_x = optimized_points[ind].x
-        best_y = posterior_mean(best_x)
-        return Evaluation(
-            configuration=self.search_space.from_numerical(best_x),
-            objectives={
-                self.objective.name: -1 * best_y
-                if self.objective.greater_is_better
-                else best_y
-            },
+        return predict_model_based_best(
+            model=self.model,
+            objective=self.objective,
+            search_space=self.search_space,
+            torch_dtype=self.torch_dtype,
         )
