@@ -15,7 +15,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io._html
 import scipy.stats as sps
-from pymoo.indicators.hv import HV
+from pymoo.indicators.hv import Hypervolume
 
 from blackboxopt import Evaluation, Objective
 from blackboxopt.utils import get_loss_vector
@@ -209,7 +209,7 @@ def compute_hypervolume(
     objectives: Sequence[Objective],
     reference_point: List[float],
 ) -> float:
-    hv = HV(reference_point, nds=True)
+    hv = Hypervolume(reference_point, nds=True)
     losses = np.array(
         [
             get_loss_vector(
@@ -218,7 +218,7 @@ def compute_hypervolume(
             for e in evaluations
         ]
     )
-    return hv(losses)
+    return hv.do(losses)
 
 
 def hypervolume_over_iterations(
