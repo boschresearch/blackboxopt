@@ -5,7 +5,7 @@
 
 import logging
 import time
-from typing import Callable, List, Set, Union
+from typing import Any, Callable, List, Optional, Set, Union
 
 try:
     import dask.distributed as dd
@@ -103,6 +103,8 @@ def run_optimization_loop(
     dask_client: dd.Client,
     timeout_s: float = float("inf"),
     max_evaluations: int = None,
+    pre_evaluation_callback: Optional[Callable[[EvaluationSpecification], Any]] = None,
+    post_evaluation_callback: Optional[Callable[[Evaluation], Any]] = None,
     logger: logging.Logger = None,
 ) -> List[Evaluation]:
     """Convenience wrapper for an optimization loop that uses Dask to parallelize
@@ -124,6 +126,10 @@ def run_optimization_loop(
             optimization step that exceeded the timeout (in seconds). Defaults to inf.
         max_evaluations: If given, the optimization loop will terminate after the given
             number of steps. Defaults to None.
+        pre_evaluation_callback: Reference to a callable that is invoked before each
+            evaluation and takes a `blackboxopt.EvaluationSpecification` as an argument.
+        post_evaluation_callback: Reference to a callable that is invoked after each
+            evaluation and takes a `blackboxopt.Evaluation` as an argument.
         logger: The logger to use for logging progress. Defaults to None.
 
     Returns:
@@ -152,6 +158,10 @@ def run_optimization_loop(
         if dask_scheduler.has_capacity():
             try:
                 eval_spec = optimizer.generate_evaluation_specification()
+
+                if pre_evaluation_callback:
+                    pre_evaluation_callback(eval_spec)
+
                 dask_scheduler.submit(evaluation_function, eval_spec)
                 n_eval_specs += 1
                 continue
@@ -164,6 +174,10 @@ def run_optimization_loop(
                 break
 
         new_evaluations = dask_scheduler.check_for_results(timeout_s=20)
+
+        if post_evaluation_callback:
+            list(map(post_evaluation_callback, new_evaluations))
+
         optimizer.report(new_evaluations)
         evaluations.extend(new_evaluations)
 
