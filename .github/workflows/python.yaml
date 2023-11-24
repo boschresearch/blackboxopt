@@ -12,7 +12,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-20.04
-    container: python:3.8-slim
+    container: python:3.11-slim
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
@@ -38,7 +38,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     container: python:${{ matrix.python-version }}-slim
     steps:
       - uses: actions/checkout@v3
