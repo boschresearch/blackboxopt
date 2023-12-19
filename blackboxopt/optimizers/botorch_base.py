@@ -278,15 +278,11 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         ):
             raise OptimizerNotReady
 
+        # Generate random samples until there are enough samples where at least one of
+        # the objective values is available
         if self.num_initial_random > 0 and (
-            self.X.size(-2) < self.num_initial_random
-            or (
-                torch.nonzero(~torch.any(self.losses.isnan(), dim=1)).numel()
-                < self.num_initial_random
-            )
+            sum(~torch.any(self.losses.isnan(), dim=1)) < self.num_initial_random
         ):
-            # We keep generating random samples until there are enough samples, and
-            # at least one of them has a valid objective
             eval_spec = EvaluationSpecification(
                 configuration=self.search_space.sample(),
                 optimizer_info={"model_based_pick": False},
