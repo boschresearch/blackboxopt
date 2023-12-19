@@ -170,6 +170,56 @@ def test_find_optimum_in_1d_discrete_space(seed):
     assert opt.objective.name in best.objectives
 
 
+def test_propose_random_until_enough_evaluations_without_missing_objective_values(seed):
+    space = ps.ParameterSpace()
+    space.add(ps.IntegerParameter("integ", (0, 2)))
+    batch_shape = torch.Size()
+
+    opt = SingleObjectiveBOTorchOptimizer(
+        search_space=space,
+        objective=Objective("loss", greater_is_better=False),
+        model=SingleTaskGP(
+            torch.empty((*batch_shape, 0, len(space)), dtype=torch.float64),
+            torch.empty((*batch_shape, 0, 1), dtype=torch.float64),
+        ),
+        acquisition_function_factory=partial(
+            UpperConfidenceBound, beta=1.0, maximize=False
+        ),
+        num_initial_random_samples=2,
+        max_pending_evaluations=1,
+        seed=seed,
+    )
+
+    es = opt.generate_evaluation_specification()
+    assert not es.optimizer_info[
+        "model_based_pick"
+    ], "No evaluation reported, 0 < 2 initial random samples"
+    opt.report(
+        es.create_evaluation(objectives={"loss": es.configuration["integ"] ** 2}),
+    )
+
+    es = opt.generate_evaluation_specification()
+    assert not es.optimizer_info[
+        "model_based_pick"
+    ], "One evaluation reported, 1 < 2 initial random samples"
+    opt.report(
+        es.create_evaluation(objectives={"loss": None}),
+    )
+
+    es = opt.generate_evaluation_specification()
+    assert not es.optimizer_info[
+        "model_based_pick"
+    ], "One valid evaluation reported, 1 < 2 initial random samples"
+    opt.report(
+        es.create_evaluation(objectives={"loss": es.configuration["integ"] ** 2}),
+    )
+
+    es = opt.generate_evaluation_specification()
+    assert es.optimizer_info[
+        "model_based_pick"
+    ], "Two valid evaluations reported, 2 >= 2 initial random samples"
+
+
 def test_get_numerical_points_from_discrete_space():
     p0l, p0h = -5, 10
     p1 = ("small", "medium", "large")

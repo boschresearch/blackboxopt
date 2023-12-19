@@ -173,6 +173,9 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
             num_initial_random_samples: Size of the initial space-filling design that
                 is used before starting BO. The points are sampled randomly in the
                 search space. If no random sampling is required, set it to 0.
+                When random sampling is enabled, but evaluations with missing objective
+                values are reported, more specifications are sampled until
+                `num_initial_random_samples` many valid evaluations were reported.
             max_pending_evaluations: Maximum number of parallel evaluations. For
                 sequential BO use the default value of 1. If no limit is required,
                 set it to None.
@@ -275,17 +278,18 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         ):
             raise OptimizerNotReady
 
+        # Generate random samples until there are enough samples where at least one of
+        # the objective values is available
         if self.num_initial_random > 0 and (
-            self.X.size(-2) < self.num_initial_random
-            or torch.nonzero(~torch.any(self.losses.isnan(), dim=1)).numel() == 0
+            sum(~torch.any(self.losses.isnan(), dim=1)) < self.num_initial_random
         ):
-            # We keep generating random samples until there are enough samples, and
-            # at least one of them has a valid objective
             eval_spec = EvaluationSpecification(
                 configuration=self.search_space.sample(),
+                optimizer_info={"model_based_pick": False},
             )
         else:
             eval_spec = self._generate_evaluation_specification()
+            eval_spec.optimizer_info["model_based_pick"] = True
 
         eval_id = self.X.size(-2) + len(self.pending_specifications)
         eval_spec.optimizer_info["evaluation_id"] = eval_id
