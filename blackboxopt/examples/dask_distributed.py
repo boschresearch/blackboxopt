@@ -27,7 +27,7 @@ def evaluation_function(eval_spec: EvaluationSpecification) -> Evaluation:
     )
 
 
-if __name__ == "__main__":
+def main():
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("p1", (-1.0, 1.0)))
     optimizer = RandomSearch(
@@ -42,3 +42,7 @@ if __name__ == "__main__":
 
     n_successes = len([e for e in evaluations if not e.all_objectives_none])
     print(f"Successfully evaluated {n_successes}/{len(evaluations)}")
+
+
+if __name__ == "__main__":
+    main()
