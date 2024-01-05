@@ -34,6 +34,7 @@ sympy = {version = "^1.12", optional = true}
 torch = {version = ">=1.12", optional = true, source = "pytorch-cpu"}
 botorch = {version = "^0.7.1", optional = true}
 pymoo = {version = ">=0.5,<1.0", optional = true}
+optuna = {version = "^3.5.0", optional = true}
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
@@ -54,7 +55,7 @@ types-toml = "^0.10.7"
 kaleido = "0.2.1"  # pin hard, because 0.2.1post1 fails to install
 
 [tool.poetry.extras]
-all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas", "sympy", "torch", "botorch", "pymoo", "scikit-learn"]
+all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas", "sympy", "torch", "botorch", "pymoo", "scikit-learn", "optuna"]
 hyperband = ["numpy"]
 bohb = ["numpy", "scipy", "statsmodels"]
 botorch = ["sympy", "torch", "botorch"]
@@ -63,6 +64,7 @@ dask = ["dask", "distributed"]
 visualization = ["plotly", "scipy", "pandas", "pymoo"]
 testing = ["numpy"]
 examples = ["scikit-learn", "dask", "distributed"]
+optuna = ["optuna"]
 
 [tool.mypy]
 ignore_missing_imports = true
