@@ -98,29 +98,6 @@ For serving it locally while working on the documentation run:
 poetry run mkdocs serve
 ```
 
-## Architectural Decision Records
-
-### Create evaluation result from specification
-
-In the context of initializing an evaluation result from a specification, facing the
-concern that having a constructor with a specification argument while the specification
-attributes end up as toplevel attributes and not summarized under a specification
-attribute we decided for unpacking the evaluation specification like a dictionary into
-the result constructor to prevent the said cognitive dissonance, accepting that the
-unpacking operator can feel unintuitive and that users might tend to matching the
-attributes explictly to the init arguments.
-
-### Report multiple evaluations
-
-In the context of many optimizers just sequentally reporting the individual evaluations
-when multiple evaluations are reported at once and thus not leveraging any batch
-reporting benefits, facing the concern that representing that common behaviour in the
-optimizer base class requires the definition of an abstract report single and an
-abstract report multi method for which the report single does not need to be implemented
-if the report multi is, we decided to refactor the arising redundancy into a function
-`call_functions_with_evaluations_and_collect_errors`, accepting that this increases the
-cognitive load when reading the code.
-
 ## License
 
 `blackboxopt` is open-sourced under the Apache-2.0 license. See the [LICENSE](LICENSE)
