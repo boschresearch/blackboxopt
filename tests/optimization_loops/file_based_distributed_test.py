@@ -7,6 +7,8 @@ from collections import defaultdict
 from functools import partial
 from threading import Thread
 
+import pytest
+
 from blackboxopt import Evaluation, EvaluationSpecification
 from blackboxopt.optimization_loops import testing
 from blackboxopt.optimization_loops.file_based_distributed import (
@@ -133,3 +135,4 @@ def test_callbacks(tmpdir):
     assert set([e.get_specification().to_json() for e in evaluations]) == set(
         [es.to_json() for es in from_callback["run_loop_pre"]]
     )
+    thread.join()
