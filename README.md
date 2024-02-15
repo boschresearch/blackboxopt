@@ -13,7 +13,7 @@
 | blackboxopt/io.py                                       |       36 |        0 |       22 |        0 |    100% |           |
 | blackboxopt/logger.py                                   |        3 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/optimization\_loops/\_\_init\_\_.py         |        0 |        0 |        0 |        0 |    100% |           |
-| blackboxopt/optimization\_loops/dask\_distributed.py    |       69 |        5 |       16 |        1 |     93% |12-13, 96-97, 160 |
+| blackboxopt/optimization\_loops/dask\_distributed.py    |       75 |        5 |       22 |        1 |     94% |12-13, 96-97, 170 |
 | blackboxopt/optimization\_loops/sequential.py           |       38 |        3 |       10 |        2 |     90% |68->71, 116-118 |
 | blackboxopt/optimization\_loops/testing.py              |       31 |        0 |        8 |        0 |    100% |           |
 | blackboxopt/optimization\_loops/utils.py                |       31 |        0 |       10 |        0 |    100% |           |
@@ -36,7 +36,7 @@
 | blackboxopt/visualizations/\_\_init\_\_.py              |        0 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/visualizations/utils.py                     |       88 |       19 |       44 |        6 |     77% |51, 61-76, 137, 139, 142, 144, 204, 216 |
 | blackboxopt/visualizations/visualizer.py                |      242 |       25 |       98 |        4 |     90% |54, 252->254, 270-272, 419-422, 637-686 |
-|                                               **TOTAL** | **1539** |  **133** |  **562** |   **42** | **91%** |           |
+|                                               **TOTAL** | **1545** |  **133** |  **568** |   **42** | **91%** |           |
 
 
 ## Setup coverage badge
