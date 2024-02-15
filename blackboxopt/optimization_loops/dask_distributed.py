@@ -183,6 +183,8 @@ def run_optimization_loop(
 
     while dask_scheduler.has_running_jobs():
         new_evaluations = dask_scheduler.check_for_results(timeout_s=20)
+        if post_evaluation_callback:
+            list(map(post_evaluation_callback, new_evaluations))
         optimizer.report(new_evaluations)
         evaluations.extend(new_evaluations)
 
