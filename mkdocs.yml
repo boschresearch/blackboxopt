@@ -31,6 +31,15 @@ nav:
       - Overview: examples/overview.md
       - examples/dask-distributed.md
       - examples/multi-objective-multi-param.md
+  - Optimizers:
+    - Space Filling: optimizers/space-filling.md
+    - BOHB: optimizers/bohb.md
+    - BoTorch: optimizers/botorch.md
+  - Optimization Loops:
+    - Overview: optimization-loops/overview.md
+    - Sequential: optimization-loops/sequential.md
+    - Dask Distributed: optimization-loops/dask-distributed.md
+    - optimization-loops/testing.md
   - ...
 
 plugins:
