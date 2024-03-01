@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_543a4751960f570a_hyperband_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.1">coverage.py v7.4.1</a>,
-            created at 2024-02-15 13:32 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
+            created at 2024-03-01 13:31 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -216,12 +216,12 @@
     <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">            <span class="key">if</span> <span class="key">not</span> <span class="nam">search_space</span><span class="op">.</span><span class="nam">check_validity</span><span class="op">(</span><span class="nam">e</span><span class="op">.</span><span class="nam">configuration</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">                <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">                    <span class="str">f"The provided configuration {e.configuration} is not valid."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">                    <span class="fst">f"</span><span class="fst">The provided configuration </span><span class="op">{</span><span class="nam">e</span><span class="op">.</span><span class="nam">configuration</span><span class="op">}</span><span class="fst"> is not valid.</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">set</span><span class="op">(</span><span class="nam">parameter_names</span><span class="op">)</span> <span class="op">>=</span> <span class="nam">set</span><span class="op">(</span><span class="nam">e</span><span class="op">.</span><span class="nam">configuration</span><span class="op">.</span><span class="nam">keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t">                <span class="str">f"Mismatch in parameter names from search space {parameter_names} and "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t">                <span class="op">+</span> <span class="str">f"configuration {e.configuration}"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Mismatch in parameter names from search space </span><span class="op">{</span><span class="nam">parameter_names</span><span class="op">}</span><span class="fst"> and </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t">                <span class="op">+</span> <span class="fst">f"</span><span class="fst">configuration </span><span class="op">{</span><span class="nam">e</span><span class="op">.</span><span class="nam">configuration</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t">    <span class="nam">X</span> <span class="op">=</span> <span class="nam">torch</span><span class="op">.</span><span class="nam">tensor</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -251,11 +251,11 @@
     <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t">            <span class="nam">Y</span> <span class="op">=</span> <span class="nam">torch</span><span class="op">.</span><span class="nam">cat</span><span class="op">(</span><span class="op">(</span><span class="nam">Y</span><span class="op">,</span> <span class="nam">Y_constraints</span><span class="op">)</span><span class="op">,</span> <span class="nam">dim</span><span class="op">=</span><span class="num">1</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t">        <span class="key">except</span> <span class="nam">KeyError</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ConstraintsError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t">                <span class="str">f"Constraint name {e} is not defined in input evaluations."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Constraint name </span><span class="op">{</span><span class="nam">e</span><span class="op">}</span><span class="fst"> is not defined in input evaluations.</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t">            <span class="op">)</span> <span class="key">from</span> <span class="nam">e</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t">        <span class="key">except</span> <span class="nam">TypeError</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ConstraintsError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t">                <span class="str">f"Constraint name(s) {constraint_names} are not defined in input "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Constraint name(s) </span><span class="op">{</span><span class="nam">constraint_names</span><span class="op">}</span><span class="fst"> are not defined in input </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t">                <span class="op">+</span> <span class="str">"evaluations."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t">            <span class="op">)</span> <span class="key">from</span> <span class="nam">e</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -347,8 +347,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_543a4751960f570a_hyperband_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.1">coverage.py v7.4.1</a>,
-            created at 2024-02-15 13:32 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
+            created at 2024-03-01 13:31 +0000
         </p>
     </div>
 </footer>

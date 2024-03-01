@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for blackboxopt/evaluation.py: 93%</title>
+    <title>Coverage for blackboxopt/evaluation.py: 92%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="coverage_html.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>blackboxopt/evaluation.py</b>:
-            <span class="pc_cov">93%</span>
+            <span class="pc_cov">92%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_930e7a8f3b9e4c57_dask_distributed_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.1">coverage.py v7.4.1</a>,
-            created at 2024-02-15 13:32 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
+            created at 2024-03-01 13:31 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -176,7 +176,7 @@
     <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">    <span class="key">def</span> <span class="nam">__getitem__</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">key</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="par run show_par"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">        <span class="key">if</span> <span class="nam">key</span> <span class="key">not</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">__dataclass_fields__</span><span class="op">:</span>  <span class="com"># pylint: disable=no-member</span>&nbsp;</span><span class="r"><span class="annotate short">93&#x202F;&#x219B;&#x202F;94</span><span class="annotate long">line 93 didn't jump to line 94, because the condition on line 93 was never true</span></span></p>
     <p class="mis show_mis"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">            <span class="key">raise</span> <span class="nam">KeyError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">                <span class="str">f"Only dataclass fields are accessible via __getitem__, '{key}' is not."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Only dataclass fields are accessible via __getitem__, '</span><span class="op">{</span><span class="nam">key</span><span class="op">}</span><span class="fst">' is not.</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">        <span class="key">return</span> <span class="nam">deepcopy</span><span class="op">(</span><span class="nam">getattr</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">key</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -215,7 +215,7 @@
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">np</span><span class="op">.</span><span class="nam">isfinite</span><span class="op">(</span><span class="nam">available_objective_values</span><span class="op">)</span><span class="op">.</span><span class="nam">all</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">                <span class="str">f"Objective values contain non-finite values: {self.objectives}\n"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Objective values contain non-finite values: </span><span class="op">{</span><span class="nam">self</span><span class="op">.</span><span class="nam">objectives</span><span class="op">}</span><span class="fst">\n</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">                <span class="op">+</span> <span class="str">"Please use None to indicate missing objective evaluations."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -292,8 +292,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_930e7a8f3b9e4c57_dask_distributed_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.1">coverage.py v7.4.1</a>,
-            created at 2024-02-15 13:32 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
+            created at 2024-03-01 13:31 +0000
         </p>
     </div>
 </footer>

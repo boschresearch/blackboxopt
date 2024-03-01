@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_543a4751960f570a_botorch_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.1">coverage.py v7.4.1</a>,
-            created at 2024-02-15 13:32 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
+            created at 2024-03-01 13:31 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -149,7 +149,7 @@
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t">        <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">                <span class="str">f"Only discrete parameters are allowed but got {parameter}"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Only discrete parameters are allowed but got </span><span class="op">{</span><span class="nam">parameter</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">    <span class="nam">points</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">meshgrid</span><span class="op">(</span><span class="op">*</span><span class="nam">points_along_dimensions</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">    <span class="nam">points</span> <span class="op">=</span> <span class="op">[</span><span class="nam">p</span><span class="op">.</span><span class="nam">reshape</span><span class="op">(</span><span class="op">(</span><span class="nam">p</span><span class="op">.</span><span class="nam">size</span><span class="op">,</span> <span class="num">1</span><span class="op">)</span><span class="op">)</span> <span class="key">for</span> <span class="nam">p</span> <span class="key">in</span> <span class="nam">points</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
@@ -331,9 +331,9 @@
     <p class="par run show_par"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t">        <span class="key">if</span> <span class="nam">getattr</span><span class="op">(</span><span class="nam">af</span><span class="op">,</span> <span class="str">"maximize"</span><span class="op">,</span> <span class="key">False</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">247&#x202F;&#x219B;&#x202F;248</span><span class="annotate long">line 247 didn't jump to line 248, because the condition on line 247 was never true</span></span></p>
     <p class="mis show_mis"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t">                <span class="str">"Only acquisition functions that need to be minimized are supported. "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t">                <span class="str">f"The given {af.__class__.__name__} has maximize=True. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t">                <span class="fst">f"</span><span class="fst">The given </span><span class="op">{</span><span class="nam">af</span><span class="op">.</span><span class="nam">__class__</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst"> has maximize=True. </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t">                <span class="str">"One potential fix is using functools.partial("</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t">                <span class="str">f"{af.__class__.__name__}, maximize=False) as the "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t">                <span class="fst">f"</span><span class="op">{</span><span class="nam">af</span><span class="op">.</span><span class="nam">__class__</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">, maximize=False) as the </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t">                <span class="str">"acquisition_function_factory init argument."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -432,7 +432,7 @@
     <p class="pln"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t">        <span class="com"># hypercube, thus we can't use the default c=-1.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t">        <span class="nam">X</span> <span class="op">=</span> <span class="nam">impute_nans_with_constant</span><span class="op">(</span><span class="nam">X</span><span class="op">,</span> <span class="nam">c</span><span class="op">=</span><span class="num">0.0</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span><span class="str">f"Next training configuration(s):{X}, {Y}"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Next training configuration(s):</span><span class="op">{</span><span class="nam">X</span><span class="op">}</span><span class="fst">, </span><span class="op">{</span><span class="nam">Y</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">X</span> <span class="op">=</span> <span class="nam">torch</span><span class="op">.</span><span class="nam">cat</span><span class="op">(</span><span class="op">[</span><span class="nam">self</span><span class="op">.</span><span class="nam">X</span><span class="op">,</span> <span class="nam">X</span><span class="op">]</span><span class="op">,</span> <span class="nam">dim</span><span class="op">=</span><span class="op">-</span><span class="num">2</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">losses</span> <span class="op">=</span> <span class="nam">torch</span><span class="op">.</span><span class="nam">cat</span><span class="op">(</span><span class="op">[</span><span class="nam">self</span><span class="op">.</span><span class="nam">losses</span><span class="op">,</span> <span class="nam">Y</span><span class="op">]</span><span class="op">,</span> <span class="nam">dim</span><span class="op">=</span><span class="op">-</span><span class="num">2</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -498,8 +498,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_543a4751960f570a_botorch_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.1">coverage.py v7.4.1</a>,
-            created at 2024-02-15 13:32 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
+            created at 2024-03-01 13:31 +0000
         </p>
     </div>
 </footer>
