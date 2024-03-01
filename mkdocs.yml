@@ -35,6 +35,7 @@ nav:
     - Space Filling: optimizers/space-filling.md
     - BOHB: optimizers/bohb.md
     - BoTorch: optimizers/botorch.md
+    - optimizers/testing.md
   - Optimization Loops:
     - Overview: optimization-loops/overview.md
     - Sequential: optimization-loops/sequential.md
