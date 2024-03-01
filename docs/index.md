@@ -2,6 +2,9 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![CI/CD](https://github.com/boschresearch/blackboxopt/workflows/ci-cd-pipeline/badge.svg)](https://github.com/boschresearch/blackboxopt/actions?query=workflow%3Aci-cd-pipeline+branch%3Amain)
+[![PyPI - Wheel](https://img.shields.io/pypi/wheel/blackboxopt)](https://pypi.org/project/blackboxopt/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/blackboxopt)](https://pypi.org/project/blackboxopt/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 The `blackboxopt` Python package contains blackbox optimization algorithms with a common
 interface, along with useful helpers like parallel optimization loops, analysis and
@@ -25,49 +28,6 @@ in this package are Hyperband, BOHB and a BoTorch based Bayesian optimization ba
 implementation.
 BOHB is provided as a cleaner replacement of the former implementation in
 [HpBandSter](https://github.com/automl/HpBandSter).
-
-#### Fidelities for BOHB & Hyperband
-
-You can calculate the fidelity schedule resulting from these parameters:
-
-<script>
-function calculateFidelitiesBOHB() {
-    const min_fidelity = document.getElementById('minFidelityBOHB').value;
-    const max_fidelity = document.getElementById('maxFidelityBOHB').value;
-    const eta = document.getElementById('etaBOHB').value;
-
-    const max_num_stages = 1 + Math.floor(
-        Math.log(max_fidelity / min_fidelity) / Math.log(eta)
-    );
-    const num_configs_first_stage = Math.ceil(Math.pow(eta, max_num_stages - 1));
-    const num_configs_per_stage = Array.from({ length: max_num_stages }, (_, i) =>
-        Math.floor(num_configs_first_stage / Math.pow(eta, i))
-    );
-    const fidelities_per_stage = Array.from({ length: max_num_stages }, (_, i) =>
-        max_fidelity / Math.pow(eta, max_num_stages - 1 - i)
-    );
-
-    document.getElementById('fidelitiesBOHB').innerHTML = `Fidelities: ${fidelities_per_stage}`;
-}
-</script>
-<table>
-    <tr>
-        <td>min_fidelity</td>
-        <td><input type="text" id="minFidelityBOHB"></td>
-    </tr>
-    <tr>
-        <td>max_fidelity</td>
-        <td><input type="text" id="maxFidelityBOHB"></td>
-    </tr>
-    <tr>
-        <td>eta</td>
-        <td><input type="text" id="etaBOHB"></td>
-    </tr>
-    <tr>
-        <td></td><td><button onclick="calculateFidelitiesBOHB();">Submit</button></td>
-    </tr>
-</table>
-<p id="fidelitiesBOHB"></p>
 
 ### Optimization Loops
 
