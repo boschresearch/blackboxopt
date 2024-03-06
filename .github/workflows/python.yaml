@@ -57,6 +57,7 @@ jobs:
           name: coverage
           path: .coverage.${{ matrix.python-version }}
   report:
+    if: github.event_name != 'release'
     needs: [test]
     runs-on: ubuntu-20.04
     permissions:
