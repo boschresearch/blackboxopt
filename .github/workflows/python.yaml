@@ -51,11 +51,14 @@ jobs:
         run: poetry run coverage run --branch -m pytest tests
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
+      - name: debug ls
+        run: ls -ahl
       - name: Store coverage file
         uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: .coverage.${{ matrix.python-version }}
+          if-no-files-found: error
   report:
     if: github.event_name != 'release'
     needs: [test]
