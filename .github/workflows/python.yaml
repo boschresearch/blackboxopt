@@ -11,8 +11,8 @@ on:
     types: [published]
 jobs:
   lint:
-    runs-on: ubuntu-20.04
-    container: python:3.8-slim
+    runs-on: ubuntu-24.04
+    container: python:3.11
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
@@ -37,9 +37,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
-    container: python:${{ matrix.python-version }}-slim
+        os: [ubuntu-24.04]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    container: python:${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
@@ -52,14 +52,16 @@ jobs:
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
       - name: Store coverage file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ matrix.python-version }}
           path: .coverage.${{ matrix.python-version }}
+          if-no-files-found: error
+          include-hidden-files: true
   report:
     if: github.event_name != 'release'
     needs: [test]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     permissions:
       # Gives the action the necessary permissions for publishing new
       # comments in pull requests.
@@ -71,9 +73,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Download coverage summary
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: coverage
+          pattern: coverage-*
+          merge-multiple: true
       - name: Coverage comment
         id: coverage_comment
         uses: py-cov-action/python-coverage-comment-action@v3
@@ -81,7 +84,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_COVERAGE_FILES: true
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
@@ -90,8 +93,8 @@ jobs:
   deploy:
     needs: [lint, test]
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-20.04
-    container: python:3.8-slim
+    runs-on: ubuntu-24.04
+    container: python:3.11
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
@@ -106,7 +109,7 @@ jobs:
   docs:
     needs: [lint, test]
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
         with:
