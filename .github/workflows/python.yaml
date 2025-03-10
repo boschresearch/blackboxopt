@@ -91,7 +91,7 @@ jobs:
     needs: [lint, test]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-20.04
-    container: python:3.10
+    container: python:3.11
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
