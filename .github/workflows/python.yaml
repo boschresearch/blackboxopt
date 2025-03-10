@@ -11,7 +11,7 @@ on:
     types: [published]
 jobs:
   lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container: python:3.11
     steps:
       - uses: actions/checkout@v3
@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-24.04]
         python-version: ["3.9", "3.10", "3.11", "3.12"]
     container: python:${{ matrix.python-version }}
     steps:
@@ -59,7 +59,7 @@ jobs:
   report:
     if: github.event_name != 'release'
     needs: [test]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     permissions:
       # Gives the action the necessary permissions for publishing new
       # comments in pull requests.
@@ -90,7 +90,7 @@ jobs:
   deploy:
     needs: [lint, test]
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container: python:3.11
     steps:
       - uses: actions/checkout@v3
@@ -106,7 +106,7 @@ jobs:
   docs:
     needs: [lint, test]
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
         with:
