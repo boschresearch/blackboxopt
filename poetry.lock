@@ -2921,5 +2921,5 @@ visualization = ["pandas", "plotly", "pymoo", "scipy"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.9,<3.13"
-content-hash = "0e492146aba3767ea68e9c8487c74a1c0a22420ea76e25b3ecd3462a5d860588"
+python-versions = ">=3.9,<3.14"
+content-hash = "53e90d508f4f6cb17c2c489d166378af1e02bf676ce2f21f483420931ad93baa"
