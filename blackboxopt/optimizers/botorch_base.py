@@ -68,8 +68,7 @@ def _get_numerical_points_from_discrete_space(space: ParameterSpace) -> np.ndarr
                 f"Only discrete parameters are allowed but got {parameter}"
             )
     points = np.meshgrid(*points_along_dimensions)
-    points = [p.reshape((p.size, 1)) for p in points]
-    return np.concatenate(points, axis=-1)
+    return np.concatenate([p.reshape((p.size, 1)) for p in points], axis=-1)
 
 
 def _acquisition_function_optimizer_factory(
