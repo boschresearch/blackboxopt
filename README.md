@@ -19,7 +19,7 @@
 | blackboxopt/optimization\_loops/utils.py                |       31 |        0 |        6 |        0 |    100% |           |
 | blackboxopt/optimizers/\_\_init\_\_.py                  |        0 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/optimizers/bohb.py                          |       20 |        2 |        2 |        0 |     91% |     24-25 |
-| blackboxopt/optimizers/botorch\_base.py                 |      120 |       18 |       28 |        7 |     82% |41-42, 67, 200->203, 215-239, 248, 279, 314-315, 318-323 |
+| blackboxopt/optimizers/botorch\_base.py                 |      119 |       18 |       28 |        7 |     82% |41-42, 67, 199->202, 214-238, 247, 278, 313-314, 317-322 |
 | blackboxopt/optimizers/botorch\_utils.py                |       73 |        2 |       24 |        2 |     96% |   68, 208 |
 | blackboxopt/optimizers/hyperband.py                     |       19 |        2 |        0 |        0 |     89% |     25-26 |
 | blackboxopt/optimizers/random\_search.py                |       14 |        0 |        2 |        0 |    100% |           |
@@ -35,8 +35,8 @@
 | blackboxopt/utils.py                                    |       36 |        0 |       10 |        0 |    100% |           |
 | blackboxopt/visualizations/\_\_init\_\_.py              |        0 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/visualizations/utils.py                     |       88 |       19 |       16 |        6 |     74% |51, 61-76, 137, 139, 142, 144, 204, 216 |
-| blackboxopt/visualizations/visualizer.py                |      242 |       25 |       64 |        4 |     90% |54, 252->254, 270-272, 419-422, 637-686 |
-|                                               **TOTAL** | **1544** |  **133** |  **360** |   **40** | **90%** |           |
+| blackboxopt/visualizations/visualizer.py                |      242 |       25 |       64 |        4 |     90% |54, 252->254, 270-272, 419-422, 639-688 |
+|                                               **TOTAL** | **1543** |  **133** |  **360** |   **40** | **90%** |           |
 
 
 ## Setup coverage badge
