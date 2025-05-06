@@ -5,7 +5,7 @@ request model. For large contributions we do encourage you to file a ticket in
 the GitHub issues tracking system prior to any code development to coordinate
 with the blackboxopt development team early in the process. Coordinating up
 front helps to avoid frustration later on.
-Please follow the conventiones outlined by the pre-commit hooks mentioned in the
+Please follow the conventions outlined by the pre-commit hooks mentioned in the
 repository README and add tests for the functionality you would like to contribute.
 
 Your contribution must be licensed under the Apache-2.0 license, the license
