@@ -51,6 +51,7 @@ pre-commit = "^2.18.1"
 toml = "^0.10.2"
 types-toml = "^0.10.7"
 kaleido = "0.2.1"  # pin hard, because 0.2.1post1 fails to install
+pytest-xdist = "^3.6.1"
 
 [tool.poetry.extras]
 all = ["numpy", "plotly", "scipy", "statsmodels", "dask", "distributed", "pandas", "sympy", "torch", "botorch", "pymoo", "scikit-learn"]

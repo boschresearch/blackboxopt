@@ -2,11 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from blackboxopt.examples import multi_objective_multi_param
+from blackboxopt.examples import dask_distributed, multi_objective_multi_param
 
 
-@pytest.mark.parametrize("example_module", [multi_objective_multi_param])
-@pytest.mark.integration_test
+@pytest.mark.parametrize(
+    "example_module", [multi_objective_multi_param, dask_distributed]
+)
 def test_full_loop_examples(tmp_path, monkeypatch, example_module):
     if not example_module:
         return
@@ -17,6 +18,7 @@ def test_full_loop_examples(tmp_path, monkeypatch, example_module):
 
     def run_sequential_mocked(*args, **kwargs):
         kwargs["timeout_s"] = 5
+        kwargs["max_evaluations"] = None
         return run_sequential(*args, **kwargs)
 
     monkeypatch.setattr(example_module, "run_optimization_loop", run_sequential_mocked)
