@@ -48,7 +48,7 @@ jobs:
           poetry install --extras "all"
       - name: Run tests
         if: always()
-        run: poetry run coverage run --branch -m pytest tests
+        run: poetry run coverage run --branch -m pytest --dist=loadfile tests
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
       - name: Store coverage file
