@@ -2,6 +2,9 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![CI/CD](https://github.com/boschresearch/blackboxopt/workflows/ci-cd-pipeline/badge.svg)](https://github.com/boschresearch/blackboxopt/actions?query=workflow%3Aci-cd-pipeline+branch%3Amain)
+[![PyPI - Wheel](https://img.shields.io/pypi/wheel/blackboxopt)](https://pypi.org/project/blackboxopt/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/blackboxopt)](https://pypi.org/project/blackboxopt/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Various blackbox optimization algorithms with a common interface along with useful
 helpers like parallel optimization loops, analysis and visualization scripts.
@@ -62,20 +65,6 @@ For HTML test coverage reports run
 
 ```
 poetry run pytest tests/ --cov --cov-report html:htmlcov
-```
-
-### Custom Optimizers
-
-When you develop an optimizer based on the interface defined as part of
-`blackboxopt.base`, you can use `blackboxopt.testing` to directly test whether your
-implementation follows the specification by adding a test like this to your test suite.
-
-```python
-from blackboxopt.testing import ALL_REFERENCE_TESTS
-
-@pytest.mark.parametrize("reference_test", ALL_REFERENCE_TESTS)
-def test_all_reference_tests(reference_test):
-    reference_test(CustomOptimizer, custom_optimizer_init_kwargs)
 ```
 
 ## Building Documentation

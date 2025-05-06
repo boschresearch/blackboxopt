@@ -410,7 +410,7 @@ def parallel_coordinate_plot_parameters(
             df[column] = df[column].astype(str).astype("category")
             categories = df[column].cat.categories.to_list()
             encoded_categories = list(range(len(categories)))
-            df[column].cat.categories = encoded_categories
+            df[column] = df[column].cat.rename_categories(encoded_categories)
             # Use integer encodings for scale and category values as tick labels
             coordinate["ticktext"] = categories
             coordinate["tickvals"] = encoded_categories
@@ -480,9 +480,11 @@ class Visualizer:
         self.info_dicts = [
             {
                 self.objective.name: "%3.2e" % self.objective_values[i],
-                "duration": str(datetime.timedelta(seconds=int(self.durations[i])))
-                if np.isfinite(self.durations[i])
-                else "N/A",
+                "duration": (
+                    str(datetime.timedelta(seconds=int(self.durations[i])))
+                    if np.isfinite(self.durations[i])
+                    else "N/A"
+                ),
                 "fidelity": "%3.2e" % self.fidelities[i],
             }
             for i in range(self.objective_values.shape[0])
