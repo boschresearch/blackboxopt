@@ -31,7 +31,10 @@ from blackboxopt.optimizers.random_search import RandomSearch
 @pytest.mark.timeout(60)
 @pytest.mark.parametrize("reference_test", ALL_REFERENCE_TESTS)
 def test_all_reference_tests(reference_test, client):  # noqa: F811
-    reference_test(run_optimization_loop, {"dask_client": client})
+    try:
+        reference_test(run_optimization_loop, {"dask_client": client})
+    finally:
+        client.close()
 
 
 def evaluation_function_cause_worker_restart(
@@ -47,44 +50,45 @@ def evaluation_function_cause_worker_restart(
 def test_restarting_workers(tmpdir):
     # setup local cluster in processes (the fixture doesn't seem to work)
     dask.config.set({"distributed.scheduler.allowed-failures": 1})
-    cluster = dd.LocalCluster(
-        n_workers=1, threads_per_worker=1, local_directory=tmpdir, processes=True
-    )
-    dd_client = dd.Client(cluster)
-    objectives = [Objective("loss", False)]
-    scheduler = MinimalDaskScheduler(
-        dask_client=dd_client,
-        objectives=objectives,
-        logger=logging.getLogger("blackboxopt"),
-    )
+    with (
+        dd.LocalCluster(
+            n_workers=1, threads_per_worker=1, local_directory=tmpdir, processes=True
+        ) as cluster,
+        dd.Client(cluster) as dd_client,
+    ):
+        dd_client = dd.Client(cluster)
+        objectives = [Objective("loss", False)]
+        scheduler = MinimalDaskScheduler(
+            dask_client=dd_client,
+            objectives=objectives,
+            logger=logging.getLogger("blackboxopt"),
+        )
 
-    space = ps.ParameterSpace()
-    space.add(ps.CategoricalParameter("exit", [True, False]))
-    opt = RandomSearch(space, objectives, max_steps=4)
+        space = ps.ParameterSpace()
+        space.add(ps.CategoricalParameter("exit", [True, False]))
+        opt = RandomSearch(space, objectives, max_steps=4)
 
-    # create an evaluation spec that causes the worker to unexpectedly stop
-    eval_spec = opt.generate_evaluation_specification()
-    eval_spec.configuration["exit"] = True
-    scheduler.submit(evaluation_function_cause_worker_restart, eval_spec)
-    res = scheduler.check_for_results(20)
-    assert res[0].all_objectives_none
+        # create an evaluation spec that causes the worker to unexpectedly stop
+        eval_spec = opt.generate_evaluation_specification()
+        eval_spec.configuration["exit"] = True
+        scheduler.submit(evaluation_function_cause_worker_restart, eval_spec)
+        res = scheduler.check_for_results(20)
+        assert res[0].all_objectives_none
 
-    # Wait until scheduler available
-    while not scheduler.has_capacity():
-        time.sleep(0.05)
+        # Wait until scheduler available
+        while not scheduler.has_capacity():
+            time.sleep(0.05)
 
-    # make sure that the worker is still functional
-    eval_spec.configuration["exit"] = False
-    scheduler.submit(evaluation_function_cause_worker_restart, eval_spec)
-    res = scheduler.check_for_results(20)
-    assert not res[0].all_objectives_none
-    assert res[0].objectives["loss"] == 0
+        # make sure that the worker is still functional
+        eval_spec.configuration["exit"] = False
+        scheduler.submit(evaluation_function_cause_worker_restart, eval_spec)
+        res = scheduler.check_for_results(20)
+        assert not res[0].all_objectives_none
+        assert res[0].objectives["loss"] == 0
 
-    # shutdown everything to avoid warning because
-    # TemporaryDirectory will be cleaned up first
-    scheduler.shutdown()
-    del dd_client
-    del cluster
+        # shutdown everything to avoid warning because
+        # TemporaryDirectory will be cleaned up first
+        scheduler.shutdown()
 
 
 def delayed_evaluation_function(eval_spec: EvaluationSpecification) -> Evaluation:
