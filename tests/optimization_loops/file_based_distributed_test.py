@@ -7,8 +7,6 @@ from collections import defaultdict
 from functools import partial
 from threading import Thread
 
-import pytest
-
 from blackboxopt import Evaluation, EvaluationSpecification
 from blackboxopt.optimization_loops import testing
 from blackboxopt.optimization_loops.file_based_distributed import (
