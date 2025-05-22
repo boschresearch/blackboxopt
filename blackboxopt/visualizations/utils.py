@@ -36,9 +36,11 @@ def get_times_finished(evaluations: List[Evaluation]):
 
 def get_durations(evaluations: List[Evaluation]):
     return [
-        e.finished_unixtime - e.created_unixtime
-        if not e.any_objective_none
-        else float("NaN")
+        (
+            e.finished_unixtime - e.created_unixtime
+            if not e.any_objective_none
+            else float("NaN")
+        )
         for e in evaluations
     ]
 
