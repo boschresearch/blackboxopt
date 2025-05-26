@@ -35,7 +35,7 @@
 | blackboxopt/optimizers/testing.py                           |      161 |        4 |       52 |        5 |     96% |41->43, 46->48, 50, 139, 192, 335 |
 | blackboxopt/utils.py                                        |       36 |        0 |       10 |        0 |    100% |           |
 | blackboxopt/visualizations/\_\_init\_\_.py                  |        0 |        0 |        0 |        0 |    100% |           |
-| blackboxopt/visualizations/utils.py                         |       88 |       19 |       16 |        6 |     74% |51, 61-76, 137, 139, 142, 144, 204, 216 |
+| blackboxopt/visualizations/utils.py                         |       88 |       19 |       16 |        6 |     74% |53, 63-78, 139, 141, 144, 146, 206, 218 |
 | blackboxopt/visualizations/visualizer.py                    |      242 |       25 |       64 |        4 |     90% |54, 252->254, 270-272, 419-422, 639-688 |
 |                                                   **TOTAL** | **1632** |  **143** |  **384** |   **43** | **90%** |           |
 
