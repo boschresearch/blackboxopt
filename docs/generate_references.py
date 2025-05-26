@@ -3,6 +3,7 @@
 The files are only generated during build time and not actually written on disk.
 To write them on disk (for e.g. debugging) execute this script directely.
 """
+
 from pathlib import Path
 
 import mkdocs_gen_files
