@@ -12,6 +12,7 @@
 #     - docstrings and type hints
 
 import logging
+from typing import Optional
 
 from parameterspace import ParameterSpace
 
@@ -38,13 +39,13 @@ class BOHB(StagedIterationOptimizer):
         num_iterations: int,
         eta: float = 3.0,
         top_n_percent: int = 15,
-        min_samples_in_model: int = None,
+        min_samples_in_model: Optional[int] = None,
         num_samples: int = 64,
         random_fraction: float = 1 / 3,
         bandwidth_factor: float = 3.0,
         min_bandwidth: float = 1e-3,
-        seed: int = None,
-        logger: logging.Logger = None,
+        seed: Optional[int] = None,
+        logger: Optional[logging.Logger] = None,
     ):
         """BOHB Optimizer.
 

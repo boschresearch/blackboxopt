@@ -7,7 +7,7 @@ import abc
 import collections
 import functools
 from dataclasses import dataclass
-from typing import Callable, Iterable, List, Tuple, Type, Union
+from typing import Callable, Iterable, List, Optional, Tuple, Type, Union
 
 from parameterspace import ParameterSpace
 
@@ -133,7 +133,9 @@ def call_functions_with_evaluations_and_collect_errors(
 class Optimizer(abc.ABC):
     """Abstract base class for blackbox optimizer implementations."""
 
-    def __init__(self, search_space: ParameterSpace, seed: int = None) -> None:
+    def __init__(
+        self, search_space: ParameterSpace, seed: Optional[int] = None
+    ) -> None:
         """Initialize the optimizer with an optional seed for reproducibility.
 
         Args:
@@ -177,7 +179,7 @@ class SingleObjectiveOptimizer(Optimizer):
         self,
         search_space: ParameterSpace,
         objective: Objective,
-        seed: int = None,
+        seed: Optional[int] = None,
     ) -> None:
         """Initialize the optimizer with an optional seed for reproducibility.
 
@@ -218,7 +220,7 @@ class MultiObjectiveOptimizer(Optimizer):
         self,
         search_space: ParameterSpace,
         objectives: List[Objective],
-        seed: int = None,
+        seed: Optional[int] = None,
     ) -> None:
         """Initialize the optimizer with an optional seed for reproducibility.
 

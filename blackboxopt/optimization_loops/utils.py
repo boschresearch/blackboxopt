@@ -6,7 +6,7 @@
 import datetime
 import logging
 import traceback
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.base import ObjectivesError, raise_on_unknown_or_incomplete
@@ -26,7 +26,7 @@ class EvaluationFunctionError(ValueError):
 
 
 def init_max_evaluations_with_limit_logging(
-    timeout_s: float, logger: logging.Logger, max_evaluations: int = None
+    timeout_s: float, logger: logging.Logger, max_evaluations: Optional[int] = None
 ) -> float:
     """[summary]
 

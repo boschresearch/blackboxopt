@@ -82,7 +82,7 @@ class MinimalDaskScheduler:
                     evaluation = Evaluation(
                         objectives={o.name: None for o in self.objectives},
                         stacktrace=str(f.traceback()),
-                        **f.bbo_eval_spec
+                        **f.bbo_eval_spec,
                     )
                 else:
                     evaluation = f.result()
@@ -102,10 +102,10 @@ def run_optimization_loop(
     evaluation_function: Callable[[EvaluationSpecification], Evaluation],
     dask_client: dd.Client,
     timeout_s: float = float("inf"),
-    max_evaluations: int = None,
+    max_evaluations: Optional[int] = None,
     pre_evaluation_callback: Optional[Callable[[EvaluationSpecification], Any]] = None,
     post_evaluation_callback: Optional[Callable[[Evaluation], Any]] = None,
-    logger: logging.Logger = None,
+    logger: Optional[logging.Logger] = None,
 ) -> List[Evaluation]:
     """Convenience wrapper for an optimization loop that uses Dask to parallelize
     optimization until a given timeout or maximum number of evaluations is reached.

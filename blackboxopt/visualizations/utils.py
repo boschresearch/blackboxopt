@@ -58,7 +58,6 @@ def get_configs(evaluations: List[Evaluation]):
 
 
 def get_objective_values_matrix(evaluations: List[Evaluation]):
-
     # need to turn config dicts into tuples to use set
     config_tuples = {tuple(e.configuration.values()) for e in evaluations}
     configs = list(config_tuples)

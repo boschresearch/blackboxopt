@@ -94,7 +94,6 @@ def optimize_single_parameter_sequentially_for_n_max_evaluations(
     optimizer.report(evaluation)
 
     for _ in range(n_max_evaluations):
-
         try:
             eval_spec = optimizer.generate_evaluation_specification()
         except OptimizationComplete:
