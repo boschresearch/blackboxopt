@@ -44,7 +44,6 @@ class DummyConfigurationSampler(StagedIterationConfigurationSampler):
 
 @pytest.mark.timeout(1)
 def test_staged_iteration_get_and_digest_configuration():
-
     n_eval_specs = 3
     iteration = StagedIteration(
         iteration=0,
@@ -95,7 +94,6 @@ def test_staged_iteration_get_and_digest_configuration():
 
 @pytest.mark.timeout(1)
 def test_staged_iteration_get_and_digest_configuration_with_crashes():
-
     n_eval_specs = 3
     opt = DummyOptimizer(n_eval_specs - 1)
     iteration = StagedIteration(
