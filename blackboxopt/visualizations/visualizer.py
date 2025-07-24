@@ -497,7 +497,6 @@ class Visualizer:
         fig = go.Figure()
 
         for i, f in enumerate(self.all_fidelities):
-
             mask = self.fidelities == f
 
             hover_texts = utils.get_hover_texts(
@@ -546,7 +545,6 @@ class Visualizer:
         fig = go.Figure()
 
         for i, f in enumerate(self.all_fidelities):
-
             mask = self.fidelities == f
 
             hover_texts = utils.get_hover_texts(
@@ -576,12 +574,10 @@ class Visualizer:
         return fig
 
     def cdf_objective_values(self, x_range=None, log_x=False):
-
         colors = px.colors.qualitative.G10
         fig = go.Figure()
 
         for i, f in enumerate(self.all_fidelities):
-
             mask = self.fidelities == f
             x, y = utils.get_cdf_x_and_y(self.objective_values[mask])
 
@@ -606,12 +602,10 @@ class Visualizer:
         return fig
 
     def cdf_durations(self, x_range=None, log_x=False):
-
         colors = px.colors.qualitative.G10
         fig = go.Figure()
 
         for i, f in enumerate(self.all_fidelities):
-
             mask = self.fidelities == f
             x, y = utils.get_cdf_x_and_y(self.durations[mask])
 
@@ -643,7 +637,6 @@ class Visualizer:
         p_values = np.full([len(fidelities), len(fidelities)], np.nan)
         num_samples = np.full([len(fidelities), len(fidelities)], 0)
         for i, j in itertools.combinations(range(len(fidelities)), 2):
-
             row_mask = np.all(np.isfinite(matrix[:, [i, j]]), axis=1)
             v1, v2 = matrix[row_mask][:, [i, j]].T
             res = sps.spearmanr(v1, v2)
