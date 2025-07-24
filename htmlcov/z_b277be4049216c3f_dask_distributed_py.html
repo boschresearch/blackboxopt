@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for blackboxopt/optimization_loops/dask_distributed.py: 95%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_81f8c14c.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
 </head>
 <body class="pyfile">
@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_b277be4049216c3f_file_based_distributed_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.8.1">coverage.py v7.8.1</a>,
-            created at 2025-05-26 13:08 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
+            created at 2025-07-24 09:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -166,7 +166,7 @@
     <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">                    <span class="nam">evaluation</span> <span class="op">=</span> <span class="nam">Evaluation</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">                        <span class="nam">objectives</span><span class="op">=</span><span class="op">{</span><span class="nam">o</span><span class="op">.</span><span class="nam">name</span><span class="op">:</span> <span class="key">None</span> <span class="key">for</span> <span class="nam">o</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">objectives</span><span class="op">}</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">                        <span class="nam">stacktrace</span><span class="op">=</span><span class="nam">str</span><span class="op">(</span><span class="nam">f</span><span class="op">.</span><span class="nam">traceback</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">                        <span class="op">**</span><span class="nam">f</span><span class="op">.</span><span class="nam">bbo_eval_spec</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">                        <span class="op">**</span><span class="nam">f</span><span class="op">.</span><span class="nam">bbo_eval_spec</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">                    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">                <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t">                    <span class="nam">evaluation</span> <span class="op">=</span> <span class="nam">f</span><span class="op">.</span><span class="nam">result</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -186,10 +186,10 @@
     <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">    <span class="nam">evaluation_function</span><span class="op">:</span> <span class="nam">Callable</span><span class="op">[</span><span class="op">[</span><span class="nam">EvaluationSpecification</span><span class="op">]</span><span class="op">,</span> <span class="nam">Evaluation</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">    <span class="nam">dask_client</span><span class="op">:</span> <span class="nam">dd</span><span class="op">.</span><span class="nam">Client</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">    <span class="nam">timeout_s</span><span class="op">:</span> <span class="nam">float</span> <span class="op">=</span> <span class="nam">float</span><span class="op">(</span><span class="str">"inf"</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">    <span class="nam">max_evaluations</span><span class="op">:</span> <span class="nam">int</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">    <span class="nam">max_evaluations</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">    <span class="nam">pre_evaluation_callback</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">Callable</span><span class="op">[</span><span class="op">[</span><span class="nam">EvaluationSpecification</span><span class="op">]</span><span class="op">,</span> <span class="nam">Any</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">    <span class="nam">post_evaluation_callback</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">Callable</span><span class="op">[</span><span class="op">[</span><span class="nam">Evaluation</span><span class="op">]</span><span class="op">,</span> <span class="nam">Any</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">    <span class="nam">logger</span><span class="op">:</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">Logger</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">    <span class="nam">logger</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">logging</span><span class="op">.</span><span class="nam">Logger</span><span class="op">]</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">List</span><span class="op">[</span><span class="nam">Evaluation</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">    <span class="str">"""Convenience wrapper for an optimization loop that uses Dask to parallelize</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="str">    optimization until a given timeout or maximum number of evaluations is reached.</span>&nbsp;</span><span class="r"></span></p>
@@ -281,8 +281,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_b277be4049216c3f_file_based_distributed_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.8.1">coverage.py v7.8.1</a>,
-            created at 2025-05-26 13:08 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
+            created at 2025-07-24 09:07 +0000
         </p>
     </div>
 </footer>

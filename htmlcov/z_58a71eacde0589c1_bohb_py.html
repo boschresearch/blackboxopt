@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for blackboxopt/optimizers/staged/bohb.py: 85%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_81f8c14c.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
 </head>
 <body class="pyfile">
@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_58a71eacde0589c1_configuration_sampler_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.8.1">coverage.py v7.8.1</a>,
-            created at 2025-05-26 13:08 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
+            created at 2025-07-24 09:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -282,7 +282,7 @@
     <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t">        <span class="nam">random_fraction</span><span class="op">:</span> <span class="nam">float</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t">        <span class="nam">bandwidth_factor</span><span class="op">:</span> <span class="nam">float</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">        <span class="nam">min_bandwidth</span><span class="op">:</span> <span class="nam">float</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">        <span class="nam">seed</span><span class="op">:</span> <span class="nam">int</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">        <span class="nam">seed</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">        <span class="nam">logger</span><span class="op">=</span><span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t">    <span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">        <span class="str">"""Fits for each given fidelity a kernel density estimator on the best N percent</span>&nbsp;</span><span class="r"></span></p>
@@ -503,8 +503,8 @@
     <p class="run"><span class="n"><a id="t419" href="#t419">419</a></span><span class="t">            <span class="nam">n_runs_finite_loss</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">isfinite</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">losses</span><span class="op">[</span><span class="nam">fidelity</span><span class="op">]</span><span class="op">)</span><span class="op">.</span><span class="nam">sum</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t420" href="#t420">420</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t421" href="#t421">421</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Only </span><span class="op">{</span><span class="nam">n_runs_finite_loss</span><span class="op">}</span><span class="fst"> run(s) with a finite loss for fidelity </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t422" href="#t422">422</a></span><span class="t">                <span class="op">+</span> <span class="fst">f"</span><span class="op">{</span><span class="nam">fidelity</span><span class="op">}</span><span class="fst"> available, need more than </span><span class="op">{</span><span class="nam">self</span><span class="op">.</span><span class="nam">min_samples_in_model</span><span class="op">+</span><span class="num">1</span><span class="op">}</span><span class="fst"> </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t423" href="#t423">423</a></span><span class="t">                <span class="op">+</span> <span class="str">"-> can't build model!"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t422" href="#t422">422</a></span><span class="t">                <span class="op">+</span> <span class="fst">f"</span><span class="op">{</span><span class="nam">fidelity</span><span class="op">}</span><span class="fst"> available, need more than </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t423" href="#t423">423</a></span><span class="t">                <span class="op">+</span> <span class="fst">f"</span><span class="op">{</span><span class="nam">self</span><span class="op">.</span><span class="nam">min_samples_in_model</span> <span class="op">+</span> <span class="num">1</span><span class="op">}</span><span class="fst"> -> can't build model!</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t424" href="#t424">424</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t425" href="#t425">425</a></span><span class="t">            <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t426" href="#t426">426</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -572,8 +572,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_58a71eacde0589c1_configuration_sampler_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.8.1">coverage.py v7.8.1</a>,
-            created at 2025-05-26 13:08 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
+            created at 2025-07-24 09:07 +0000
         </p>
     </div>
 </footer>
