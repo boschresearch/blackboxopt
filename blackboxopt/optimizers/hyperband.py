@@ -12,6 +12,7 @@
 #     - docstrings and type hints
 
 import logging
+from typing import Optional
 
 from parameterspace import ParameterSpace
 
@@ -38,7 +39,7 @@ class Hyperband(StagedIterationOptimizer):
         max_fidelity: float,
         num_iterations: int,
         eta: float = 3.0,
-        seed: int = None,
+        seed: Optional[int] = None,
         logger: logging.Logger = None,
     ):
         """Implementation of Hyperband as proposed in

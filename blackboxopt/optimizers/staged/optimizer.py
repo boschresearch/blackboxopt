@@ -5,7 +5,7 @@
 
 import abc
 import logging
-from typing import Dict, Iterable, List, Union
+from typing import Dict, Iterable, List, Optional, Union
 
 from parameterspace import ParameterSpace
 
@@ -34,7 +34,7 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         search_space: ParameterSpace,
         objective: Objective,
         num_iterations: int,
-        seed: int = None,
+        seed: Optional[int] = None,
         logger: logging.Logger = None,
     ):
         """Base class for optimizers using iterations that compare configurations at

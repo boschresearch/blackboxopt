@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List
+from typing import List, Optional
 
 try:
     from scipy.stats.qmc import Sobol
@@ -29,7 +29,7 @@ class SpaceFilling(MultiObjectiveOptimizer):
         self,
         search_space: ParameterSpace,
         objectives: List[Objective],
-        seed: int = None,
+        seed: Optional[int] = None,
     ) -> None:
         super().__init__(search_space=search_space, objectives=objectives, seed=seed)
         self.sobol = Sobol(d=len(self.search_space), scramble=True, seed=seed)

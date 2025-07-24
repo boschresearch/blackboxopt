@@ -198,7 +198,7 @@ class Sampler(StagedIterationConfigurationSampler):
         random_fraction: float,
         bandwidth_factor: float,
         min_bandwidth: float,
-        seed: int = None,
+        seed: Optional[int] = None,
         logger=None,
     ):
         """Fits for each given fidelity a kernel density estimator on the best N percent
@@ -419,8 +419,8 @@ class Sampler(StagedIterationConfigurationSampler):
             n_runs_finite_loss = np.isfinite(self.losses[fidelity]).sum()
             self.logger.debug(
                 f"Only {n_runs_finite_loss} run(s) with a finite loss for fidelity "
-                + f"{fidelity} available, need more than {self.min_samples_in_model+1} "
-                + "-> can't build model!"
+                + f"{fidelity} available, need more than "
+                + f"{self.min_samples_in_model + 1} -> can't build model!"
             )
             return
 

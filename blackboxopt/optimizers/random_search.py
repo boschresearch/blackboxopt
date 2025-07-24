@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List
+from typing import List, Optional
 
 from blackboxopt import (
     EvaluationSpecification,
@@ -20,7 +20,7 @@ class RandomSearch(MultiObjectiveOptimizer):
         search_space: ParameterSpace,
         objectives: List[Objective],
         max_steps: int,
-        seed: int = None,
+        seed: Optional[int] = None,
     ) -> None:
         """Randomly sample up to `max_steps` configurations from the given search space.
 

@@ -105,7 +105,7 @@ def sort_evaluations(evaluations: Iterable[Evaluation]) -> Iterable[Evaluation]:
     )
 
 
-def init_logger(level: int = None) -> logging.Logger:  # pragma: no cover
+def init_logger(level: Optional[int] = None) -> logging.Logger:  # pragma: no cover
     """Initialize the default `blackboxopt.logger` as a nicely formatted stdout logger.
 
     Should no log level be given, the environment variable `BBO_LOG_LEVEL` is used
