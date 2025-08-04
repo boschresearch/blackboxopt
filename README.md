@@ -20,8 +20,8 @@
 | blackboxopt/optimization\_loops/utils.py                    |       31 |        0 |        6 |        0 |    100% |           |
 | blackboxopt/optimizers/\_\_init\_\_.py                      |        0 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/optimizers/bohb.py                              |       21 |        2 |        2 |        0 |     91% |     25-26 |
-| blackboxopt/optimizers/botorch\_base.py                     |      119 |       18 |       28 |        7 |     82% |41-42, 67, 199->202, 214-238, 247, 278, 313-314, 317-322 |
-| blackboxopt/optimizers/botorch\_utils.py                    |       73 |        2 |       24 |        2 |     96% |   68, 208 |
+| blackboxopt/optimizers/botorch\_base.py                     |      119 |       18 |       28 |        7 |     82% |41-42, 67, 202->205, 217-241, 250, 281, 316-317, 320-325 |
+| blackboxopt/optimizers/botorch\_utils.py                    |       73 |        2 |       24 |        2 |     96% |   68, 211 |
 | blackboxopt/optimizers/hyperband.py                         |       20 |        2 |        0 |        0 |     90% |     26-27 |
 | blackboxopt/optimizers/random\_search.py                    |       14 |        0 |        2 |        0 |    100% |           |
 | blackboxopt/optimizers/space\_filling.py                    |       15 |        2 |        0 |        0 |     87% |     10-11 |
