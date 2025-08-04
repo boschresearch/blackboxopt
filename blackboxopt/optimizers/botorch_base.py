@@ -29,7 +29,7 @@ try:
     from botorch.exceptions import BotorchTensorDimensionWarning
     from botorch.models.model import Model
     from botorch.optim import optimize_acqf, optimize_acqf_discrete
-    from botorch.sampling.samplers import IIDNormalSampler
+    from botorch.sampling import IIDNormalSampler
 
     from blackboxopt.optimizers.botorch_utils import (
         filter_y_nans,
@@ -126,10 +126,13 @@ def _acquisition_function_optimizer_factory(
     else:
         # Optimize over the desired number of samples from the discrete search space
         choices = torch.Tensor(
-            [
-                search_space.to_numerical(search_space.sample())
-                for _ in range(kwargs["num_random_choices"])
-            ]
+            # Converting a list of ndarrays to torch is slow => convert to ndarray first
+            np.array(
+                [
+                    search_space.to_numerical(search_space.sample())
+                    for _ in range(kwargs["num_random_choices"])
+                ]
+            )
         ).to(dtype=torch_dtype)
     return functools.partial(optimize_acqf_discrete, q=1, choices=choices, **kwargs)
 
@@ -260,7 +263,7 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         configuration, _ = acquisition_function_optimizer(af)
 
         return EvaluationSpecification(
-            configuration=self.search_space.from_numerical(configuration[0]),
+            configuration=self.search_space.from_numerical(configuration[0].numpy()),
         )
 
     def generate_evaluation_specification(self) -> EvaluationSpecification:

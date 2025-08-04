@@ -45,6 +45,7 @@ def test_all_reference_tests(reference_test, seed):
             model=SingleTaskGP(
                 torch.empty((*batch_shape, 0, n_features), dtype=torch.float64),
                 torch.empty((*batch_shape, 0, 1), dtype=torch.float64),
+                outcome_transform=None,
             ),
             acquisition_function_factory=partial(
                 UpperConfidenceBound, beta=0.1, maximize=False
@@ -146,6 +147,7 @@ def test_find_optimum_in_1d_discrete_space(seed):
         model=SingleTaskGP(
             torch.empty((*batch_shape, 0, len(space)), dtype=torch.float64),
             torch.empty((*batch_shape, 0, 1), dtype=torch.float64),
+            outcome_transform=None,
         ),
         acquisition_function_factory=partial(
             UpperConfidenceBound, beta=1.0, maximize=False
@@ -181,6 +183,7 @@ def test_propose_random_until_enough_evaluations_without_missing_objective_value
         model=SingleTaskGP(
             torch.empty((*batch_shape, 0, len(space)), dtype=torch.float64),
             torch.empty((*batch_shape, 0, 1), dtype=torch.float64),
+            outcome_transform=None,
         ),
         acquisition_function_factory=partial(
             UpperConfidenceBound, beta=1.0, maximize=False

@@ -76,7 +76,10 @@ def impute_nans_with_constant(x: torch.Tensor, c: float = -1.0) -> torch.Tensor:
         x_1 = x_i[b, :, :]
         x_1 = torch.tensor(
             SimpleImputer(
-                missing_values=np.nan, strategy="constant", fill_value=c
+                missing_values=np.nan,
+                strategy="constant",
+                fill_value=c,
+                keep_empty_features=True,
             ).fit_transform(x_1),
             dtype=x.dtype,
         )
