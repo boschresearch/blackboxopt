@@ -6,6 +6,7 @@
 import logging
 import pprint
 import time
+from datetime import timedelta
 from typing import Any, Callable, List, Optional, Union
 
 from blackboxopt import (
@@ -86,6 +87,15 @@ def run_optimization_loop(
 
         try:
             evaluation_specification = optimizer.generate_evaluation_specification()
+
+            logger.info(
+                "Starting evaluation %s (of %s). "
+                "Overall runtime so far: %s (timeout at %s)",
+                num_evaluations,
+                _max_evaluations,
+                timedelta(seconds=int(time.time() - start)),
+                timedelta(seconds=timeout_s) if timeout_s != float("inf") else "inf",
+            )
 
             logger.info(
                 "The optimizer proposed the following evaluation specification:\n%s",
