@@ -224,7 +224,14 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
             dtype=self.torch_dtype,
         )
 
-        model = model.fantasize(pending_X, IIDNormalSampler(1), observation_noise=False)
+        # Ignoring linting error "Tensor not callable" because our model actually needs
+        # to be a Model with FantasizeMixIn but there does not seem to be a
+        # corresponding type we can use in the function signature.
+        model = model.fantasize(  # type: ignore[operator]
+            pending_X,
+            IIDNormalSampler(torch.Size((1,))),
+            observation_noise=False,
+        )
 
         if isinstance(model, ExactGP):
             # ExactGP.fantasize extends model's X and Y with batch_size, even if
