@@ -207,7 +207,11 @@ def predict_model_based_best(
             The evaluated specification containing the estimated best configuration
             or `None` in case no evaluations have been reported yet.
     """
-    if model.train_inputs[0].numel() == 0:
+    # NOTE: model.train_inputs can technically also be a Module instance
+    if (
+        isinstance(model.train_inputs, torch.Tensor)
+        and model.train_inputs[0].numel() == 0
+    ):
         return None
 
     def posterior_mean(x):
