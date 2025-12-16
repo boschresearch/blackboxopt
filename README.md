@@ -5,8 +5,8 @@
 | Name                                                        |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |------------------------------------------------------------ | -------: | -------: | -------: | -------: | ------: | --------: |
 | blackboxopt/\_\_init\_\_.py                                 |        7 |        0 |        0 |        0 |    100% |           |
-| blackboxopt/base.py                                         |       76 |        0 |       14 |        0 |    100% |           |
-| blackboxopt/evaluation.py                                   |       58 |        4 |        8 |        2 |     91% |88, 94, 101, 104 |
+| blackboxopt/base.py                                         |       74 |        0 |       14 |        0 |    100% |           |
+| blackboxopt/evaluation.py                                   |       57 |        4 |        8 |        2 |     91% |88, 94, 101, 104 |
 | blackboxopt/examples/\_\_init\_\_.py                        |        0 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/examples/dask\_distributed.py                   |       17 |       17 |        2 |        0 |      0% |      6-44 |
 | blackboxopt/examples/multi\_objective\_multi\_param.py      |       37 |        1 |        2 |        1 |     95% |        90 |
@@ -20,8 +20,8 @@
 | blackboxopt/optimization\_loops/utils.py                    |       31 |        0 |        6 |        0 |    100% |           |
 | blackboxopt/optimizers/\_\_init\_\_.py                      |        0 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/optimizers/bohb.py                              |       21 |        2 |        2 |        0 |     91% |     25-26 |
-| blackboxopt/optimizers/botorch\_base.py                     |      119 |       18 |       28 |        7 |     82% |41-42, 67, 202->205, 217-241, 250, 281, 316-317, 320-325 |
-| blackboxopt/optimizers/botorch\_utils.py                    |       73 |        2 |       24 |        2 |     96% |   68, 211 |
+| blackboxopt/optimizers/botorch\_base.py                     |      119 |       18 |       28 |        7 |     82% |41-42, 67, 202->205, 217-248, 257, 288, 323-324, 327-332 |
+| blackboxopt/optimizers/botorch\_utils.py                    |       73 |        2 |       24 |        2 |     96% |   68, 215 |
 | blackboxopt/optimizers/hyperband.py                         |       20 |        2 |        0 |        0 |     90% |     26-27 |
 | blackboxopt/optimizers/random\_search.py                    |       14 |        0 |        2 |        0 |    100% |           |
 | blackboxopt/optimizers/space\_filling.py                    |       15 |        2 |        0 |        0 |     87% |     10-11 |
@@ -29,7 +29,7 @@
 | blackboxopt/optimizers/staged/bohb.py                       |      184 |       26 |       66 |        9 |     85% |69-70, 74-80, 131-132, 183->185, 266, 314, 337-354, 363-368, 380-384, 416, 451 |
 | blackboxopt/optimizers/staged/configuration\_sampler.py     |       15 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/optimizers/staged/hyperband.py                  |       13 |        0 |        0 |        0 |    100% |           |
-| blackboxopt/optimizers/staged/iteration.py                  |       65 |        0 |       14 |        0 |    100% |           |
+| blackboxopt/optimizers/staged/iteration.py                  |       63 |        0 |       14 |        0 |    100% |           |
 | blackboxopt/optimizers/staged/optimizer.py                  |       44 |        0 |       10 |        0 |    100% |           |
 | blackboxopt/optimizers/staged/utils.py                      |       26 |        3 |        8 |        3 |     82% |60, 66, 76 |
 | blackboxopt/optimizers/testing.py                           |      161 |        4 |       52 |        5 |     96% |41->43, 46->48, 50, 138, 191, 334 |
@@ -37,7 +37,7 @@
 | blackboxopt/visualizations/\_\_init\_\_.py                  |        0 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/visualizations/utils.py                         |       88 |       19 |       16 |        6 |     74% |53, 62-77, 138, 140, 143, 145, 205, 217 |
 | blackboxopt/visualizations/visualizer.py                    |      242 |       25 |       64 |        4 |     90% |54, 252->254, 270-272, 419-422, 633-681 |
-|                                                   **TOTAL** | **1636** |  **143** |  **384** |   **43** | **90%** |           |
+| **TOTAL**                                                   | **1631** |  **143** |  **384** |   **43** | **90%** |           |
 
 
 ## Setup coverage badge
