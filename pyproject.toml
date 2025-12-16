@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "blackboxopt"
-version = "5.3.3"
+version = "5.3.4"
 description = "A common interface for blackbox optimization algorithms along with useful helpers like parallel optimization loops, analysis and visualization scripts."
 readme = "README.md"
 repository = "https://github.com/boschresearch/blackboxopt"
@@ -13,6 +13,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [[tool.poetry.source]]
@@ -21,10 +22,13 @@ url = "https://download.pytorch.org/whl/cpu"
 priority = "explicit"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.14"
+python = ">=3.10,<3.15"
 parameterspace = ">=0.7.2"
 plotly = {version = "^5.10.0", optional = true}
-scipy = {version = "^1.14.0", optional = true}
+scipy = [
+    {version = "^1.14.0", markers = "python_version < '3.14'", optional = true},
+    {version = "^1.16.1", markers = "python_version >= '3.14'", optional = true},
+]
 statsmodels = {version = "^0.14.2", optional = true}
 dask = {version = "^2023.1.0", optional = true}
 distributed = {version = "^2023.1.0", optional = true}
