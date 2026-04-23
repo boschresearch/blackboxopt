@@ -53,7 +53,7 @@ uv run pre-commit install
 Make sure to install all extras before running tests
 
 ```
-uv sync --extra testing
+uv sync --extra all
 uv run pytest tests/
 ```
 
