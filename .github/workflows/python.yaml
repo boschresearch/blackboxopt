@@ -22,8 +22,8 @@ jobs:
       - name: Formatting
         if: always()
         run: |
-          uv run black --check --exclude blackboxopt/examples/ .
-          uv run black --check --include blackboxopt/examples/ --line-length 80 .
+          uv run black --check --exclude blackboxopt/examples/ --exclude .venv .
+          uv run black --check --include blackboxopt/examples/ --exclude .venv --line-length 80 .
       - name: Type Checks
         if: always()
         run: uv run mypy --config-file pyproject.toml .
