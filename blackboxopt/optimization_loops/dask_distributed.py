@@ -43,6 +43,7 @@ class MinimalDaskScheduler:
         self.objectives = objectives
         self.logger = logger
         self._not_done_futures: Set = set()
+        self._futures_eval_specs: dict = {}
 
     def shutdown(self):
         return self.client.shutdown()
@@ -67,7 +68,7 @@ class MinimalDaskScheduler:
             catch_exceptions_from_evaluation_function=True,
             logger=self.logger,
         )
-        f.bbo_eval_spec = eval_spec
+        self._futures_eval_specs[f] = eval_spec
         self._not_done_futures.add(f)
 
     def check_for_results(self, timeout_s: float = 5.0) -> List[Evaluation]:
@@ -78,11 +79,12 @@ class MinimalDaskScheduler:
 
             evaluations: List[Evaluation] = []
             for f in all_futures.done:
+                eval_spec = self._futures_eval_specs.pop(f)
                 if f.status == "error":
                     evaluation = Evaluation(
                         objectives={o.name: None for o in self.objectives},
                         stacktrace=str(f.traceback()),
-                        **f.bbo_eval_spec,
+                        **eval_spec,
                     )
                 else:
                     evaluation = f.result()
