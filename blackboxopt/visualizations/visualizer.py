@@ -67,10 +67,12 @@ def evaluations_to_df(evaluations: List[Evaluation]) -> pd.DataFrame:
     # Flatten json/dict columns into single multi-index dataframe
     dfs_expanded = []
     for column in df.columns:
-        # Normalize json columns keep original column for non-json columns
+        # Normalize json columns and keep scalar columns unchanged.
+        # pandas may raise different exception types for scalar inputs depending on
+        # version (e.g. AttributeError in older versions, TypeError in newer ones).
         try:
             df_temp = pd.json_normalize(df[column], errors="ignore", max_level=0)
-        except AttributeError:
+        except (AttributeError, TypeError):
             df_temp = df[[column]]
 
         # Use keys of dicts as second level of column index
