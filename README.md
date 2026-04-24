@@ -32,24 +32,20 @@ requirements and adjust it according to any applicable safety standards
 
 ## Development
 
-Install poetry >= 1.5.0
-
-```
-pip install --upgrade poetry
-```
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 Install the `blackboxopt` package from source by running the following from the root
 directory of _this_ repository
 
 ```
-poetry install
+uv sync
 ```
 
 (Optional) Install [pre-commit](https://pre-commit.com) hooks to check code standards
 before committing changes:
 
 ```
-poetry run pre-commit install
+uv run pre-commit install
 ```
 
 ## Test
@@ -57,14 +53,14 @@ poetry run pre-commit install
 Make sure to install all extras before running tests
 
 ```
-poetry install -E testing
-poetry run pytest tests/
+uv sync --extra all
+uv run pytest tests/
 ```
 
 For HTML test coverage reports run
 
 ```
-poetry run pytest tests/ --cov --cov-report html:htmlcov
+uv run pytest tests/ --cov --cov-report html:htmlcov
 ```
 
 ## Building Documentation
@@ -72,19 +68,19 @@ poetry run pytest tests/ --cov --cov-report html:htmlcov
 Make sure to install _all_ necessary dependencies:
 
 ```
-poetry install --extras=all
+uv sync --extra all
 ```
 
 The documentation can be built from the repository root as follows:
 
 ```
-poetry run mkdocs build --clean --no-directory-urls
+uv run mkdocs build --clean --no-directory-urls
 ```
 
 For serving it locally while working on the documentation run:
 
 ```
-poetry run mkdocs serve
+uv run mkdocs serve
 ```
 
 ## Architectural Decision Records

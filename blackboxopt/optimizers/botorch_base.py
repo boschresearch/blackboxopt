@@ -51,7 +51,7 @@ def _get_numerical_points_from_discrete_space(space: ParameterSpace) -> np.ndarr
     for parameter_name in space.get_parameter_names():
         parameter = space.get_parameter_by_name(parameter_name)[
             "parameter"
-        ]  # type:ignore
+        ]  # type: ignore
         if isinstance(parameter, ps.IntegerParameter):
             bounds = (parameter.bounds[0], parameter.bounds[1] + 1)
             points_along_dimensions.append(
