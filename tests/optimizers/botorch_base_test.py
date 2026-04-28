@@ -55,6 +55,7 @@ def test_all_reference_tests(reference_test, seed):
         seed=seed,
     )
 
+
 def test_batch_bo_with_fantasize():
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("x1", (0, 2)))
@@ -64,16 +65,16 @@ def test_batch_bo_with_fantasize():
     opt = SingleObjectiveBOTorchOptimizer(
         search_space=space,
         objective=Objective("loss", greater_is_better=False),
-            model=SingleTaskGP(
-                torch.empty((*batch_shape, 0, n_features), dtype=torch.float64),
-                torch.empty((*batch_shape, 0, 1), dtype=torch.float64),
-                outcome_transform=None,
-            ),
-            acquisition_function_factory=partial(
-                UpperConfidenceBound, beta=0.1, maximize=False
-            ),
-            max_pending_evaluations=5,
-        )
+        model=SingleTaskGP(
+            torch.empty((*batch_shape, 0, n_features), dtype=torch.float64),
+            torch.empty((*batch_shape, 0, 1), dtype=torch.float64),
+            outcome_transform=None,
+        ),
+        acquisition_function_factory=partial(
+            UpperConfidenceBound, beta=0.1, maximize=False
+        ),
+        max_pending_evaluations=5,
+    )
     es1 = opt.generate_evaluation_specification()
     opt.report(es1.create_evaluation(objectives={"loss": 0.5}))
     es2 = opt.generate_evaluation_specification()
@@ -81,6 +82,7 @@ def test_batch_bo_with_fantasize():
     es3 = opt.generate_evaluation_specification()
     assert es1.configuration != es2.configuration
     assert es1.configuration != es3.configuration
+
 
 def test_not_ready():
     space = ps.ParameterSpace()
@@ -91,16 +93,16 @@ def test_not_ready():
     opt = SingleObjectiveBOTorchOptimizer(
         search_space=space,
         objective=Objective("loss", greater_is_better=False),
-            model=SingleTaskGP(
-                torch.empty((*batch_shape, 0, n_features), dtype=torch.float64),
-                torch.empty((*batch_shape, 0, 1), dtype=torch.float64),
-                outcome_transform=None,
-            ),
-            acquisition_function_factory=partial(
-                UpperConfidenceBound, beta=0.1, maximize=False
-            ),
-            max_pending_evaluations=1,
-        )
+        model=SingleTaskGP(
+            torch.empty((*batch_shape, 0, n_features), dtype=torch.float64),
+            torch.empty((*batch_shape, 0, 1), dtype=torch.float64),
+            outcome_transform=None,
+        ),
+        acquisition_function_factory=partial(
+            UpperConfidenceBound, beta=0.1, maximize=False
+        ),
+        max_pending_evaluations=1,
+    )
     opt.generate_evaluation_specification()
     pytest.raises(OptimizerNotReady, opt.generate_evaluation_specification)
 
