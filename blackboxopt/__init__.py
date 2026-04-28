@@ -1,4 +1,4 @@
-__version__ = "5.3.5"
+__version__ = "5.3.6"
 
 from parameterspace import ParameterSpace
 

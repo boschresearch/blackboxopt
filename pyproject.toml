@@ -1,6 +1,6 @@
 [project]
 name = "blackboxopt"
-version = "5.3.5"
+version = "5.3.6"
 description = "A common interface for blackbox optimization algorithms along with useful helpers like parallel optimization loops, analysis and visualization scripts."
 readme = "README.md"
 authors = [{name = "Bosch Center for AI, Robert Bosch GmbH"}]
@@ -66,6 +66,7 @@ examples = ["scikit-learn", "dask>=2023.1.0", "distributed>=2023.1.0"]
 dev = [
     "black>=25.1.0",
     "pytest>=7.2.0",
+    "pytest-cov>=7.1.0",
     "mypy>=1.7",
     "pytest-timeout>=2.1.0",
     "coverage>=7.2.7",

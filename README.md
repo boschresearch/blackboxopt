@@ -60,7 +60,7 @@ uv run pytest tests/
 For HTML test coverage reports run
 
 ```
-uv run pytest tests/ --cov --cov-report html:htmlcov
+uv run pytest --cov=. --cov-report=html tests/
 ```
 
 ## Building Documentation
