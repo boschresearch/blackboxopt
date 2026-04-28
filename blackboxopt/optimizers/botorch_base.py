@@ -230,7 +230,7 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         model = model.fantasize(  # type: ignore[operator]
             pending_X,
             IIDNormalSampler(torch.Size((1,))),
-            observation_noise=False,
+            observation_noise=None,
         )
 
         if isinstance(model, ExactGP):
