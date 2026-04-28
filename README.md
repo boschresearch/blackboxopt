@@ -20,7 +20,7 @@
 | blackboxopt/optimization\_loops/utils.py                    |       31 |        0 |        6 |        0 |    100% |           |
 | blackboxopt/optimizers/\_\_init\_\_.py                      |        0 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/optimizers/bohb.py                              |       21 |        2 |        2 |        0 |     91% |     25-26 |
-| blackboxopt/optimizers/botorch\_base.py                     |      119 |       18 |       28 |        7 |     82% |41-42, 67, 202-\>205, 217-248, 257, 288, 323-324, 327-332 |
+| blackboxopt/optimizers/botorch\_base.py                     |      119 |        9 |       28 |        5 |     90% |41-42, 67, 236-\>248, 257, 323-324, 327-332 |
 | blackboxopt/optimizers/botorch\_utils.py                    |       73 |        2 |       24 |        2 |     96% |   68, 215 |
 | blackboxopt/optimizers/hyperband.py                         |       20 |        2 |        0 |        0 |     90% |     26-27 |
 | blackboxopt/optimizers/random\_search.py                    |       14 |        0 |        2 |        0 |    100% |           |
@@ -37,7 +37,7 @@
 | blackboxopt/visualizations/\_\_init\_\_.py                  |        0 |        0 |        0 |        0 |    100% |           |
 | blackboxopt/visualizations/utils.py                         |       88 |       19 |       16 |        6 |     74% |53, 62-77, 138, 140, 143, 145, 205, 217 |
 | blackboxopt/visualizations/visualizer.py                    |      242 |       23 |       64 |        3 |     91% |54, 254-\>256, 272-274, 635-683 |
-| **TOTAL**                                                   | **1633** |  **141** |  **384** |   **42** | **90%** |           |
+| **TOTAL**                                                   | **1633** |  **132** |  **384** |   **40** | **91%** |           |
 
 
 ## Setup coverage badge
