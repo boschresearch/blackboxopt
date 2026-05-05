@@ -1,6 +1,6 @@
 [project]
 name = "blackboxopt"
-version = "5.3.6"
+version = "5.3.7"
 description = "A common interface for blackbox optimization algorithms along with useful helpers like parallel optimization loops, analysis and visualization scripts."
 readme = "README.md"
 authors = [{name = "Bosch Center for AI, Robert Bosch GmbH"}]

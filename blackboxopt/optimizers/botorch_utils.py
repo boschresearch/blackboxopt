@@ -214,6 +214,11 @@ def predict_model_based_best(
     ):
         return None
 
+    # The type signature does not suggest this is possible, but our test demonstrates
+    # the issue: test_predict_model_based_best_returns_none_for_empty_model
+    if isinstance(model.train_inputs, tuple) and model.train_inputs[0].numel() == 0:
+        return None
+
     def posterior_mean(x):
         # function to be optimized: posterior mean
         # scipy's minimize expects the following interface:
