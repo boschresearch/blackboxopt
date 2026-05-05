@@ -257,19 +257,20 @@ def test_filter_y_nans():
     with pytest.raises(ValueError, match="Multiple batches"):
         filter_y_nans(x_multi_batch, y_multi_batch)
 
+
 def test_predict_model_based_best_returns_none_for_empty_model():
-     """predict_model_based_best should return None when the model has no training data,
-     i.e. no evaluations have been reported yet."""
-     search_space = ps.ParameterSpace()
-     search_space.add(ps.ContinuousParameter("x0", (0.0, 1.0)))
- 
-     objective = Objective("loss", greater_is_better=False)
- 
-     model = SingleTaskGP(
-         torch.empty(0, 1, dtype=torch.float64),
-         torch.empty(0, 1, dtype=torch.float64),
-         outcome_transform=None,
-     )
- 
-     result = predict_model_based_best(model, search_space, objective, torch.float64)
-     assert result is None
+    """predict_model_based_best should return None when the model has no training data,
+    i.e. no evaluations have been reported yet."""
+    search_space = ps.ParameterSpace()
+    search_space.add(ps.ContinuousParameter("x0", (0.0, 1.0)))
+
+    objective = Objective("loss", greater_is_better=False)
+
+    model = SingleTaskGP(
+        torch.empty(0, 1, dtype=torch.float64),
+        torch.empty(0, 1, dtype=torch.float64),
+        outcome_transform=None,
+    )
+
+    result = predict_model_based_best(model, search_space, objective, torch.float64)
+    assert result is None
