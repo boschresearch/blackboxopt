@@ -4,8 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import numpy as np
+import parameterspace as ps
 import pytest
 import torch
+from botorch.models import SingleTaskGP
 
 from blackboxopt import ConstraintsError, Evaluation, Objective
 from blackboxopt.optimizers.botorch_base import (
@@ -13,6 +15,7 @@ from blackboxopt.optimizers.botorch_base import (
     impute_nans_with_constant,
     to_numerical,
 )
+from blackboxopt.optimizers.botorch_utils import predict_model_based_best
 
 from .conftest import constraint_name_1, constraint_name_2, objective_name
 
@@ -250,3 +253,21 @@ def test_filter_y_nans():
     y_multi_batch = torch.tensor([[[0.4], [0.4]], [[0.8], [np.nan]]])
     with pytest.raises(ValueError, match="Multiple batches"):
         filter_y_nans(x_multi_batch, y_multi_batch)
+
+
+def test_predict_model_based_best_returns_none_for_empty_model():
+    """predict_model_based_best should return None when the model has no training data,
+    i.e. no evaluations have been reported yet."""
+    search_space = ps.ParameterSpace()
+    search_space.add(ps.ContinuousParameter("x0", (0.0, 1.0)))
+
+    objective = Objective("loss", greater_is_better=False)
+
+    model = SingleTaskGP(
+        torch.empty(0, 1, dtype=torch.float64),
+        torch.empty(0, 1, dtype=torch.float64),
+        outcome_transform=None,
+    )
+
+    result = predict_model_based_best(model, search_space, objective, torch.float64)
+    assert result is None
