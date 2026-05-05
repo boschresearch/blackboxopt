@@ -4,14 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import numpy as np
+import parameterspace as ps
 import pytest
 import torch
-
-import torch
-import parameterspace as ps
 from botorch.models import SingleTaskGP
-from blackboxopt import Objective
-from blackboxopt.optimizers.botorch_utils import predict_model_based_best
 
 from blackboxopt import ConstraintsError, Evaluation, Objective
 from blackboxopt.optimizers.botorch_base import (
@@ -19,6 +15,7 @@ from blackboxopt.optimizers.botorch_base import (
     impute_nans_with_constant,
     to_numerical,
 )
+from blackboxopt.optimizers.botorch_utils import predict_model_based_best
 
 from .conftest import constraint_name_1, constraint_name_2, objective_name
 
