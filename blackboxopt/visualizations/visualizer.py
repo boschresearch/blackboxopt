@@ -557,7 +557,7 @@ class Visualizer:
         objective value found so far).
 
         Args:
-            constraint_bounds: For each constraint name a tuple of (lower, upper) bounds.
+            constraint_bounds: For each constraint name a tuple of lower & upper bounds.
                 A constraint is satisfied when lower <= value <= upper, where None means
                 no bound on that side. If None, all evaluations are considered feasible.
             x_range: Optional x-axis range.
