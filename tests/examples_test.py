@@ -25,7 +25,9 @@ def test_full_loop_examples(tmp_path, monkeypatch, example_module):
             kwargs["timeout_s"] = 5
             return run_sequential(*args, **kwargs)
 
-        monkeypatch.setattr(example_module, "run_optimization_loop", run_sequential_mocked)
+        monkeypatch.setattr(
+            example_module, "run_optimization_loop", run_sequential_mocked
+        )
 
     # Some examples write output files. Let's redirect those to temporary path:
     if getattr(example_module, "REPORT_PATH", None):

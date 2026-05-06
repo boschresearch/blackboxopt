@@ -577,15 +577,15 @@ class Visualizer:
         iterations = np.arange(1, len(self.objective_values) + 1)
 
         # Build constraint value dicts for hover text
-        has_constraints = any(
-            e.constraints is not None for e in self.evaluations
-        )
+        has_constraints = any(e.constraints is not None for e in self.evaluations)
         constraint_dicts = None
         if has_constraints:
             constraint_dicts = [
-                {k: "%3.2e" % v for k, v in e.constraints.items()}
-                if e.constraints
-                else {"(none)": "N/A"}
+                (
+                    {k: "%3.2e" % v for k, v in e.constraints.items()}
+                    if e.constraints
+                    else {"(none)": "N/A"}
+                )
                 for e in self.evaluations
             ]
 

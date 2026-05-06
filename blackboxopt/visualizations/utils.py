@@ -77,6 +77,43 @@ def get_objective_values_matrix(evaluations: List[Evaluation]):
     return matrix
 
 
+def _get_incumbent_trace(
+    objective: Objective,
+    x_values: np.ndarray,
+    objective_values: np.ndarray,
+    x_end: float,
+):
+    """Core logic for computing an incumbent step-line trace.
+
+    Args:
+        objective: The objective specification.
+        x_values: X-axis values (e.g. times or iterations) for the included evaluations.
+        objective_values: Objective values for the included evaluations (same length as
+            x_values).
+        x_end: The x value to extend the trace to (e.g. max time or last iteration).
+
+    Returns:
+        Tuple of (x, objective_values) arrays forming a step-function plot.
+    """
+    if objective.greater_is_better:
+        _objective_values = np.maximum.accumulate(objective_values)
+    else:
+        _objective_values = np.minimum.accumulate(objective_values)
+    # get unique objective values and sort their indices (to be in chronological order)
+    _, idx = np.unique(_objective_values, return_index=True)
+    idx.sort()
+    # find objective_values
+    _objective_values = _objective_values[idx]
+    _x = x_values[idx]
+    # add steps where a new incumbent was found
+    _x = np.repeat(_x, 2)[1:]
+    _objective_values = np.repeat(_objective_values, 2)[:-1]
+    # append best value for largest x to extend the lines
+    _x = np.concatenate([_x, np.atleast_1d(x_end)])
+    _objective_values = np.concatenate([_objective_values, _objective_values[-1:]])
+    return _x, _objective_values
+
+
 def get_incumbent_objective_over_time_single_fidelity(
     objective: Objective,
     objective_values: np.ndarray,
@@ -87,24 +124,37 @@ def get_incumbent_objective_over_time_single_fidelity(
     """Filter for results with given target fidelity and generate incumbent trace."""
     # filter out fidelity and take min/max of objective_values
     idx = np.logical_and(fidelities == target_fidelity, np.isfinite(objective_values))
-    _times = times[idx]
-    if objective.greater_is_better:
-        _objective_values = np.maximum.accumulate(objective_values[idx])
-    else:
-        _objective_values = np.minimum.accumulate(objective_values[idx])
-    # get unique objective values and sort their indices (to be in chronological order)
-    _, idx = np.unique(_objective_values, return_index=True)
-    idx.sort()
-    # find objective_values
-    _objective_values = _objective_values[idx]
-    _times = _times[idx]
-    # add steps where a new incumbent was found
-    _times = np.repeat(_times, 2)[1:]
-    _objective_values = np.repeat(_objective_values, 2)[:-1]
-    # append best value for largest time to extend the lines
-    _times = np.concatenate([_times, np.nanmax(times, keepdims=True)])
-    _objective_values = np.concatenate([_objective_values, _objective_values[-1:]])
-    return _times, _objective_values
+    return _get_incumbent_trace(
+        objective, times[idx], objective_values[idx], np.nanmax(times)
+    )
+
+
+def get_incumbent_objective_over_iterations(
+    objective: Objective,
+    objective_values: np.ndarray,
+    feasible_mask: np.ndarray,
+):
+    """Compute incumbent trace over iterations considering only feasible evaluations.
+
+    Args:
+        objective: The objective specification.
+        objective_values: Array of objective values for all evaluations.
+        feasible_mask: Boolean mask indicating feasible evaluations.
+
+    Returns:
+        Tuple of (iterations, incumbent_values) arrays for step-line plotting.
+    """
+    iterations = np.arange(1, len(objective_values) + 1)
+
+    feasible_iterations = iterations[feasible_mask]
+    feasible_values = objective_values[feasible_mask]
+
+    if len(feasible_values) == 0:
+        return np.array([]), np.array([])
+
+    return _get_incumbent_trace(
+        objective, feasible_iterations, feasible_values, float(iterations[-1])
+    )
 
 
 def dict_to_hovertext(d):
@@ -181,52 +231,6 @@ def get_constraint_satisfaction_mask(
                 mask[i] = False
                 break
     return mask
-
-
-def get_incumbent_objective_over_iterations(
-    objective: Objective,
-    objective_values: np.ndarray,
-    feasible_mask: np.ndarray,
-):
-    """Compute incumbent trace over iterations considering only feasible evaluations.
-
-    Args:
-        objective: The objective specification.
-        objective_values: Array of objective values for all evaluations.
-        feasible_mask: Boolean mask indicating feasible evaluations.
-
-    Returns:
-        Tuple of (iterations, incumbent_values) arrays for step-line plotting.
-    """
-    iterations = np.arange(1, len(objective_values) + 1)
-
-    feasible_iterations = iterations[feasible_mask]
-    feasible_values = objective_values[feasible_mask]
-
-    if len(feasible_values) == 0:
-        return np.array([]), np.array([])
-
-    if objective.greater_is_better:
-        incumbent_values = np.maximum.accumulate(feasible_values)
-    else:
-        incumbent_values = np.minimum.accumulate(feasible_values)
-
-    # Get unique incumbent changes for step-function style
-    _, idx = np.unique(incumbent_values, return_index=True)
-    idx.sort()
-
-    _iterations = feasible_iterations[idx]
-    _values = incumbent_values[idx]
-
-    # Create step plot data
-    _iterations = np.repeat(_iterations, 2)[1:]
-    _values = np.repeat(_values, 2)[:-1]
-
-    # Extend to last iteration
-    _iterations = np.concatenate([_iterations, iterations[-1:]])
-    _values = np.concatenate([_values, _values[-1:]])
-
-    return _iterations, _values
 
 
 def get_cdf_x_and_y(values):
