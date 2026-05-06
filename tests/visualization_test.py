@@ -10,6 +10,8 @@ from plotly.graph_objs._figure import Figure
 
 from blackboxopt import Evaluation, EvaluationSpecification, Objective
 from blackboxopt.visualizations.utils import (
+    get_constraint_satisfaction_mask,
+    get_incumbent_objective_over_iterations,
     get_incumbent_objective_over_time_single_fidelity,
 )
 from blackboxopt.visualizations.visualizer import (
@@ -460,3 +462,151 @@ def test_parallel_coordinate_plot_parameters_with_unhashable_parameters():
         evaluations, columns=["loss", "p1"], color_by="p1"
     )
     assert isinstance(fig, Figure)
+
+
+def test_objective_over_iteration_no_constraints():
+    evaluations = [
+        Evaluation(
+            objectives={"loss": 0.5 * i},
+            configuration={"p1": 0.1 * i},
+            optimizer_info={"rung": -1},
+            user_info={},
+            settings={"fidelity": 1.0},
+        )
+        for i in range(5)
+    ]
+    viz = Visualizer(evaluations, Objective("loss", greater_is_better=False))
+    fig = viz.objective_over_iteration()
+    assert isinstance(fig, Figure)
+    # All evaluations should be feasible (no constraints), so 2 traces:
+    # feasible scatter + incumbent line
+    assert len(fig.data) == 2
+
+
+def test_objective_over_iteration_with_constraints():
+    evaluations = [
+        Evaluation(
+            objectives={"loss": float(i)},
+            constraints={"c1": float(i) - 2.0},
+            configuration={"p1": 0.1 * i},
+            optimizer_info={"rung": -1},
+            user_info={},
+            settings={"fidelity": 1.0},
+        )
+        for i in range(5)
+    ]
+    viz = Visualizer(evaluations, Objective("loss", greater_is_better=False))
+    fig = viz.objective_over_iteration(constraint_bounds={"c1": (0.0, None)})
+    assert isinstance(fig, Figure)
+    # c1 values: -2, -1, 0, 1, 2 -> feasible: i=2,3,4 (c1 >= 0), infeasible: i=0,1
+    # 3 traces: feasible scatter, infeasible scatter, incumbent line
+    assert len(fig.data) == 3
+
+
+def test_objective_over_iteration_all_infeasible():
+    evaluations = [
+        Evaluation(
+            objectives={"loss": float(i)},
+            constraints={"c1": -1.0},
+            configuration={"p1": 0.1 * i},
+            optimizer_info={"rung": -1},
+            user_info={},
+            settings={"fidelity": 1.0},
+        )
+        for i in range(3)
+    ]
+    viz = Visualizer(evaluations, Objective("loss", greater_is_better=False))
+    fig = viz.objective_over_iteration(constraint_bounds={"c1": (0.0, None)})
+    assert isinstance(fig, Figure)
+    # All infeasible: only infeasible scatter, no incumbent line
+    assert len(fig.data) == 1
+
+
+def test_get_constraint_satisfaction_mask():
+    evaluations = [
+        Evaluation(
+            objectives={"loss": 1.0},
+            constraints={"c1": 0.5, "c2": -0.1},
+            configuration={"p1": 1.0},
+        ),
+        Evaluation(
+            objectives={"loss": 2.0},
+            constraints={"c1": -0.5, "c2": 0.3},
+            configuration={"p1": 2.0},
+        ),
+        Evaluation(
+            objectives={"loss": 3.0},
+            constraints=None,
+            configuration={"p1": 3.0},
+        ),
+    ]
+
+    # No bounds: all feasible
+    mask = get_constraint_satisfaction_mask(evaluations)
+    np.testing.assert_array_equal(mask, [True, True, True])
+
+    # c1 >= 0
+    mask = get_constraint_satisfaction_mask(evaluations, {"c1": (0.0, None)})
+    np.testing.assert_array_equal(mask, [True, False, False])
+
+    # c2 >= 0
+    mask = get_constraint_satisfaction_mask(evaluations, {"c2": (0.0, None)})
+    np.testing.assert_array_equal(mask, [False, True, False])
+
+    # c1 in [-1, 1]
+    mask = get_constraint_satisfaction_mask(evaluations, {"c1": (-1.0, 1.0)})
+    np.testing.assert_array_equal(mask, [True, True, False])
+
+
+def test_get_incumbent_objective_over_iterations():
+    objective = Objective("loss", greater_is_better=False)
+    objective_values = np.array([3.0, 1.0, 2.0, 0.5, 4.0])
+    feasible_mask = np.array([True, True, True, True, True])
+
+    iterations, values = get_incumbent_objective_over_iterations(
+        objective, objective_values, feasible_mask
+    )
+    # Incumbent: 3.0 -> 1.0 -> 0.5
+    # Step function: iterations [1, 2, 2, 4, 4, 5], values [3, 3, 1, 1, 0.5, 0.5]
+    np.testing.assert_array_equal(iterations, [1, 2, 2, 4, 4, 5])
+    np.testing.assert_array_equal(values, [3.0, 3.0, 1.0, 1.0, 0.5, 0.5])
+
+
+def test_get_incumbent_objective_over_iterations_with_infeasible():
+    objective = Objective("loss", greater_is_better=False)
+    objective_values = np.array([3.0, 0.1, 2.0, 0.5, 4.0])
+    # Evaluation at index 1 (best value) is infeasible
+    feasible_mask = np.array([True, False, True, True, True])
+
+    iterations, values = get_incumbent_objective_over_iterations(
+        objective, objective_values, feasible_mask
+    )
+    # Feasible: i=1(3.0), i=3(2.0), i=4(0.5), i=5(4.0)
+    # Incumbent: 3.0 -> 2.0 -> 0.5
+    np.testing.assert_array_equal(iterations, [1, 3, 3, 4, 4, 5])
+    np.testing.assert_array_equal(values, [3.0, 3.0, 2.0, 2.0, 0.5, 0.5])
+
+
+def test_get_incumbent_objective_over_iterations_greater_is_better():
+    objective = Objective("score", greater_is_better=True)
+    objective_values = np.array([1.0, 3.0, 2.0, 5.0])
+    feasible_mask = np.array([True, True, True, True])
+
+    iterations, values = get_incumbent_objective_over_iterations(
+        objective, objective_values, feasible_mask
+    )
+    # Incumbent: 1.0 -> 3.0 -> 5.0
+    np.testing.assert_array_equal(iterations, [1, 2, 2, 4, 4, 4])
+    np.testing.assert_array_equal(values, [1.0, 1.0, 3.0, 3.0, 5.0, 5.0])
+
+
+def test_get_incumbent_objective_over_iterations_no_feasible():
+    objective = Objective("loss", greater_is_better=False)
+    objective_values = np.array([1.0, 2.0, 3.0])
+    feasible_mask = np.array([False, False, False])
+
+    iterations, values = get_incumbent_objective_over_iterations(
+        objective, objective_values, feasible_mask
+    )
+    assert len(iterations) == 0
+    assert len(values) == 0

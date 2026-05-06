@@ -5,7 +5,7 @@
 
 import importlib.resources
 from functools import wraps
-from typing import Callable, List
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -112,19 +112,121 @@ def dict_to_hovertext(d):
     return "<br />".join(strings)
 
 
-def get_hover_texts(info_dicts, optimizer_info_dicts, config_dicts, mask):
+def get_hover_texts(
+    info_dicts, optimizer_info_dicts, config_dicts, mask, constraints=None
+):
     info_texts = [dict_to_hovertext(info_dicts[j]) for j, k in enumerate(mask) if k]
     optimizer_texts = [
         dict_to_hovertext(optimizer_info_dicts[j]) for j, k in enumerate(mask) if k
     ]
     config_texts = [dict_to_hovertext(config_dicts[j]) for j, k in enumerate(mask) if k]
-    hover_texts = [
-        f"<b>Info</b><br />{i}<br /><br />"
-        + f"<b>Optimizer Info</b><br />{o}<br /><br />"
-        + f"<b>Configuration</b><br />{c}"
-        for i, o, c in zip(info_texts, optimizer_texts, config_texts)
-    ]
+
+    if constraints is not None:
+        constraint_texts = [
+            dict_to_hovertext(constraints[j]) for j, k in enumerate(mask) if k
+        ]
+        hover_texts = [
+            f"<b>Info</b><br />{i}<br /><br />"
+            + f"<b>Constraints</b><br />{cn}<br /><br />"
+            + f"<b>Optimizer Info</b><br />{o}<br /><br />"
+            + f"<b>Configuration</b><br />{c}"
+            for i, cn, o, c in zip(
+                info_texts, constraint_texts, optimizer_texts, config_texts
+            )
+        ]
+    else:
+        hover_texts = [
+            f"<b>Info</b><br />{i}<br /><br />"
+            + f"<b>Optimizer Info</b><br />{o}<br /><br />"
+            + f"<b>Configuration</b><br />{c}"
+            for i, o, c in zip(info_texts, optimizer_texts, config_texts)
+        ]
     return hover_texts
+
+
+def get_constraint_satisfaction_mask(
+    evaluations: List[Evaluation],
+    constraint_bounds: Optional[
+        Dict[str, Tuple[Optional[float], Optional[float]]]
+    ] = None,
+) -> np.ndarray:
+    """Return boolean mask indicating which evaluations satisfy the constraints.
+
+    Args:
+        evaluations: List of evaluations to check.
+        constraint_bounds: For each constraint name a tuple of (lower, upper) bounds.
+            A constraint is satisfied when lower <= value <= upper, where None means
+            no bound on that side. If None, all evaluations are considered feasible.
+
+    Returns:
+        Boolean numpy array with True for feasible evaluations.
+    """
+    if constraint_bounds is None:
+        return np.ones(len(evaluations), dtype=bool)
+
+    mask = np.ones(len(evaluations), dtype=bool)
+    for i, e in enumerate(evaluations):
+        if e.constraints is None:
+            mask[i] = False
+            continue
+        for name, (lower, upper) in constraint_bounds.items():
+            value = e.constraints.get(name)
+            if value is None:
+                mask[i] = False
+                break
+            if lower is not None and value < lower:
+                mask[i] = False
+                break
+            if upper is not None and value > upper:
+                mask[i] = False
+                break
+    return mask
+
+
+def get_incumbent_objective_over_iterations(
+    objective: Objective,
+    objective_values: np.ndarray,
+    feasible_mask: np.ndarray,
+):
+    """Compute incumbent trace over iterations considering only feasible evaluations.
+
+    Args:
+        objective: The objective specification.
+        objective_values: Array of objective values for all evaluations.
+        feasible_mask: Boolean mask indicating feasible evaluations.
+
+    Returns:
+        Tuple of (iterations, incumbent_values) arrays for step-line plotting.
+    """
+    iterations = np.arange(1, len(objective_values) + 1)
+
+    feasible_iterations = iterations[feasible_mask]
+    feasible_values = objective_values[feasible_mask]
+
+    if len(feasible_values) == 0:
+        return np.array([]), np.array([])
+
+    if objective.greater_is_better:
+        incumbent_values = np.maximum.accumulate(feasible_values)
+    else:
+        incumbent_values = np.minimum.accumulate(feasible_values)
+
+    # Get unique incumbent changes for step-function style
+    _, idx = np.unique(incumbent_values, return_index=True)
+    idx.sort()
+
+    _iterations = feasible_iterations[idx]
+    _values = incumbent_values[idx]
+
+    # Create step plot data
+    _iterations = np.repeat(_iterations, 2)[1:]
+    _values = np.repeat(_values, 2)[:-1]
+
+    # Extend to last iteration
+    _iterations = np.concatenate([_iterations, iterations[-1:]])
+    _values = np.concatenate([_values, _values[-1:]])
+
+    return _iterations, _values
 
 
 def get_cdf_x_and_y(values):

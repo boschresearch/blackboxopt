@@ -118,7 +118,7 @@ wheels = [
 
 [[package]]
 name = "blackboxopt"
-version = "5.3.7"
+version = "5.3.8"
 source = { editable = "." }
 dependencies = [
     { name = "parameterspace" },
