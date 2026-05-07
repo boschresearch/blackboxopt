@@ -540,6 +540,121 @@ class Visualizer:
 
         return fig
 
+    def objective_over_iteration(
+        self,
+        constraint_bounds: Optional[
+            Dict[str, Tuple[Optional[float], Optional[float]]]
+        ] = None,
+        x_range=None,
+        y_range=None,
+        log_x=False,
+        log_y=False,
+    ):
+        """Show objective values over iteration with constraint satisfaction markers.
+
+        Displays a scatter plot with dot markers for feasible evaluations and cross
+        markers for infeasible ones. A step-line shows the incumbent (best feasible
+        objective value found so far).
+
+        Args:
+            constraint_bounds: For each constraint name a tuple of lower & upper bounds.
+                A constraint is satisfied when lower <= value <= upper, where None means
+                no bound on that side. If None, all evaluations are considered feasible.
+            x_range: Optional x-axis range.
+            y_range: Optional y-axis range.
+            log_x: Use log scale for x-axis.
+            log_y: Use log scale for y-axis.
+
+        Returns:
+            Plotly figure.
+        """
+        colors = px.colors.qualitative.G10
+        fig = go.Figure()
+
+        feasible_mask = utils.get_constraint_satisfaction_mask(
+            self.evaluations, constraint_bounds
+        )
+        iterations = np.arange(1, len(self.objective_values) + 1)
+
+        # Build constraint value dicts for hover text
+        has_constraints = any(e.constraints is not None for e in self.evaluations)
+        constraint_dicts = None
+        if has_constraints:
+            constraint_dicts = [
+                (
+                    {k: "%3.2e" % v for k, v in e.constraints.items()}
+                    if e.constraints
+                    else {"(none)": "N/A"}
+                )
+                for e in self.evaluations
+            ]
+
+        # Feasible evaluations (dot markers)
+        if feasible_mask.any():
+            hover_texts = utils.get_hover_texts(
+                self.info_dicts,
+                self.optimizer_info_dicts,
+                self.configs,
+                feasible_mask,
+                constraints=constraint_dicts,
+            )
+            fig.add_scatter(
+                x=iterations[feasible_mask],
+                y=self.objective_values[feasible_mask],
+                name="feasible",
+                mode="markers",
+                marker=dict(color=colors[0], symbol="circle"),
+                legendgroup="feasible",
+                hovertemplate="%{text} <extra></extra>",
+                text=hover_texts,
+            )
+
+        # Infeasible evaluations (cross markers)
+        infeasible_mask = ~feasible_mask
+        if infeasible_mask.any():
+            hover_texts = utils.get_hover_texts(
+                self.info_dicts,
+                self.optimizer_info_dicts,
+                self.configs,
+                infeasible_mask,
+                constraints=constraint_dicts,
+            )
+            fig.add_scatter(
+                x=iterations[infeasible_mask],
+                y=self.objective_values[infeasible_mask],
+                name="infeasible",
+                mode="markers",
+                marker=dict(color=colors[1], symbol="x"),
+                legendgroup="infeasible",
+                hovertemplate="%{text} <extra></extra>",
+                text=hover_texts,
+            )
+
+        # Incumbent line (feasible only)
+        inc_iterations, inc_values = utils.get_incumbent_objective_over_iterations(
+            self.objective, self.objective_values, feasible_mask
+        )
+        if len(inc_iterations) > 0:
+            fig.add_scatter(
+                x=inc_iterations,
+                y=inc_values,
+                name="incumbent",
+                mode="lines",
+                line=dict(color=colors[0]),
+                legendgroup="incumbent",
+                hoverinfo="none",
+            )
+
+        utils.add_plotly_buttons_for_logscale(fig)
+        utils.plotly_set_axis(fig, x_range, y_range, log_x, log_y)
+        fig.update_layout(
+            title=f"[BBO] Reported {self.objective.name} over iteration",
+            xaxis_title="Iteration",
+            yaxis_title=self.objective.name,
+        )
+
+        return fig
+
     def objective_over_duration(
         self, x_range=None, y_range=None, log_x=False, log_y=False
     ):
