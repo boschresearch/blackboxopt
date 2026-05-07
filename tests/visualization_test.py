@@ -545,8 +545,8 @@ def test_get_constraint_satisfaction_mask():
     mask = get_constraint_satisfaction_mask(evaluations)
     np.testing.assert_array_equal(mask, [True, True, True])
 
-    # c1 >= 0
-    mask = get_constraint_satisfaction_mask(evaluations, {"c1": (0.0, None)})
+    # c2 <= 0
+    mask = get_constraint_satisfaction_mask(evaluations, {"c2": (None, 0.0)})
     np.testing.assert_array_equal(mask, [True, False, False])
 
     # c2 >= 0
