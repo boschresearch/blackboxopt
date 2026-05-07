@@ -45,7 +45,12 @@ bohb = [
     "scipy>=1.16.1; python_version >= '3.14'",
     "statsmodels>=0.14.2",
 ]
-botorch = ["sympy>=1.12", "torch>=2.3", "botorch>=0.7.1"]
+botorch = [
+    "sympy>=1.12", "torch>=2.3",
+    "botorch>=0.7.1",
+    "scipy>=1.14.0; python_version < '3.14'",
+    "scipy>=1.16.1; python_version >= '3.14'",
+]
 space-fill = [
     "numpy",
     "scipy>=1.14.0; python_version < '3.14'",

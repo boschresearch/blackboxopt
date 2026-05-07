@@ -19,6 +19,7 @@ from blackboxopt.base import (
     validate_objectives,
 )
 from blackboxopt.evaluation import Evaluation, EvaluationSpecification
+from blackboxopt.optimizers.space_filling import SpaceFilling
 from blackboxopt.utils import sort_evaluations
 
 try:
@@ -189,6 +190,10 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         """
         super().__init__(search_space=search_space, objective=objective, seed=seed)
         self.num_initial_random = num_initial_random_samples
+        # Initialize sobol sampler as random initial sampler; the objective is not used.
+        self._random_sampler = SpaceFilling(
+            objectives=[objective], search_space=search_space, seed=seed
+        )
         self.max_pending_evaluations = max_pending_evaluations
         self.batch_shape = batch_shape
         self.logger = logger or logging.getLogger("blackboxopt")
@@ -292,10 +297,8 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         if self.num_initial_random > 0 and (
             sum(~torch.any(self.losses.isnan(), dim=1)) < self.num_initial_random
         ):
-            eval_spec = EvaluationSpecification(
-                configuration=self.search_space.sample(),
-                optimizer_info={"model_based_pick": False},
-            )
+            eval_spec = self._random_sampler.generate_evaluation_specification()
+            eval_spec.optimizer_info["model_based_pick"] = False
         else:
             eval_spec = self._generate_evaluation_specification()
             eval_spec.optimizer_info["model_based_pick"] = True
