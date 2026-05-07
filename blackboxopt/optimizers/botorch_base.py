@@ -191,7 +191,9 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
         super().__init__(search_space=search_space, objective=objective, seed=seed)
         self.num_initial_random = num_initial_random_samples
         # Initialize sobol sampler as random initial sampler; the objective is not used.
-        self._random_sampler = SpaceFilling(objectives=[objective], search_space=search_space, seed=seed)
+        self._random_sampler = SpaceFilling(
+            objectives=[objective], search_space=search_space, seed=seed
+        )
         self.max_pending_evaluations = max_pending_evaluations
         self.batch_shape = batch_shape
         self.logger = logger or logging.getLogger("blackboxopt")
