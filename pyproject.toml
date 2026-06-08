@@ -1,6 +1,6 @@
 [project]
 name = "blackboxopt"
-version = "5.3.8"
+version = "5.4.0"
 description = "A common interface for blackbox optimization algorithms along with useful helpers like parallel optimization loops, analysis and visualization scripts."
 readme = "README.md"
 authors = [{name = "Bosch Center for AI, Robert Bosch GmbH"}]
@@ -37,6 +37,7 @@ all = [
     "botorch>=0.7.1",
     "pymoo>=0.5,<1.0",
     "scikit-learn",
+    "urllib3>=2.7.0",
 ]
 hyperband = ["numpy"]
 bohb = [
