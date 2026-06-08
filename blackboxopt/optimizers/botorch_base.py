@@ -303,9 +303,11 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
             eval_spec = self._generate_evaluation_specification()
             eval_spec.optimizer_info["model_based_pick"] = True
 
-        eval_id = self.X.size(-2) + len(self.pending_specifications)
-        eval_spec.optimizer_info["evaluation_id"] = eval_id
-        self.pending_specifications[eval_id] = eval_spec
+        if self.max_pending_evaluations is not None:
+            eval_id = self.X.size(-2) + len(self.pending_specifications)
+            eval_spec.optimizer_info["evaluation_id"] = eval_id
+            self.pending_specifications[eval_id] = eval_spec
+
         return eval_spec
 
     def _remove_pending_specifications(
@@ -313,12 +315,18 @@ class SingleObjectiveBOTorchOptimizer(SingleObjectiveOptimizer):
     ):
         """Find and remove the corresponding entries in `self.pending_specifications`.
 
+        When `max_pending_evaluations` is `None`, pending specification bookkeeping is
+        deactivated, and this method is a no-op.
+
         Args:
             evaluations: List of completed evaluations.
         Raises:
             ValueError: If an evaluation is reported with an ID that was not issued
             by the optimizer, the method will fail.
         """
+        if self.max_pending_evaluations is None:
+            return
+
         _evals = [evaluations] if isinstance(evaluations, Evaluation) else evaluations
 
         for e in _evals:
