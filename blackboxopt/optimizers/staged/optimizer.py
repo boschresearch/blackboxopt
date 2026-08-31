@@ -17,6 +17,8 @@ from blackboxopt import (
     OptimizerNotReady,
 )
 from blackboxopt.base import (
+    MultiObjectiveOptimizer,
+    Optimizer,
     SingleObjectiveOptimizer,
     call_functions_with_evaluations_and_collect_errors,
 )
@@ -28,37 +30,29 @@ def _validate_optimizer_info_id(evaluation: Evaluation):
         raise ValueError("Optimizer info is missing id.")
 
 
-class StagedIterationOptimizer(SingleObjectiveOptimizer):
-    def __init__(
-        self,
-        search_space: ParameterSpace,
-        objective: Objective,
-        num_iterations: int,
-        seed: Optional[int] = None,
-        logger: logging.Logger = None,
-    ):
-        """Base class for optimizers using iterations that compare configurations at
-        different fidelities and race them in stages, like Hyperband or BOHB.
+class _StagedIterationScheduler(Optimizer):
+    """Scheduling logic shared by the single- and multi-objective staged optimizers."""
 
-        Args:
-            search_space: [description]
-            objective: [description]
-            num_iterations: The number of iterations that the optimizer will run.
-            seed: [description]
-            logger: [description]
-        """
-        super().__init__(search_space=search_space, objective=objective, seed=seed)
+    logger: logging.Logger
+    num_iterations: int
+    iterations: List[StagedIteration]
+    evaluation_uuid_to_iteration: Dict[str, int]
+    pending_configurations: Dict[str, EvaluationSpecification]
+
+    def _init_staged_scheduler(
+        self, num_iterations: int, logger: logging.Logger = None
+    ) -> None:
         self.logger = logging.getLogger("blackboxopt") if logger is None else logger
         self.num_iterations = num_iterations
-        self.iterations: List[StagedIteration] = []
-        self.evaluation_uuid_to_iteration: Dict[str, int] = {}
-        self.pending_configurations: Dict[str, EvaluationSpecification] = {}
+        self.iterations = []
+        self.evaluation_uuid_to_iteration = {}
+        self.pending_configurations = {}
 
     def report(self, evaluations: Union[Evaluation, Iterable[Evaluation]]) -> None:
         _evals = [evaluations] if isinstance(evaluations, Evaluation) else evaluations
 
         call_functions_with_evaluations_and_collect_errors(
-            [super().report, _validate_optimizer_info_id, self._report],
+            [super().report, _validate_optimizer_info_id, self._report],  # type: ignore[safe-super]
             _evals,
         )
 
@@ -110,3 +104,55 @@ class StagedIterationOptimizer(SingleObjectiveOptimizer):
         """Optimizer specific way to create a new
         `blackboxopt.optimizer.utils.staged_iteration.StagedIteration` object
         """
+
+
+class SingleObjectiveStagedIterationOptimizer(
+    _StagedIterationScheduler, SingleObjectiveOptimizer
+):
+    def __init__(
+        self,
+        search_space: ParameterSpace,
+        objective: Objective,
+        num_iterations: int,
+        seed: Optional[int] = None,
+        logger: logging.Logger = None,
+    ):
+        """Base class for single-objective optimizers using iterations that compare
+        configurations at different fidelities and race them in stages, like Hyperband
+        or BOHB.
+
+        Args:
+            search_space: Search space of the optimization problem.
+            objective: Objective that is being optimized.
+            num_iterations: The number of iterations that the optimizer will run.
+            seed: Random seed for reproducibility
+            logger: Optional logger.
+        """
+        super().__init__(search_space=search_space, objective=objective, seed=seed)
+        self._init_staged_scheduler(num_iterations, logger)
+
+
+class MultiObjectiveStagedIterationOptimizer(
+    _StagedIterationScheduler, MultiObjectiveOptimizer
+):
+    def __init__(
+        self,
+        search_space: ParameterSpace,
+        objectives: List[Objective],
+        num_iterations: int,
+        seed: Optional[int] = None,
+        logger: logging.Logger = None,
+    ):
+        """Base class for multi-objective optimizers using iterations that compare
+        configurations at different fidelities and race them in stages, like
+        multi-objective BOHB.
+
+        Args:
+            search_space: Search space of the optimization problem.
+            objectives: Objectives that are being optimized.
+            num_iterations: The number of iterations that the optimizer will run.
+            seed: Random seed for reproducibility
+            logger: Optional logger.
+        """
+        super().__init__(search_space=search_space, objectives=objectives, seed=seed)
+        self._init_staged_scheduler(num_iterations, logger)

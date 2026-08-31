@@ -2,41 +2,54 @@
 # see the NOTICE file and/or the repository https://github.com/boschresearch/blackboxopt
 #
 # SPDX-License-Identifier: Apache-2.0
-#
-# This source code is derived from HpBandSter 0.7.4
-#  https://github.com/automl/HpBandSter
-# Copyright (c) 2017-2018, ML4AAD, licensed under the BSD-3 license,
-# cf. 3rd-party-licenses.txt file in the root directory of this source tree.
-# Changes include:
-#     - integration into the blackboxopt API
-#     - docstrings and type hints
 
 import logging
-from typing import Optional
+from typing import List, Optional
 
+import numpy as np
 from parameterspace import ParameterSpace
 
 from blackboxopt import Objective
-from blackboxopt.optimizers.staged.utils import greedy_promotion
 
 try:
-    from blackboxopt.optimizers.staged.bohb import Sampler as BOHBSampler
     from blackboxopt.optimizers.staged.hyperband import create_hyperband_iteration
+    from blackboxopt.optimizers.staged.iteration import Datum
+    from blackboxopt.optimizers.staged.mobohb import Sampler, argsort_nondominated
     from blackboxopt.optimizers.staged.optimizer import (
-        SingleObjectiveStagedIterationOptimizer,
+        MultiObjectiveStagedIterationOptimizer,
     )
 except ImportError as e:
     raise ImportError(
-        "Unable to import BOHB optimizer specific dependencies. "
-        + "Make sure to install blackboxopt[bohb]"
+        "Unable to import MO-BOHB optimizer specific dependencies. "
+        + "Make sure to install blackboxopt[mobohb]"
     ) from e
 
 
-class BOHB(SingleObjectiveStagedIterationOptimizer):
+def _nondominated_promotion(data: List[Datum], num_configs: int) -> list:
+    """Promote configurations to the next stage by multi-objective nondominated rank.
+
+    Args:
+        data: List with all successful evaluations for this stage. All failed
+            configurations have already been removed.
+        num_configs: Maximum number of configurations to be promoted.
+
+    Returns:
+        List of the config_keys to be evaluated on the next higher fidelity.
+    """
+    if not data:
+        return []
+
+    losses = np.stack([d.losses for d in data])
+    n = min(num_configs, len(data))
+    selected = argsort_nondominated(losses)[:n]
+    return [data[i].config_key for i in selected]
+
+
+class MOBOHB(MultiObjectiveStagedIterationOptimizer):
     def __init__(
         self,
         search_space: ParameterSpace,
-        objective: Objective,
+        objectives: List[Objective],
         min_fidelity: float,
         max_fidelity: float,
         num_iterations: int,
@@ -50,30 +63,19 @@ class BOHB(SingleObjectiveStagedIterationOptimizer):
         seed: Optional[int] = None,
         logger: Optional[logging.Logger] = None,
     ):
-        """BOHB Optimizer.
+        """Multi-objective BOHB Optimizer.
 
-        BOHB performs robust and efficient hyperparameter optimization
-        at scale by combining the speed of Hyperband searches with the
-        guidance and guarantees of convergence of Bayesian
-        Optimization. Instead of sampling new configurations at random,
-        BOHB uses kernel density estimators to select promising candidates.
-
-        For reference:
-        ```
-        @InProceedings{falkner-icml-18,
-            title =     {{BOHB}: Robust and Efficient Hyperparameter Optimization at
-                Scale},
-            author =    {Falkner, Stefan and Klein, Aaron and Hutter, Frank},
-            booktitle = {Proceedings of the 35th International Conference on Machine
-                Learning},
-            pages =     {1436--1445},
-            year =      {2018},
-        }
-        ```
+        MO-BOHB extends BOHB to multiple objectives by replacing its single-objective,
+        scalar-loss based good/bad split with a multi-objective one: configurations are
+        ranked by nondominated (Pareto) front and, within the boundary front, by
+        crowding distance (NSGA-II style). The same ranking drives the successive
+        halving promotion between stages. The Bayesian optimization component (kernel
+        density estimators and expected improvement sampling) is reused from BOHB
+        unchanged.
 
         Args:
             search_space: [description]
-            objective: [description]
+            objectives: The objectives of the optimization.
             min_fidelity: The smallest fidelity value that is still meaningful.
                 Must be strictly greater than zero!
             max_fidelity: The largest fidelity value used during the optimization.
@@ -82,8 +84,8 @@ class BOHB(SingleObjectiveStagedIterationOptimizer):
             eta: Scaling parameter to control the aggressiveness of Hyperband's racing.
             top_n_percent: Determines the percentile of configurations that will be
                 used as training data for the kernel density estimator of the good
-                configuration, e.g if set to 10 the best 10% configurations will be
-                considered for training.
+                configurations, e.g. if set to 10 the best 10% configurations (by
+                nondominated rank) will be considered for training.
             min_samples_in_model: Minimum number of datapoints needed to fit a model.
             num_samples: Number of samples drawn to optimize EI via sampling.
             random_fraction: Fraction of random configurations returned.
@@ -102,9 +104,9 @@ class BOHB(SingleObjectiveStagedIterationOptimizer):
         self.max_fidelity = max_fidelity
         self.eta = eta
 
-        self.config_sampler = BOHBSampler(
+        self.config_sampler = Sampler(
             search_space=search_space,
-            objective=objective,
+            objectives=objectives,
             min_samples_in_model=min_samples_in_model,
             top_n_percent=top_n_percent,
             num_samples=num_samples,
@@ -116,7 +118,7 @@ class BOHB(SingleObjectiveStagedIterationOptimizer):
 
         super().__init__(
             search_space=search_space,
-            objective=objective,
+            objectives=objectives,
             num_iterations=num_iterations,
             seed=seed,
             logger=logger,
@@ -132,7 +134,7 @@ class BOHB(SingleObjectiveStagedIterationOptimizer):
             max_fidelity=self.max_fidelity,
             eta=self.eta,
             config_sampler=self.config_sampler,
-            objectives=[self.objective],
-            config_promotion_function=greedy_promotion,
+            objectives=self.objectives,
             logger=self.logger,
+            config_promotion_function=_nondominated_promotion,
         )

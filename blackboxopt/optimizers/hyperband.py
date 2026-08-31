@@ -17,12 +17,15 @@ from typing import Optional
 from parameterspace import ParameterSpace
 
 from blackboxopt import Objective
+from blackboxopt.optimizers.staged.utils import greedy_promotion
 
 try:
     from blackboxopt.optimizers.staged.configuration_sampler import RandomSearchSampler
     from blackboxopt.optimizers.staged.hyperband import create_hyperband_iteration
     from blackboxopt.optimizers.staged.iteration import StagedIteration
-    from blackboxopt.optimizers.staged.optimizer import StagedIterationOptimizer
+    from blackboxopt.optimizers.staged.optimizer import (
+        SingleObjectiveStagedIterationOptimizer,
+    )
 except ImportError as e:
     raise ImportError(
         "Unable to import Hyperband optimizer specific dependencies. "
@@ -30,7 +33,7 @@ except ImportError as e:
     ) from e
 
 
-class Hyperband(StagedIterationOptimizer):
+class Hyperband(SingleObjectiveStagedIterationOptimizer):
     def __init__(
         self,
         search_space: ParameterSpace,
@@ -78,11 +81,12 @@ class Hyperband(StagedIterationOptimizer):
         `blackboxopt.optimizer.staged.iteration.StagedIteration` object
         """
         return create_hyperband_iteration(
-            iteration_index,
-            self.min_fidelity,
-            self.max_fidelity,
-            self.eta,
-            self.config_sampler,
-            self.objective,
-            self.logger,
+            iteration_index=iteration_index,
+            min_fidelity=self.min_fidelity,
+            max_fidelity=self.max_fidelity,
+            eta=self.eta,
+            config_sampler=self.config_sampler,
+            objectives=[self.objective],
+            config_promotion_function=greedy_promotion,
+            logger=self.logger,
         )

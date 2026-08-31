@@ -5,13 +5,13 @@
 
 import logging
 import math
+from typing import Callable, Sequence
 
 from blackboxopt.base import Objective
 from blackboxopt.optimizers.staged.configuration_sampler import (
     StagedIterationConfigurationSampler,
 )
-from blackboxopt.optimizers.staged.iteration import StagedIteration
-from blackboxopt.optimizers.staged.utils import greedy_promotion
+from blackboxopt.optimizers.staged.iteration import Datum, StagedIteration
 
 
 # The following function was derived from HpBandSter 0.7.4
@@ -29,7 +29,8 @@ def create_hyperband_iteration(
     max_fidelity: float,
     eta: float,
     config_sampler: StagedIterationConfigurationSampler,
-    objective: Objective,
+    objectives: Sequence[Objective],
+    config_promotion_function: Callable[[list[Datum], int], list[tuple[int, int, int]]],
     logger: logging.Logger,
 ) -> StagedIteration:
     """Optimizer specific way to create a new
@@ -51,11 +52,11 @@ def create_hyperband_iteration(
     # Hyperband simple draws random configurations, and there is no additional
     # information that needs to be stored
     return StagedIteration(
-        iteration_index,
-        num_configs_per_stage,
-        fidelities_per_stage,
-        config_sampler,
-        greedy_promotion,
-        objective,
+        iteration=iteration_index,
+        num_configs=num_configs_per_stage,
+        fidelities=fidelities_per_stage,
+        config_sampler=config_sampler,
+        config_promotion_function=config_promotion_function,
+        objectives=objectives,
         logger=logger,
     )

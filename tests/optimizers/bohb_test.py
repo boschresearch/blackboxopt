@@ -305,3 +305,44 @@ def test_maximize_quadratic():
         [e.objectives["score"] for e in evals if e.settings["fidelity"] == 3.0]
     )
     assert max_fidelity_best == mid_fidelity_best
+
+
+def test_sample_configurations():
+    space = ps.ParameterSpace()
+    space.add(ps.ContinuousParameter("x1", [-1, 1]))
+
+    opt = BOHB(
+        space,
+        Objective("loss", False),
+        min_fidelity=1,
+        max_fidelity=9,
+        num_iterations=2,
+        min_samples_in_model=3,
+        random_fraction=0.0,
+    )
+
+    for _ in range(5):
+        eval_spec = opt.generate_evaluation_specification()
+        assert not eval_spec.optimizer_info["model_based_pick"]
+        evaluation = eval_spec.create_evaluation(
+            objectives={"loss": eval_spec.configuration["x1"] ** 2}
+        )
+        opt.report(evaluation)
+
+    while eval_spec.optimizer_info["configuration_key"][0] == 0:
+        eval_spec = opt.generate_evaluation_specification()
+        evaluation = eval_spec.create_evaluation(
+            objectives={"loss": eval_spec.configuration["x1"] ** 2}
+        )
+        opt.report(evaluation)
+
+    while True:
+        try:
+            eval_spec = opt.generate_evaluation_specification()
+            assert eval_spec.optimizer_info["model_based_pick"]
+            evaluation = eval_spec.create_evaluation(
+                objectives={"loss": eval_spec.configuration["x1"] ** 2}
+            )
+            opt.report(evaluation)
+        except OptimizationComplete:
+            break

@@ -28,7 +28,7 @@ def greedy_promotion(data: List[Datum], num_configs: int) -> list:
         next stage will be sampled using the `config_sample_function` of the
         staged_iteration.
     """
-    losses = [d.loss for d in data]
+    losses = [d.losses[0] for d in data]
     ranks = np.argsort(np.argsort(losses))
     n = min(num_configs, len(data))
     return [datum.config_key for rank, datum in zip(ranks, data) if rank < n]
