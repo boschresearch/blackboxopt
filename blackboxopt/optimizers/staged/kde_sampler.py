@@ -195,12 +195,7 @@ class KDESampler(StagedIterationConfigurationSampler, abc.ABC):
     This base holds the whole Bayesian optimization component of BOHB: for each fidelity
     it fits a kernel density estimator on the "good" and one on the "bad" configurations
     and samples new configurations by optimizing the expected improvement `l(x)/g(x)`
-    via sampling. It is agnostic to the number of objectives; the objective-count
-    specific behaviour lives entirely in three abstract seams that subclasses implement:
-
-    - `_evaluation_to_loss`: turn an evaluation into a (scalar or vector) loss,
-    - `_count_finite_losses`: count the evaluations eligible for model building,
-    - `_good_bad_split`: partition the evaluated configurations into good and bad sets.
+    via sampling.
     """
 
     def __init__(
@@ -397,12 +392,7 @@ class KDESampler(StagedIterationConfigurationSampler, abc.ABC):
 
     @abc.abstractmethod
     def _evaluation_to_loss(self, evaluation: Evaluation) -> Union[float, np.ndarray]:
-        """Convert an evaluation into the loss used for the good/bad split.
-
-        The single-objective sampler returns a scalar loss (lower is better), using
-        `np.inf` for missing objective values. Multi-objective variants return a loss
-        vector (one entry per objective).
-        """
+        """Convert an evaluation into the loss used for the good/bad split."""
 
     @abc.abstractmethod
     def _count_finite_losses(self, losses: Sequence[Union[float, np.ndarray]]) -> int:
@@ -415,8 +405,7 @@ class KDESampler(StagedIterationConfigurationSampler, abc.ABC):
         """Split configurations into a good and a bad set by their loss.
 
         Returns index arrays into the per-fidelity configurations for the good and bad
-        training data. The single-objective sampler sorts by the scalar loss;
-        multi-objective variants use a nondomination based split.
+        training data.
         """
 
     def digest_evaluation(self, evaluation: Evaluation):
