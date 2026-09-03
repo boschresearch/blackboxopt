@@ -118,7 +118,9 @@ def test_good_bad_split_excludes_non_finite_rows_from_good():
 
     idx_good, idx_bad = sampler._good_bad_split(losses, n_good=2, n_bad=2)
 
-    assert np.all(np.isfinite(losses[idx_good])), "non-finite rows must stay out of good"
+    assert np.all(
+        np.isfinite(losses[idx_good])
+    ), "non-finite rows must stay out of good"
     # Every invalid row must be routed to the bad candidates instead.
     assert 1 in idx_bad and 3 in idx_bad
 
