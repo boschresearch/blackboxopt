@@ -14,6 +14,46 @@ from blackboxopt.optimizers.staged.kde_sampler import (
 )
 
 
+class _FakeKDE:
+    """Minimal stand-in for a statsmodels KDEMultivariate with a fixed pdf value."""
+
+    def __init__(self, data, bw, pdf_value):
+        self.data = np.asarray(data, dtype=float)
+        self.bw = np.asarray(bw, dtype=float)
+        self._pdf_value = pdf_value
+
+    def pdf(self, x):
+        return self._pdf_value
+
+
+def test_non_finite_acquisition_fallback_returns_valid_model_based_pick():
+    space = ps.ParameterSpace()
+    space.add(ps.CategoricalParameter("c1", ["a", "b", "c"]))
+    opt = BOHB(
+        space,
+        Objective("loss", False),
+        min_fidelity=1.0,
+        max_fidelity=3.0,
+        num_iterations=3,
+    )
+    sampler = opt.config_sampler
+    sampler.random_fraction = 0.0
+
+    # Every sampled candidate yields a non-finite acquisition value (bad pdf = inf),
+    # so the normal `val < best` path never fires. The good pdf stays finite, which
+    # is exactly the categorical-not-in-KDE situation the fallback is meant to handle.
+    good_kde = _FakeKDE(data=[[2.0]], bw=[0.1], pdf_value=1.0)
+    bad_kde = _FakeKDE(data=[[2.0]], bw=[0.1], pdf_value=np.inf)
+    sampler.kde_models = {3.0: {"good": good_kde, "bad": bad_kde}}
+
+    config, info = sampler.sample_configuration()
+
+    # The fallback must be used (not a random sample) ...
+    assert info["model_based_pick"] is True
+    # ... and it must yield a valid categorical value in search-space coordinates.
+    assert config["c1"] in {"a", "b", "c"}
+
+
 def test_sample_around(n_samples=128):
     space = ps.ParameterSpace()
     space.add(ps.ContinuousParameter("x1", [-1, 1]))

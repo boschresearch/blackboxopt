@@ -3,12 +3,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import numpy as np
 import parameterspace as ps
 import pytest
 
 from blackboxopt import OptimizationComplete, OptimizerNotReady
 from blackboxopt.base import Objective
 from blackboxopt.optimizers.mobohb import MOBOHB
+from blackboxopt.optimizers.staged.mobohb import Sampler
 from blackboxopt.optimizers.testing import ALL_REFERENCE_TESTS
 from blackboxopt.utils import filter_pareto_efficient
 
@@ -87,6 +89,38 @@ def test_with_none_min_samples_in_model():
         min_samples_in_model=None,
     )
     assert opt.config_sampler.min_samples_in_model == 3
+
+
+def test_good_bad_split_excludes_non_finite_rows_from_good():
+    space = ps.ParameterSpace()
+    space.add(ps.ContinuousParameter("p1", (0.0, 1.0)))
+    sampler = Sampler(
+        search_space=space,
+        objectives=OBJECTIVES,
+        min_samples_in_model=2,
+        top_n_percent=50,
+        num_samples=8,
+        random_fraction=0.0,
+        bandwidth_factor=3.0,
+        min_bandwidth=1e-3,
+    )
+
+    # Row 1 is a partial failure that is nondominated w.r.t. the finite rows and
+    # would otherwise be ranked into the good set by the nondominated sort.
+    losses = np.array(
+        [
+            [1.0, 1.0],
+            [0.0, np.inf],
+            [2.0, 0.5],
+            [np.inf, np.inf],
+        ]
+    )
+
+    idx_good, idx_bad = sampler._good_bad_split(losses, n_good=2, n_bad=2)
+
+    assert np.all(np.isfinite(losses[idx_good])), "non-finite rows must stay out of good"
+    # Every invalid row must be routed to the bad candidates instead.
+    assert 1 in idx_bad and 3 in idx_bad
 
 
 def test_finds_pareto_front():

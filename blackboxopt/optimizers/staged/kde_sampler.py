@@ -351,13 +351,18 @@ class KDESampler(StagedIterationConfigurationSampler, abc.ABC):
                         "bandwidth of the KDEs:\n%s\n%s" % (kde_good.bw, kde_bad.bw)
                     )
 
-                    # right now, this happens because a KDE does not contain all values
+                    # Right now, this happens because a KDE does not contain all values
                     # for a categorical parameter this cannot be fixed with the
                     # statsmodels KDE, so for now, we are just going to evaluate this
                     # one if the good_kde has a finite value, i.e. there is no config
                     # with that value in the bad kde, so it shouldn't be terrible.
-                    if np.isfinite(good(vector)) and best_vector is not None:
-                        best_vector = vector
+                    # This only serves as a fallback when no valid incumbent has been
+                    # found yet, and like the normal path it has to be converted back
+                    # from the statsmodels representation into the search space.
+                    if np.isfinite(good(vector)) and best_vector is None:
+                        best_vector = convert_from_statsmodels_kde_representation(
+                            vector, self.vartypes
+                        )
                     continue
 
                 if val < best:

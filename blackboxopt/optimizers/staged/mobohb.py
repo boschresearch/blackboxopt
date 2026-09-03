@@ -109,6 +109,20 @@ class Sampler(KDESampler):
     def _good_bad_split(
         self, losses: np.ndarray, n_good: int, n_bad: int
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """Split configurations by nondominated rank instead of a scalar loss."""
-        order = argsort_nondominated(losses)
-        return order[:n_good], order[n_good : n_good + n_bad]
+        """Split configurations by nondominated rank instead of a scalar loss.
+
+        Only fully finite loss vectors are eligible for the good set; nondominated
+        sorting would otherwise rank partial failures like `[0, inf]` as competitive
+        with finite rows. Rows with any non-finite loss are appended to the bad
+        candidates so they can never enter the good KDE.
+        """
+        losses = np.asarray(losses, dtype=float)
+        finite_mask = np.all(np.isfinite(losses), axis=1)
+        finite_idx = np.flatnonzero(finite_mask)
+        invalid_idx = np.flatnonzero(~finite_mask)
+
+        good_order = finite_idx[argsort_nondominated(losses[finite_idx])]
+
+        idx_good = good_order[:n_good]
+        idx_bad = np.concatenate([good_order[n_good:], invalid_idx])[:n_bad]
+        return idx_good, idx_bad
