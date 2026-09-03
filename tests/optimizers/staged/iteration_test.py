@@ -22,7 +22,7 @@ class DummyOptimizer:
 
     def decide_promotion(self, data, num_configs):
         assert len(data) == self.expected_configs_in_promote
-        losses = [d.loss for d in data]
+        losses = [d.losses[0] for d in data]
         ranks = np.argsort(np.argsort(losses))
 
         n = min(num_configs, len(data))
@@ -51,7 +51,7 @@ def test_staged_iteration_get_and_digest_configuration():
         fidelities=[0.1, 1],
         config_sampler=DummyConfigurationSampler(),
         config_promotion_function=greedy_promotion,
-        objective=Objective("loss", False),
+        objectives=[Objective("loss", False)],
     )
 
     eval_specs = []
@@ -102,7 +102,7 @@ def test_staged_iteration_get_and_digest_configuration_with_crashes():
         fidelities=[1, 1],
         config_sampler=DummyConfigurationSampler(),
         config_promotion_function=opt.decide_promotion,
-        objective=Objective("loss", False),
+        objectives=[Objective("loss", False)],
     )
 
     eval_specs = []
